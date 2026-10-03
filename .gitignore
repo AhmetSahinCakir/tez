@@ -1,0 +1,18 @@
+# data (download with scripts/download_data.sh)
+data/raw/
+data/processed/
+# experiment outputs (summaries are committed selectively under reports/)
+results/**/model_final.pt
+results/**/stdout.log
+results/pilot/
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+# misc
+.DS_Store
+*.swp

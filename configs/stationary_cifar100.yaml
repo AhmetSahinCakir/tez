@@ -1,0 +1,6 @@
+base: base.yaml
+stream: {name: stationary, dataset: cifar100, normalize: standard}
+model: {hidden_sizes: [256, 256]}
+optimizer: {name: sgd, lr: 0.01}
+train: {batch_size: 32, epochs: 20}
+metrics: {probe_size: 1000, fisher_samples: 32}

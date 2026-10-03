@@ -1,0 +1,4 @@
+base: cifar_canonical.yaml
+stream: {n_tasks: 600}
+metrics: {every_n_tasks: 5}
+fresh_reference: {every_n_tasks: 100}

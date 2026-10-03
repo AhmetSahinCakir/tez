@@ -1,0 +1,14 @@
+# Reduced-scale Online Permuted MNIST used for the pilot replication / development on CPU.
+# Same protocol (one pass, batch size 1, online accuracy, no task identity) with a shorter stream.
+base: base.yaml
+stream:
+  name: pmnist
+  n_tasks: 150
+  samples_per_task: 10000
+  normalize: unit
+model:
+  hidden_sizes: [100, 100, 100]
+optimizer: {name: sgd, lr: 0.01}
+train: {batch_size: 1, epochs_per_task: 1}
+metrics: {every_n_tasks: 2, probe_size: 1000, fisher_samples: 32, update_tracking_every: 100}
+fresh_reference: {every_n_tasks: 25}

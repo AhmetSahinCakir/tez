@@ -1,0 +1,55 @@
+# Hyper-parameter search on DEV streams (stream_seed_offset 1000 -> permutations disjoint from the
+# final test streams). Equal search budget per method: a learning-rate grid of 5 values, plus at most
+# 2 extra method-specific values (so each method sees 5 or 10 configurations). Short streams.
+name: pmnist_dev
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+seeds: [0]
+stream_seed_offset: 1000
+common:
+  stream.n_tasks: 100
+  stream.samples_per_task: 5000
+  metrics.every_n_tasks: 10
+  metrics.fisher: false
+  metrics.update_tracking_every: 0
+  fresh_reference.every_n_tasks: 0
+runs:
+  - label: baseline
+    overrides: {method.name: baseline}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: sin
+    overrides: {model.reparam.hidden: sin, model.reparam.output: sin}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: tanh
+    overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: weight_clipping
+    overrides: {method.name: weight_clipping}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.kappa: [1.0, 2.0]}
+  - label: l2_init
+    overrides: {method.name: l2_init}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.lam: [0.001, 0.01]}
+  - label: continual_backprop
+    overrides: {method.name: continual_backprop}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.replacement_rate: [0.0001, 0.001]}
+  - label: nap
+    overrides: {method.name: nap, model.layer_norm: true, model.ln_affine: false}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1, 0.3]}
+  - label: ln_wd
+    overrides: {method.name: ln_wd, model.layer_norm: true}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.weight_decay: [0.0001, 0.001]}
+  - label: shrink_perturb
+    overrides: {method.name: shrink_perturb}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.shrink: [0.00001, 0.0001]}
+  - label: upgd
+    overrides: {method.name: upgd}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.sigma: [0.0001, 0.001]}
+  - label: parseval
+    overrides: {method.name: parseval}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.beta: [0.001, 0.01]}
+  - label: smooth_leaky
+    overrides: {model.activation: smooth_leaky}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: sin_act
+    overrides: {model.activation: sin}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}

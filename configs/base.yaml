@@ -1,0 +1,47 @@
+# Common defaults. Experiment configs include this with `base: base.yaml` and override sections.
+seed: 0
+stream_seed_offset: 0      # final/test streams use seeds 0..; dev streams add an offset (see suites/)
+threads: 1
+log_every: 10
+save_model: false
+
+model:
+  name: mlp
+  hidden_sizes: [100, 100, 100]
+  activation: relu
+  layer_norm: false
+  ln_affine: true
+  reparam: {hidden: standard, output: standard}   # standard | sin | tanh
+  gamma: 1.5                 # A_l = gamma * b_l  (b_l = Kaiming-uniform bound of layer l)
+  compact_bias: true         # "tam-kompakt": biases are reparametrised too
+  init: kaiming_uniform      # kaiming_uniform | torch_default | kaiming_normal
+  bias_init: zeros
+  learn_amplitude: false
+  theta_scale: amplitude     # amplitude: W = A sin(Phi/A) (per-layer lr eta/A^2, matched initial step) | unit: W = A sin(Theta)
+
+method:
+  name: baseline
+
+optimizer:
+  name: sgd
+  lr: 0.01
+  weight_decay: 0.0
+
+train:
+  batch_size: 1
+  epochs_per_task: 1
+
+metrics:
+  every_n_tasks: 1
+  probe_size: 1000
+  weights: true
+  representation: true
+  fisher: true
+  fisher_samples: 32
+  update_tracking_every: 100   # per-step gradient/update norms sampled every k steps (0 = off)
+
+fresh_reference:
+  every_n_tasks: 0           # 0 = off
+
+summary:
+  window: 0.1                # fraction of tasks for early/final windows (or an int)

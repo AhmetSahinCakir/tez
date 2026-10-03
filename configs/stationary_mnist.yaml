@@ -1,0 +1,6 @@
+base: base.yaml
+stream: {name: stationary, dataset: mnist, normalize: unit}
+model: {hidden_sizes: [100, 100, 100]}
+optimizer: {name: sgd, lr: 0.01}
+train: {batch_size: 32, epochs: 10}
+metrics: {probe_size: 1000, fisher_samples: 32}

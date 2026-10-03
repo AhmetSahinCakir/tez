@@ -1,0 +1,14 @@
+# Online Permuted MNIST, canonical protocol of Dohare et al. (2024):
+# 800 tasks x 60,000 samples, one pass, batch size 1, no task identity.
+base: base.yaml
+stream:
+  name: pmnist
+  n_tasks: 800
+  samples_per_task: 60000
+  normalize: unit
+model:
+  hidden_sizes: [2000, 2000, 2000]
+optimizer: {name: sgd, lr: 0.003}
+train: {batch_size: 1, epochs_per_task: 1}
+metrics: {every_n_tasks: 5, probe_size: 2000, fisher_samples: 32, update_tracking_every: 500}
+fresh_reference: {every_n_tasks: 100}

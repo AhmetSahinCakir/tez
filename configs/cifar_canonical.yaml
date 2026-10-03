@@ -1,0 +1,15 @@
+# Sequential CIFAR-100 binary classification (Chen & Zhang, 2026): 3000 tasks, 2 random classes each,
+# grey-scale 32x32 -> 1024-d inputs, per-task test accuracy.
+base: base.yaml
+stream:
+  name: cifar100_binary
+  n_tasks: 3000
+  train_per_class: 500
+  test_per_class: 100
+  normalize: standard
+model:
+  hidden_sizes: [256, 256]
+optimizer: {name: sgd, lr: 0.01}
+train: {batch_size: 32, epochs_per_task: 1}
+metrics: {every_n_tasks: 10, probe_size: 200, fisher_samples: 32, update_tracking_every: 10}
+fresh_reference: {every_n_tasks: 250}
