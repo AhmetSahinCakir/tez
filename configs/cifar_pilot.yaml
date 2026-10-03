@@ -1,4 +1,11 @@
+# Reduced-scale / online variant of the sequential CIFAR-100 binary protocol used on CPU.
+# Calibration (results/pilot/cifar*, docs/RAPOR.md §7) showed that with mini-batches and several epochs per
+# task the per-task test accuracy of an MLP stays flat for 3000 tasks although dead units accumulate and the
+# representation rank collapses; the online variant (batch 1, one pass over the 1000 training images of a
+# task, as in the PMNIST protocol) is the setting in which performance-level plasticity loss is measurable.
 base: cifar_canonical.yaml
-stream: {n_tasks: 600}
-metrics: {every_n_tasks: 5}
+stream: {n_tasks: 1000}
+model: {hidden_sizes: [64, 64]}
+train: {batch_size: 1, epochs_per_task: 1}
+metrics: {every_n_tasks: 10, probe_size: 200, fisher_samples: 32, update_tracking_every: 100}
 fresh_reference: {every_n_tasks: 100}

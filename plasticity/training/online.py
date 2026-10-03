@@ -247,7 +247,7 @@ def run_stationary(cfg: Dict[str, Any], out_dir: Path) -> Dict[str, Any]:
             with torch.no_grad():
                 correct += int((logits.argmax(1) == yb).sum())
             loss = F.cross_entropy(logits, yb)
-            loss_sum += float(loss) * yb.shape[0]
+            loss_sum += float(loss.detach()) * yb.shape[0]
             reg = method.regularizer()
             if reg is not None:
                 loss = loss + reg

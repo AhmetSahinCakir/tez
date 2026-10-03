@@ -1,0 +1,38 @@
+# Hyper-parameter search for the CIFAR-100 binary (online) protocol on DEV streams (class pairs disjoint
+# from the final streams via stream_seed_offset). Equal budget per method as in suites/pmnist_dev.yaml.
+name: cifar_dev
+base_config: configs/cifar_pilot.yaml
+workers: 4
+seeds: [0]
+stream_seed_offset: 1000
+common:
+  stream.n_tasks: 300
+  metrics.every_n_tasks: 25
+  metrics.fisher: false
+  metrics.update_tracking_every: 0
+  fresh_reference.every_n_tasks: 0
+runs:
+  - label: baseline
+    overrides: {method.name: baseline}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: sin
+    overrides: {model.reparam.hidden: sin, model.reparam.output: sin}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: tanh
+    overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: weight_clipping
+    overrides: {method.name: weight_clipping}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.kappa: [1.0, 2.0]}
+  - label: l2_init
+    overrides: {method.name: l2_init}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.lam: [0.001, 0.01]}
+  - label: continual_backprop
+    overrides: {method.name: continual_backprop}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.replacement_rate: [0.0001, 0.001]}
+  - label: nap
+    overrides: {method.name: nap, model.layer_norm: true, model.ln_affine: false}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1, 0.3]}
+  - label: ln_wd
+    overrides: {method.name: ln_wd, model.layer_norm: true}
+    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.weight_decay: [0.0001, 0.001]}

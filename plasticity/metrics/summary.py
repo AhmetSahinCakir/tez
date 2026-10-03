@@ -60,8 +60,12 @@ def summarize_run(rows: List[Dict[str, Any]], metric: str, window=None, fresh_ke
     fresh = [(r["task"], r[fresh_key], r[metric]) for r in rows if fresh_key in r and r.get(fresh_key) is not None]
     if fresh:
         gaps = np.array([f - c for _, f, c in fresh])
-        k = max(1, int(round(len(gaps) * (window if isinstance(window, float) and window <= 1 else DEFAULT_WINDOW))))
-        out["fresh_gap_final"] = float(gaps[-k:].mean())
+        # fresh-reference points that fall inside the final window (same window as final_window_mean);
+        # at least the last point is always used
+        w_tasks = out.get("window", 1)
+        first_task_in_window = rows[-w_tasks]["task"] if rows else 0
+        in_window = [g for (t, _, _), g in zip(fresh, gaps) if t >= first_task_in_window]
+        out["fresh_gap_final"] = float(np.mean(in_window)) if in_window else float(gaps[-1])
         out["fresh_gap_mean"] = float(gaps.mean())
         out["fresh_points"] = [t for t, _, _ in fresh]
     # last-window means of mechanism metrics (so analysis can relate them to performance)

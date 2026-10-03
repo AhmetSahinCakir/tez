@@ -78,6 +78,8 @@ def weight_statistics(model: MLP) -> Dict[str, float]:
 # Representations
 # ----------------------------------------------------------------------------------------------
 def _stable_rank(h: torch.Tensor) -> float:
+    if not bool(torch.isfinite(h).all()):
+        return float("nan")  # diverged run: report NaN instead of crashing the SVD
     fro2 = float((h * h).sum())
     if fro2 <= 0:
         return 0.0
@@ -87,6 +89,8 @@ def _stable_rank(h: torch.Tensor) -> float:
 
 def _effective_rank(h: torch.Tensor) -> float:
     """Roy & Vetterli (2007): exp(entropy of normalised singular values)."""
+    if not bool(torch.isfinite(h).all()):
+        return float("nan")
     s = torch.linalg.svdvals(h)
     s = s[s > 1e-12]
     if s.numel() == 0:
@@ -203,6 +207,9 @@ def gradient_fisher_statistics(model: MLP, x_probe: torch.Tensor, y_probe: torch
         out[f"grad_norm_{coords}"] = _f(Gt.norm(dim=1).mean())
         out[f"fisher_trace_{coords}"] = _f((Gf * Gf).sum(dim=1).mean())
         gram = Gf @ Gf.T / n
+        if not bool(torch.isfinite(gram).all()):
+            out[f"fisher_erank_{coords}"] = float("nan")
+            continue
         ev = torch.linalg.eigvalsh(gram).clamp_min(0)
         ev = ev[ev > 1e-12 * max(float(ev.max()), 1e-30)]
         if ev.numel():

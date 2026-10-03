@@ -1,0 +1,27 @@
+# Stationary (i.i.d.) capacity control: standard vs sin vs tanh models under ordinary training.
+# Shows whether differences in the continual protocols stem from a general capacity deficit.
+name: stationary
+base_config: configs/stationary_mnist.yaml
+workers: 4
+seeds: [0, 1, 2, 3, 4]
+runs:
+  - label: mnist/standard
+    overrides: {}
+    sweep: {optimizer.lr: [0.01, 0.03, 0.1]}
+  - label: mnist/sin
+    overrides: {model.reparam.hidden: sin, model.reparam.output: sin}
+    sweep: {optimizer.lr: [0.01, 0.03, 0.1]}
+  - label: mnist/tanh
+    overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}
+    sweep: {optimizer.lr: [0.01, 0.03, 0.1]}
+  - label: cifar100/standard
+    overrides: {stream.dataset: cifar100, stream.normalize: standard, model.hidden_sizes: [256, 256], train.epochs: 20}
+    sweep: {optimizer.lr: [0.01, 0.03, 0.1]}
+  - label: cifar100/sin
+    overrides: {stream.dataset: cifar100, stream.normalize: standard, model.hidden_sizes: [256, 256], train.epochs: 20,
+                model.reparam.hidden: sin, model.reparam.output: sin}
+    sweep: {optimizer.lr: [0.01, 0.03, 0.1]}
+  - label: cifar100/tanh
+    overrides: {stream.dataset: cifar100, stream.normalize: standard, model.hidden_sizes: [256, 256], train.epochs: 20,
+                model.reparam.hidden: tanh, model.reparam.output: tanh}
+    sweep: {optimizer.lr: [0.01, 0.03, 0.1]}

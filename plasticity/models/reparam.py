@@ -118,7 +118,10 @@ class ReparamLinear(nn.Module):
         amp_b = self.gamma * self.bias_init_bound if self.compact_bias else 1.0
         if learn_amplitude and mode != "standard":
             self.amplitude = nn.Parameter(torch.tensor(float(amp)))
-            self.bias_amplitude = nn.Parameter(torch.tensor(float(amp_b))) if (bias and self.compact_bias) else None
+            if bias and self.compact_bias:
+                self.bias_amplitude = nn.Parameter(torch.tensor(float(amp_b)))
+            else:  # bias not reparametrised: keep a constant (unused) amplitude so every code path can read it
+                self.register_buffer("bias_amplitude", torch.tensor(float(amp_b)))
         else:
             self.register_buffer("amplitude", torch.tensor(float(amp)))
             self.register_buffer("bias_amplitude", torch.tensor(float(amp_b)))

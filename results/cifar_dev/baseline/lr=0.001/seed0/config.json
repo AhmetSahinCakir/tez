@@ -1,0 +1,61 @@
+{
+  "seed": 0,
+  "stream_seed_offset": 1000,
+  "threads": 1,
+  "log_every": 0,
+  "save_model": false,
+  "model": {
+    "name": "mlp",
+    "hidden_sizes": [
+      64,
+      64
+    ],
+    "activation": "relu",
+    "layer_norm": false,
+    "ln_affine": true,
+    "reparam": {
+      "hidden": "standard",
+      "output": "standard"
+    },
+    "gamma": 1.5,
+    "compact_bias": true,
+    "init": "kaiming_uniform",
+    "bias_init": "zeros",
+    "learn_amplitude": false,
+    "theta_scale": "amplitude"
+  },
+  "method": {
+    "name": "baseline"
+  },
+  "optimizer": {
+    "name": "sgd",
+    "lr": 0.001,
+    "weight_decay": 0.0
+  },
+  "train": {
+    "batch_size": 1,
+    "epochs_per_task": 1
+  },
+  "metrics": {
+    "every_n_tasks": 25,
+    "probe_size": 200,
+    "weights": true,
+    "representation": true,
+    "fisher": false,
+    "fisher_samples": 32,
+    "update_tracking_every": 0
+  },
+  "fresh_reference": {
+    "every_n_tasks": 0
+  },
+  "summary": {
+    "window": 0.1
+  },
+  "stream": {
+    "name": "cifar100_binary",
+    "n_tasks": 300,
+    "train_per_class": 500,
+    "test_per_class": 100,
+    "normalize": "standard"
+  }
+}
