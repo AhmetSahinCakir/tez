@@ -67,6 +67,41 @@ def draw_init(shape, fan_in: int, scheme: str, gain: float, generator: Optional[
     return w.clamp_(-b, b)  # keep |W0| <= b so the matched inverse map is well defined
 
 
+class _BoundedMap(torch.autograd.Function):
+    """Fused ``W = A·sin(ang)`` / ``A·tanh(ang)`` with ``ang = Θ/A`` (amplitude scale) or ``Θ`` (unit scale).
+
+    Mathematically identical to composing the elementary ops, but saves the derivative factor in the forward
+    pass so the backward is a single multiply (the batch-size-1 online loop is dominated by per-op overhead).
+    Gradients w.r.t. both ``Θ`` and ``A`` (learnable amplitude) are provided.
+    """
+
+    @staticmethod
+    def forward(ctx, theta: torch.Tensor, amplitude: torch.Tensor, is_sin: bool, scaled: bool):
+        ang = theta / amplitude if scaled else theta
+        if is_sin:
+            f = torch.sin(ang)
+            d = torch.cos(ang)  # f'(ang)
+        else:
+            f = torch.tanh(ang)
+            d = 1.0 - f * f
+        ctx.save_for_backward(ang, f, d, amplitude)
+        ctx.scaled = scaled
+        return amplitude * f
+
+    @staticmethod
+    def backward(ctx, grad: torch.Tensor):
+        ang, f, d, amplitude = ctx.saved_tensors
+        scaled = ctx.scaled
+        g_theta = g_amp = None
+        if ctx.needs_input_grad[0]:
+            g_theta = grad * d if scaled else grad * (amplitude * d)  # dW/dΘ = f'(ang)·d(ang)/dΘ·A
+        if ctx.needs_input_grad[1]:
+            # W = A f(ang): dW/dA = f(ang) + A f'(ang) d(ang)/dA, with d(ang)/dA = -Θ/A² = -ang/A (scaled) or 0
+            dWdA = f - ang * d if scaled else f
+            g_amp = (grad * dWdA).sum().reshape(amplitude.shape)
+        return g_theta, g_amp, None, None
+
+
 class ReparamLinear(nn.Module):
     """``y = x Wᵀ + b`` with ``W = f(Θ)``, ``b = f(θ_b)`` (see module docstring)."""
 
@@ -145,12 +180,10 @@ class ReparamLinear(nn.Module):
     def forward_map(theta: torch.Tensor, mode: str, amplitude, theta_scale: str = "unit") -> torch.Tensor:
         if mode == "standard":
             return theta
-        ang = ReparamLinear._angle(theta, amplitude, theta_scale)
-        if mode == "sin":
-            return amplitude * torch.sin(ang)
-        if mode == "tanh":
-            return amplitude * torch.tanh(ang)
-        raise ValueError(mode)
+        if mode not in ("sin", "tanh"):
+            raise ValueError(mode)
+        amp = amplitude if torch.is_tensor(amplitude) else torch.tensor(float(amplitude), dtype=theta.dtype)
+        return _BoundedMap.apply(theta, amp, mode == "sin", theta_scale == "amplitude")
 
     @staticmethod
     def inverse(w: torch.Tensor, mode: str, amplitude: float, theta_scale: str = "unit") -> torch.Tensor:

@@ -1,0 +1,33 @@
+# Component analysis and secondary experiments on the FINAL PMNIST streams (same seeds/streams as
+# pmnist_main so every run pairs with the main runs). Labels 'sin/...' and 'tanh/...' inherit the learning
+# rate selected for the sin / tanh model (longest-prefix match in selected_hparams).
+name: pmnist_ablation
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+stream_seed_offset: 0
+selected_hparams: suites/selected_pmnist.yaml
+common:
+  stream.n_tasks: 200
+  stream.samples_per_task: 5000
+  metrics.every_n_tasks: 5
+  metrics.fisher_samples: 32
+  metrics.update_tracking_every: 100
+  fresh_reference.every_n_tasks: 25
+runs:
+  # --- which components carry the effect (H1/H2 decomposition) ---
+  - {label: sin/bias_std, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.compact_bias: false}, n_seeds: 5}
+  - {label: sin/hidden_only, overrides: {model.reparam.hidden: sin, model.reparam.output: standard}, n_seeds: 5}
+  - {label: sin/output_only, overrides: {model.reparam.hidden: standard, model.reparam.output: sin}, n_seeds: 5}
+  - {label: tanh/bias_std, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh, model.compact_bias: false}, n_seeds: 3}
+  # --- amplitude (bound) sensitivity ---
+  - {label: sin/gamma, overrides: {model.reparam.hidden: sin, model.reparam.output: sin}, sweep: {model.gamma: [1.2, 2.5, 5.0]}, n_seeds: 3}
+  # --- Jacobian cost (H3): scale-corrected update, learnable amplitude, literal W = A sin(Theta) scaling ---
+  - {label: sin/scale_corrected, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, method.name: scale_corrected}, sweep: {method.max_scale: [3.0, 10.0, 30.0]}, n_seeds: 3}
+  - {label: sin/learn_amplitude, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.learn_amplitude: true}, n_seeds: 3}
+  - {label: sin_unit, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.theta_scale: unit}, sweep: {optimizer.lr: [0.1, 0.3, 1.0]}, n_seeds: 3}
+  # --- combination with a unit-reinitialisation method ---
+  - {label: sin/cbp, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, method.name: continual_backprop, method.replacement_rate: 0.0001}, n_seeds: 3}
+  # --- optimiser sensitivity (Adam) ---
+  - {label: adam_std, overrides: {optimizer.name: adam}, sweep: {optimizer.lr: [0.0003, 0.001]}, n_seeds: 3}
+  - {label: adam_sin, overrides: {optimizer.name: adam, model.reparam.hidden: sin, model.reparam.output: sin}, sweep: {optimizer.lr: [0.0003, 0.001]}, n_seeds: 3}
+  - {label: adam_tanh, overrides: {optimizer.name: adam, model.reparam.hidden: tanh, model.reparam.output: tanh}, sweep: {optimizer.lr: [0.0003, 0.001]}, n_seeds: 3}

@@ -1,0 +1,30 @@
+# Main comparison on the FINAL Online Permuted MNIST streams (stream_seed_offset 0; never used for selection).
+# Learning rates / method hyper-parameters come from suites/selected_pmnist.yaml (dev-stream search).
+# Primary hypotheses (H1: sin vs standard, H2: sin vs tanh) use 10 seeds; published baselines 5 seeds;
+# the secondary comparison set 3 seeds (compute budget, see docs/RAPOR.md §3).
+name: pmnist_main
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+stream_seed_offset: 0
+selected_hparams: suites/selected_pmnist.yaml
+common:
+  stream.n_tasks: 200
+  stream.samples_per_task: 5000
+  metrics.every_n_tasks: 5
+  metrics.fisher_samples: 32
+  metrics.update_tracking_every: 100
+  fresh_reference.every_n_tasks: 25
+runs:
+  - {label: baseline, overrides: {method.name: baseline}, n_seeds: 10}
+  - {label: sin, overrides: {model.reparam.hidden: sin, model.reparam.output: sin}, n_seeds: 10}
+  - {label: tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}, n_seeds: 10}
+  - {label: weight_clipping, overrides: {method.name: weight_clipping}, n_seeds: 5}
+  - {label: l2_init, overrides: {method.name: l2_init}, n_seeds: 5}
+  - {label: continual_backprop, overrides: {method.name: continual_backprop}, n_seeds: 5}
+  - {label: nap, overrides: {method.name: nap, model.layer_norm: true, model.ln_affine: false}, n_seeds: 5}
+  - {label: ln_wd, overrides: {method.name: ln_wd, model.layer_norm: true}, n_seeds: 5}
+  - {label: shrink_perturb, overrides: {method.name: shrink_perturb}, n_seeds: 3}
+  - {label: upgd, overrides: {method.name: upgd}, n_seeds: 3}
+  - {label: parseval, overrides: {method.name: parseval}, n_seeds: 3}
+  - {label: smooth_leaky, overrides: {model.activation: smooth_leaky}, n_seeds: 3}
+  - {label: sin_act, overrides: {model.activation: sin}, n_seeds: 3}
