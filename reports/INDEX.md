@@ -74,3 +74,6 @@
 - `pmnist_vs_baseline.md`
 - `pmnist_vs_sin.csv`
 - `pmnist_vs_sin.md`
+- `stationary_all.md`
+- `stationary_summary.csv`
+- `stationary_summary.md`

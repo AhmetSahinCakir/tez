@@ -390,8 +390,53 @@ kısmen bağımsız mekanizma).
 ## 10. Durağan öğrenme kontrolü
 _(doldurulacak)_
 
-## 11. İkincil deneyler: genlik taraması, Adam, ölçek düzeltmesi, ikincil karşılaştırma kümesi
-_(doldurulacak)_
+## 11. İkincil deneyler: Adam duyarlılığı, serbest parametre ölçeği, ikincil karşılaştırma kümesi
+Genlik taraması ve ölçek-düzeltmeli güncelleme §8'de; ikincil karşılaştırma kümesi (Shrink & Perturb, UPGD,
+Parseval, Smooth-Leaky, Sin-MLP) §6'daki ana tabloda verilmiştir. Bu bölüm eniyileyici duyarlılığını ele alır
+(`reports/pmnist_adam_unit.md`, `reports/pmnist_adam.png`; 3 eşleştirilmiş tohum, PMNIST final akışları,
+Adam için ayrı bir geliştirme araması yapılmamış, iki öğrenme oranı doğrudan raporlanmıştır).
+
+| Eniyileyici / model | AUC | Son pencere | Koruma | Taze model farkı | Ölü birim | Ort. \|w\| |
+|---|---|---|---|---|---|---|
+| Adam 3e-4, standart | 0.789 ± 0.006 | 0.754 ± 0.002 | 0.898 ± 0.006 | +0.083 ± 0.023 | 0.457 | 0.179 |
+| Adam 3e-4, **sinüs** | 0.819 ± 0.004 | 0.811 ± 0.005 | 0.966 ± 0.008 | +0.015 ± 0.017 | 0.163 | 0.102 |
+| Adam 3e-4, tanh | 0.810 ± 0.001 | 0.791 ± 0.000 | 0.944 ± 0.004 | +0.041 ± 0.033 | 0.175 | 0.106 |
+| Adam 1e-3, standart | 0.737 ± 0.021 | 0.707 ± 0.020 | 0.877 ± 0.032 | +0.127 ± 0.052 | 0.678 | 0.356 |
+| Adam 1e-3, **sinüs** | 0.824 ± 0.004 | 0.826 ± 0.010 | 0.997 ± 0.022 | −0.002 ± 0.035 | 0.354 | 0.120 |
+| Adam 1e-3, tanh | 0.812 ± 0.002 | 0.808 ± 0.008 | 0.974 ± 0.008 | +0.028 ± 0.022 | 0.260 | 0.140 |
+| (SGD 3e-3, standart / sinüs / tanh; §6) | 0.774 / 0.785 / 0.785 | 0.743 / 0.760 / 0.761 | 0.906 / 0.926 / 0.931 | | | |
+
+**Adam altında etki çok daha büyüktür.** Adam, standart ağda ağırlık büyümesini (|w| 0.18–0.36; SGD'de 0.11)
+ve ölü birim oranını (%46–%68) şiddetlendirir ve plastisite kaybını derinleştirir (koruma 0.898 / 0.877, taze
+model farkı +0.08 / +0.13). Sınırlı modeller bu rejimde çok daha iyi korunur: sinüs modelinin standart ağa göre
+eşleştirilmiş farkı lr = 3e-4'te ΔAUC **+0.030 [+0.028, +0.034]**, koruma oranı **+0.068 [+0.067, +0.069]**,
+taze model farkı −0.068; lr = 1e-3'te ΔAUC **+0.087 [+0.080, +0.094]**, koruma +0.120 [+0.102, +0.141],
+ölü birim −0.32 (eşleştirilmiş t-testi p ≤ 0.02; n = 3 ile permütasyon testi p = 0.25). Sinüs modeli Adam 1e-3
+ile plastisiteyi tamamen korur (koruma 0.997) ve SGD'li bütün yapılandırmalardan daha yüksek AUC verir (0.824).
+H1, ağırlık büyümesinin güçlü olduğu Adam rejiminde çok daha büyük bir etki büyüklüğüyle desteklenmektedir.
+
+**Adam altında periyodiklik lehine bir fark ortaya çıkar (H2'nin eniyileyiciye bağlı kısmı).** SGD'de ayırt
+edilemeyen sinüs ve tanh modelleri Adam'da ayrışır: sinüs tanh'tan tutarlı biçimde daha iyidir (ΔAUC
++0.009 [+0.008, +0.011] ve +0.012 [+0.010, +0.015]; koruma +0.023; t-testi p ≤ 0.04). Mekanistik açıklama
+§9'daki Jacobian analizinden çıkar: Adam güncellemeyi parametre başına gradyan büyüklüğüne böldüğünden
+cos²(Θ) kaynaklı adım küçülmesi büyük ölçüde iptal olur; bu durumda sinüsün tanh'tan tek farkı, doyma
+bölgesinden (Θ ≈ ±π/2) ötesine geçerek ağırlığın tekrar küçülebilmesidir (periyodik geometri), tanh'ta ise
+doyan parametre kalıcı olarak sınırda kalır. Sinüs modelinde Adam ile ölü birim oranı (%35) tanh'tan yüksek
+olmasına rağmen performansın daha iyi olması bu yorumla uyumludur. SGD'de ise cos² sönümü doyma bölgesine
+girişi engellediğinden periyodikliğin devreye gireceği bir durum oluşmaz.
+
+**Serbest parametre ölçeği.** Literal W = A·sin(Θ) biçimi (`theta_scale: unit`) lr = 0.1'de koruma 0.938
+(genlik-ölçekli ana biçim 0.926) fakat AUC 0.781 (0.785) vermiş; lr = 0.3 ve 1.0'da sırasıyla kısmi ve tam
+çöküş gözlenmiştir (koruma 0.894 ve 0.341; doygunluk ve ölü birim %50). Bu biçim katman başına A² ile ölçeklenen
+etkin öğrenme oranı nedeniyle ilk katmanı çok yavaş eğitir; ana deneylerde kullanılan Φ = A·Θ ölçeklemesi
+başlangıçta standart ağla eşit etkin adım sağladığından karşılaştırmalar için uygun biçimdir (§2, `docs/PROTOKOL.md`).
+
+**İkincil karşılaştırma kümesi** (§6 tablosu; 3 tohum, yarı bütçeli hiperparametre araması): Parseval
+düzenlileştirmesi bütün yöntemler içinde en yüksek son pencere doğruluğunu (0.844, koruma 1.016) ve en yüksek
+temsil kertesini (52.9) vermiştir; Shrink & Perturb plastisiteyi tam korumuş (1.000), UPGD (0.951) ve Smooth-Leaky
+aktivasyon (0.965) kısmen korumuştur. Smooth-Leaky ve Sin-MLP'nin ölü birim oranı sıfıra yakındır fakat
+plastisite kaybı sürmektedir — ölü birimlerin ortadan kalkması tek başına yeterli değildir (Lyle vd., 2023;
+2025 ile uyumlu).
 
 ## 12. Sınırlılıklar ve sonraki adımlar
 **Ölçek.** Bütün sonuçlar CPU bütçesine uyarlanmış küçültülmüş protokollerden gelmektedir (PMNIST: 200 görev ×
