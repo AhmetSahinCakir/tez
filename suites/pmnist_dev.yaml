@@ -20,9 +20,15 @@ runs:
   - label: sin
     overrides: {model.reparam.hidden: sin, model.reparam.output: sin}
     sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: sin            # amplitude (bound width) search: 2 lr x 2 gamma, labels 'sin/lr=../gamma=..'
+    overrides: {model.reparam.hidden: sin, model.reparam.output: sin}
+    sweep: {optimizer.lr: [0.003, 0.01], model.gamma: [2.5, 5.0]}
   - label: tanh
     overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}
     sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}
+  - label: tanh            # amplitude (bound width) search: 2 lr x 2 gamma, labels 'tanh/lr=../gamma=..'
+    overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}
+    sweep: {optimizer.lr: [0.003, 0.01], model.gamma: [2.5, 5.0]}
   - label: weight_clipping
     overrides: {method.name: weight_clipping}
     sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.kappa: [1.0, 2.0]}
@@ -40,13 +46,13 @@ runs:
     sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.weight_decay: [0.0001, 0.001]}
   - label: shrink_perturb
     overrides: {method.name: shrink_perturb}
-    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.shrink: [0.00001, 0.0001]}
+    sweep: {optimizer.lr: [0.003, 0.01], method.shrink: [0.00001, 0.0001]}   # secondary set: half budget (3-4x slower per step)
   - label: upgd
     overrides: {method.name: upgd}
-    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.sigma: [0.0001, 0.001]}
+    sweep: {optimizer.lr: [0.003, 0.01], method.sigma: [0.0001, 0.001]}   # secondary set: half budget (3-4x slower per step)
   - label: parseval
     overrides: {method.name: parseval}
-    sweep: {optimizer.lr: [0.003, 0.01, 0.03, 0.1], method.beta: [0.001, 0.01]}
+    sweep: {optimizer.lr: [0.003, 0.01], method.beta: [0.001, 0.01]}   # secondary set: half budget (3-4x slower per step)
   - label: smooth_leaky
     overrides: {model.activation: smooth_leaky}
     sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03, 0.1]}

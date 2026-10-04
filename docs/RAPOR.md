@@ -64,22 +64,23 @@ Altyapı Python 3.11 / PyTorch ile yapılandırma dosyası tabanlı olarak geli�
 * **Çalıştırma ve analiz** (`scripts/`): yeniden başlatılabilir paralel paket çalıştırıcı, geliştirme
   akışlarında hiperparametre seçimi, tablo/şekil üretimi.
 
-Yöntemlerin adım maliyeti (784-100-100-100-10, batch 1, tek iş parçacığı; standart = 1.0×): weight clipping
-0.89×, L2 Init 0.77×, NaP 0.71×, LN+WD 0.65×, Continual Backprop 0.48×, tanh modeli 0.47×, Shrink&Perturb
-0.43×, sinüs modeli 0.39×, ölçek-düzeltmeli sinüs 0.31×, Parseval 0.30×, UPGD 0.27×.
+Yöntemlerin adım maliyeti (`scripts/benchmark_step.py`; 784-100-100-100-10, batch 1, tek iş parçacığı, 1000 adım;
+standart = 1.0× = 2007 örnek/s): L2 Init 0.75×, Weight Clipping 0.71×, LN+WD 0.66×, NaP 0.59×, Continual Backprop
+0.47×, Shrink&Perturb 0.45×, sinüs modeli 0.39×, tanh modeli 0.38×, Parseval 0.33×, ölçek-düzeltmeli sinüs 0.31×,
+UPGD 0.27×.
 
 ## 3. Hesaplama bütçesi ve protokol ölçekleri
 Proje aşamasındaki bütün deneyler GPU'suz, 4 çekirdekli bir CPU ortamında yürütülmüştür. Ölçülen verimlilik
-(tek iş parçacığı, batch 1, PyTorch eager):
+(`scripts/benchmark_step.py`; tek iş parçacığı, batch 1, PyTorch eager, 1000 adım):
 
-| Model | Örnek/s (saf eğitim döngüsü) | Not |
+| Model | Örnek/s (eğitim adımı) | Not |
 |---|---|---|
-| Standart MLP 784-100-100-100-10 | ≈2200 | otomatik türev + SGD |
-| Sinüs MLP (aynı boyut) | ≈1050 | sin/cos ve çarpım işlemleri adım maliyetini ~2× artırır |
-| Standart MLP 784-2000-2000-2000-10 (kanonik) | ≈86 | |
+| Standart MLP 784-100-100-100-10 | ≈2000 | otomatik türev + SGD |
+| Sinüs MLP (aynı boyut) | ≈790 | sin/cos ve çarpım işlemleri adım maliyetini ~2.5× artırır |
+| Standart MLP 784-2000-2000-2000-10 (kanonik) | ≈50 | |
 
 Kanonik Online Permuted MNIST protokolü (800 görev × 60.000 örnek = 48 M çevrimiçi güncelleme, 3×2000 birim)
-tek bir tekrar için ≈155 saat CPU süresi gerektirir; 10 tohum × ~10 yöntem ile GPU'suz uygulanabilir değildir.
+tek bir tekrar için ≈270 saat CPU süresi gerektirir; 10 tohum × ~10 yöntem ile GPU'suz uygulanabilir değildir.
 Bu nedenle öneri formunda öngörüldüğü gibi ("hesaplama gereksinimi pilot deneylerle önceden ölçülecektir";
 "hiperparametre aramaları kısaltılmış geliştirme akışlarında") protokolün *yapısı* korunarak ölçeği küçültülmüştür:
 
@@ -100,27 +101,27 @@ standart ReLU MLP 784-100-100-100-10, SGD, batch 1, tek geçiş, 200 görev × 5
 
 | Ölçüt | lr = 0.01 | lr = 0.03 |
 |---|---|---|
-| İlk 25 görev ortalama çevrimiçi doğruluk | 0.796 | 0.680 |
-| Son 25 görev ortalama çevrimiçi doğruluk | 0.672 | 0.221 |
-| Plastisite koruma oranı (son/erken pencere, %10) | 0.844 | 0.33 |
-| Ölü (hiç aktive olmayan) birim oranı, görev 0 → 199 | 0.00 → 0.32 | 0.02 → 0.88 |
-| Ortalama ağırlık büyüklüğü \|W\|, görev 0 → 199 | 0.063 → 0.183 | 0.070 → 0.265 |
-| Son gizli temsilin etkin kertesi (merkezlenmiş), görev 0 → 199 | 49.9 → 21.1 | 40.1 → 1.6 |
-| Taze (sıfırdan) model ile fark, görev 199 | 0.803 − 0.658 = 0.145 | 0.77 − 0.34 |
+| İlk 20 görev ortalama çevrimiçi doğruluk (erken pencere, %10) | 0.800 | 0.689 |
+| Son 20 görev ortalama çevrimiçi doğruluk (son pencere, %10) | 0.675 | 0.202 |
+| Plastisite koruma oranı (son/erken pencere) | 0.844 | 0.293 |
+| Ölü (hiç aktive olmayan) birim oranı, görev 0 → 199 | 0.00 → 0.27 | 0.02 → 0.89 |
+| Ortalama ağırlık büyüklüğü \|W\|, görev 0 → 199 | 0.063 → 0.188 | 0.070 → 0.267 |
+| Son gizli temsilin etkin kertesi (merkezlenmiş), görev 0 → 199 | 49.9 → 22.5 | 40.1 → 2.2 |
+| Taze (sıfırdan) model ile fark, görev 199 | 0.803 − 0.658 = 0.145 | 0.768 − 0.152 = 0.616 |
 
 Üç imza birlikte gözlenmektedir: çevrimiçi doğruluğun görev sayısıyla tekdüze azalması, ölü birim oranı ve
 ağırlık büyüklüğünün artması, temsil kertesinin azalması; aynı görevi sıfırdan öğrenen eşleştirilmiş taze model
 ise sabit ≈0.80 doğruluk verir, yani düşüş görevlerin zorlaşmasından değil ağın öğrenme kapasitesinin
 azalmasından kaynaklanır. Daha yüksek öğrenme oranı plastisite kaybını belirgin biçimde hızlandırır (Dohare vd.
-ile uyumlu). Daha kısa görevlerle (400 görev × 2.500 örnek) aynı eğilim (0.725 → 0.538) gözlenmiştir.
+ile uyumlu). Daha kısa görevlerle (400 görev × 2.500 örnek) aynı eğilim (0.729 → 0.539) gözlenmiştir.
 
 Aynı pilotta önerilen sinüs modeli (γ = 1.5, tam-kompakt, aynı lr = 0.01, aynı akış) 0.818 → 0.713
 (koruma oranı 0.867, normalize AUC 0.758'e karşı 0.720) elde etmiş; yani plastisite kaybı azalmış fakat
 ortadan kalkmamıştır. Mekanizma ölçütleri H3'ü doğrudan görünür kılmaktadır: ortalama \|W\|/A 0.35'ten
-0.83'e yükselmiş, cos²Θ ortalaması (etkin adım çarpanı) 0.84'ten 0.24'e düşmüş ve parametrelerin %50'si
-\|cos Θ\| < 0.1 doygunluk bölgesine girmiştir (`sat_frac`). Sınıra yığılan ağırlıkların gradyanı Jacobian
-nedeniyle sönmekte ve bu birimler ReLU ölümüyle birleşince (ölü birim oranı 0.44) temsil kertesi standarttan
-daha hızlı düşmektedir (47 → 13). Bu gözlem, genlik taraması ve ölçek-düzeltmeli güncelleme deneylerinin
+0.84'e yükselmiş, cos²Θ ortalaması (etkin adım çarpanı) 0.84'ten 0.22'ye düşmüş ve parametrelerin %54'ü
+\|cos Θ\| < 0.1 doygunluk bölgesine girmiştir (`sat_frac`, görev 199). Sınıra yığılan ağırlıkların gradyanı
+Jacobian nedeniyle sönmekte ve bu birimler ReLU ölümüyle birleşince (ölü birim oranı 0.43) temsil kertesi
+standarttan daha hızlı düşmektedir (47 → 16). Bu gözlem, genlik taraması ve ölçek-düzeltmeli güncelleme deneylerinin
 (§11) gerekçesini oluşturur.
 
 ## 5. Hiperparametre seçimi (İP-2)
@@ -198,7 +199,7 @@ Sinüs modeli standart ağa göre bütün birincil ölçütlerde tutarlı ve ist
 daha iyidir (n = 10 eşleştirilmiş tohum): normalize AUC farkı **+0.011 [%95 GA +0.010, +0.012]**,
 son pencere doğruluğu **+0.017 [+0.013, +0.022]**, koruma oranı **+0.021 [+0.015, +0.026]**, taze model
 farkı **−0.029 [−0.035, −0.023]** (işaret-çevirme permütasyon testi p = 0.002, Holm düzeltmeli p = 0.023;
-eşleştirilmiş t-testi p < 1e-6; Cohen d_z 2.2–7.8). Görev 200'de standart ağ aynı görevi sıfırdan öğrenen
+eşleştirilmiş t-testi p < 1e-4 bütün dört ölçütte, AUC için p = 1.4e-9; Cohen d_z 2.1–7.8). Görev 200'de standart ağ aynı görevi sıfırdan öğrenen
 taze modelin 0.021 altına düşerken sinüs modeli taze modelle eşit düzeydedir. Mekanizma düzeyinde sinüs modeli
 daha az ölü birim (0.141 vs 0.177; Holm p = 0.065 permütasyon, 0.020 t-testi) ve daha yüksek temsil kertesi
 (28.1 vs 25.5; Holm p = 0.023) ile birlikte daha küçük ağırlık büyüklüğü (0.098 vs 0.109) üretir.
@@ -209,9 +210,9 @@ kaybının yaklaşık dörtte birini telafi eder; plastisite kaybı sinüs model
 ### 6.2 H2 — sınırlılık mı, periyodiklik mi?
 Sinüs ve tanh modelleri birbirinden ayırt edilemez: normalize AUC farkı −0.000 [−0.001, +0.001] (p = 0.87),
 son pencere +0.001 [−0.003, +0.004] (p = 0.69), koruma oranı +0.004 [−0.001, +0.009] (p = 0.14). Tanh modeli
-yalnızca taze model farkında (−0.012 [−0.018, −0.004]; Holm p = 0.12 permütasyon, 0.04 t-testi) ve mekanizma
-ölçütlerinde (ölü birim −0.022, etkin kerte +3.6, doygunluk 0.003 vs 0.043; Holm p ≤ 0.05) sinüsten hafifçe
-daha iyidir. Öneri formundaki karar kuralına göre bu sonuç **sınırlılığın baskın rolünü** gösterir: periyodik
+yalnızca taze model farkında (−0.012 [−0.018, −0.004]; düzeltilmemiş p = 0.020 permütasyon / 0.013 t-testi,
+Holm sonrası anlamlı değil) ve mekanizma ölçütlerinde (ölü birim −0.022, düzeltilmemiş p = 0.018; etkin kerte
++3.6, Holm p = 0.018; doygunluk 0.003 vs 0.043, Holm p < 1e-10) sinüsten hafifçe daha iyidir. Öneri formundaki karar kuralına göre bu sonuç **sınırlılığın baskın rolünü** gösterir: periyodik
 geometri ölçülebilir bir ek katkı sağlamamakta, aksine sinüs parametrizasyonu daha fazla doygun parametre
 (cos Θ ≈ 0) ve biraz daha fazla ölü birim üretmektedir. Sin-MLP kontrolü (sinüs *aktivasyon*, sınırsız ağırlık;
 koruma 0.960, 3 tohum) ise sınırlı-ağırlık modellerinden daha iyi plastisite korumuş, fakat Chen ve Zhang'ın
@@ -223,7 +224,8 @@ Hiperparametreleri aynı bütçeyle seçilen yayımlanmış yöntemlerin tamamı
 belirgin biçimde daha iyidir ve çoğu plastisiteyi tamamen korur (koruma oranı ≈ 1.0): Weight Clipping 0.839,
 NaP 0.834, L2 Init 0.831, Continual Backprop 0.821, Shrink & Perturb 0.810, LayerNorm+WD 0.809 son pencere
 doğruluğu (standart 0.743, sinüs 0.760). Parseval düzenlileştirmesi (ikincil küme) en yüksek değeri vermiştir
-(0.844). Bu yöntemlerin standart ağa göre farkları eşleştirilmiş t-testinde p < 1e-6'dır; 5 ve 3 tohumlu
+(0.844). Bu yöntemlerin standart ağa göre farkları eşleştirilmiş t-testinde p < 1e-3'tür (5 tohumlu yöntemlerde AUC ve
+son pencere için p < 1e-6); 5 ve 3 tohumlu
 karşılaştırmalarda işaret-çevirme testinin ulaşabileceği en küçük p değerleri (0.0625 ve 0.25) nedeniyle
 permütasyon p değerleri anlamlılık eşiğine ulaşamamaktadır (bkz. tablo notu).
 
@@ -240,21 +242,25 @@ sınırladığına işaret eder; §8–§9'daki bileşen ve ölçek-düzeltme de
 Chen ve Zhang (2026) protokolü (3000 ardışık ikili görev, gri 1024-boyutlu girdi, görev başına test doğruluğu)
 standart MLP ile tek tohumlu kalibrasyon çalışmalarında yeniden üretilmeye çalışılmıştır (`results/pilot/cifar*`):
 
-| Yapılandırma (standart MLP) | Görev | Test doğruluğu: ilk → son dilim | Ölü birim | Etkin kerte (merkezl.) | Taze model farkı (son) |
+| Yapılandırma (standart MLP) | Görev | Test doğruluğu: ilk → son dilim | Ölü birim | Etkin kerte (merkezl.) | Taze model farkı (son nokta) |
 |---|---|---|---|---|---|
-| 2×256, SGD lr 0.01, batch 32, 5 dönem | 3000 | 0.759 → 0.756 | 0.00 → 0.29 | 128 → 37 | ≈0 |
-| 2×64, SGD lr 0.01, batch 32, 5 dönem | 3000 | 0.752 → 0.747 | 0.00 → 0.09 | 46 → 21 | ≈0 |
-| 2×32, SGD lr 0.01, batch 32, 5 dönem | 3000 | 0.744 → 0.743 | 0.00 → 0.09 | 23 → 14 | ≈0 |
-| 2×64, Adam lr 1e-3, batch 32, 5 dönem | 3000 | 0.740 → 0.736 | 0.00 → 0.37 | 42 → 7 | ≈0 |
-| 2×64, Adam lr 1e-3, batch 32, 20 dönem | 1000 | 0.732 → 0.733 | 0.00 → 0.44 | 43 → 5 | 0.03 |
-| 2×64, Adam lr 1e-2, batch 32, 5 dönem | 1000 | 0.52 → 0.50 (şans) | 0.09 → 0.50 | 28 → 0 | 0.2–0.4 |
-| **2×64, SGD lr 0.01, batch 1, 1 geçiş (çevrimiçi)** | 1000 | 0.722 → 0.710 | 0.01 → 0.34 | 41 → 6 | 0.035 |
+| 2×256, SGD lr 0.01, batch 32, 5 dönem | 3000 | 0.759 → 0.756 | 0.00 → 0.29 | 128 → 37 | +0.005 |
+| 2×64, SGD lr 0.01, batch 32, 5 dönem | 3000 | 0.752 → 0.747 | 0.00 → 0.09 | 46 → 21 | +0.005 |
+| 2×32, SGD lr 0.01, batch 32, 5 dönem | 3000 | 0.744 → 0.743 | 0.00 → 0.09 | 23 → 13 | −0.020 |
+| 2×64, Adam lr 1e-3, batch 32, 5 dönem | 3000 | 0.740 → 0.736 | 0.00 → 0.37 | 42 → 7 | −0.010 |
+| 2×64, Adam lr 1e-3, batch 32, 20 dönem | 1000 | 0.723 → 0.727 | 0.00 → 0.40 | 43 → 7 | +0.105 |
+| 2×64, Adam lr 1e-2, batch 32, 5 dönem | 1000 | 0.52 → 0.50 (şans) | 0.09 → 0.50 | 28 → 0 | +0.215 |
+| **2×64, SGD lr 0.01, batch 1, 1 geçiş (çevrimiçi)** | 1000 | 0.722 → 0.710 | 0.01 → 0.34 | 41 → 6 | +0.035 |
+
+Dilimler: 3000 görevlik çalışmalarda ilk/son 500 görev, 1000 görevlik çalışmalarda ilk/son 200 görev; ölü birim
+ve kerte ilk ve son ölçüm satırı; taze model farkı son referans noktasındaki (taze − sürekli) fark.
 
 Bulgu: mini-batch ve çok dönemli eğitimde iki sınıflı görevler, iç yapısı belirgin biçimde bozulmuş (ölü
-birimler, kerte çöküşü, Adam'da 7–9 kat ağırlık büyümesi) bir ağ tarafından bile 160 güncellemede öğrenilebildiği
+birimler, kerte çöküşü, Adam'da 6–12 kat ağırlık büyümesi) bir ağ tarafından bile 160 güncellemede öğrenilebildiği
 için **performans düzeyinde** plastisite kaybı bu ölçekte görünmemektedir; aynı ağın mekanizma ölçütleri ise
-Dohare vd. (2024) imzalarını taşır. Yüksek öğrenme oranlı Adam'da ağ tümüyle ölür (bütün birimler sıfır,
-şans düzeyi) ve taze model öğrenmeye devam eder; bu, plastisite kaybının aşırı ucu olmakla birlikte yöntem
+Dohare vd. (2024) imzalarını taşır (Adam'da 6–12 kat ağırlık büyümesi). Yüksek öğrenme oranlı Adam'da ikinci
+gizli katmanın bütün birimleri ölür (ölü birim oranı 0.50, kerte 0, şans düzeyi) ve taze model öğrenmeye devam
+eder; bu, plastisite kaybının aşırı ucu olmakla birlikte yöntem
 karşılaştırması için ayırt edici değildir. Performans düzeyinde ölçülebilir ve PMNIST ile aynı çevrimiçi yapıya
 sahip olan tek yapılandırma batch 1 / tek geçiş varyantıdır; CIFAR-100 ana karşılaştırması bu **çevrimiçi
 varyant** (2×64, 1000 görev, `configs/cifar_pilot.yaml`) ile yürütülmüş, kanonik 3000 görevlik mini-batch
@@ -279,7 +285,7 @@ metninde raporlanacaktır: Chen ve Zhang'ın klasik MLP'de bildirdiği performan
 
 * Standart ağ 1000 görevde performans düzeyinde yalnızca hafif bir plastisite kaybı gösterir (koruma 0.983;
   taze model farkı +0.025 ± 0.017), buna karşın iç yapı güçlü biçimde bozulur (ölü birim 0.18, etkin kerte
-  45 → 13). Görev başına test doğruluğunun tohumlar arası değişkenliği (sınıf çiftlerinin zorluğu) PMNIST'e
+  42 → 13). Görev başına test doğruluğunun tohumlar arası değişkenliği (sınıf çiftlerinin zorluğu) PMNIST'e
   göre çok yüksektir; bu nedenle güven aralıkları geniştir.
 * **H1/H2 bu protokolde desteklenmemiştir**: sinüs ve tanh modelleri standart ağdan ayırt edilemez (AUC farkı
   −0.002 [−0.003, −0.001] ve −0.001 [−0.002, +0.001]; Holm p > 0.17). Mekanizma ölçütleri nedenini gösterir:
@@ -303,7 +309,7 @@ hiçbir varyantta sınır devreye girmez). Tek istisna sıkı sınırdır: γ = 
 −0.032]; Holm p = 0.027), koruma 0.912 — ölü birim oranı %3'e düşüp kerte 35'e çıkmasına rağmen ağırlıkların
 başlangıç ölçeğinin 1.2 katını aşamaması görev başına öğrenmeyi sınırlar (kapasite kısıtı). Aktivasyon
 kontrolleri (CIFAR için geliştirme araması yapılmadan lr = 0.003 ile): Smooth-Leaky bu protokolde en iyi
-sonucu vermiştir (AUC 0.755 ± 0.003, koruma 1.026, ölü birim 0, kerte 32 — ölü birim mekanizmasını doğrudan
+sonucu vermiştir (AUC 0.755 ± 0.007, koruma 1.026, ölü birim 0, kerte 32 — ölü birim mekanizmasını doğrudan
 ortadan kaldırdığı için); Sin-MLP (sinüs aktivasyon) ise bu öğrenme oranında çökmüştür (AUC 0.532, son pencere
 şans düzeyine yakın; PMNIST'te aynı kontrol 0.809 vermişti), yani sinüs aktivasyonu veri kümesine ve öğrenme
 oranına güçlü biçimde duyarlıdır.
@@ -320,7 +326,7 @@ karşılaştırmalarda permütasyon testi anlamlılık eşiğine ulaşamaz (bkz.
 |---|---:|---|---|---|---|---|---|---|
 | Sinüs, tam-kompakt (referans) | 10 | 0.785 | 0.760 | 0.926 | 0.043 | 0.141 | 28.1 | — |
 | Yanlılık standart (`compact_bias: false`) | 5 | 0.784 | 0.761 | 0.927 | 0.043 | 0.150 | 29.0 | −0.000 [−0.001, +0.001] |
-| Yalnızca gizli katmanlar sınırlı | 5 | 0.778 | 0.752 | 0.918 | 0.046 | 0.151 | 26.5 | −0.007 [−0.009, −0.006] (Holm p = 0.016) |
+| Yalnızca gizli katmanlar sınırlı | 5 | 0.778 | 0.752 | 0.918 | 0.046 | 0.156 | 26.2 | −0.007 [−0.009, −0.006] (Holm p = 0.016) |
 | Yalnızca çıkış katmanı sınırlı | 5 | 0.784 | 0.759 | 0.923 | 0.193 | 0.170 | 26.6 | −0.001 [−0.002, +0.000] |
 | Tanh, yanlılık standart | 3 | 0.783 | 0.758 | 0.927 | 0.003 | 0.148 | 30.6 | −0.002 [−0.003, −0.001] |
 | γ = 1.2 (daha sıkı sınır) | 3 | 0.782 | 0.751 | 0.917 | 0.138 | 0.117 | 30.8 | −0.003 [−0.004, −0.002] |
@@ -370,7 +376,7 @@ etki etmektedir (Lyle vd., 2025).
 
 **Serbest parametre ölçeği (`theta_scale: unit`).** Literal W = A·sin(Θ) biçiminde (katman başına η·A²
 etkin öğrenme oranı; ana deneylerde kullanılan genlik-ölçekli Φ = A·Θ biçimi yerine) en iyi öğrenme oranıyla
-(lr = 0.1) koruma oranı 0.938'e çıkmış fakat normalize AUC 0.782'ye düşmüştür: ilk katmanın etkin öğrenme
+(lr = 0.1) koruma oranı 0.938'e çıkmış fakat normalize AUC 0.781'e düşmüştür: ilk katmanın etkin öğrenme
 oranı ≈ 60 kat küçük olduğundan ağ daha yavaş öğrenir, ancak daha az plastisite kaybeder (ölü birim oranı
 %42'ye rağmen). Bu, "yavaş öğrenen ağ daha az plastisite kaybeder" ödünleşiminin bir örneğidir ve iki
 ölçeklendirmenin aynı mekanizmayı farklı öğrenme oranı dağılımlarıyla sergilediğini gösterir
@@ -417,8 +423,8 @@ PMNIST ana paketindeki standart/sinüs/tanh çalışmalarından (10 tohum) ilk 2
    birbirine karıştırır.
 
 Ölü birim ve kerte ölçütleri de sınırlı modellerde daha iyidir (ölü birim 0.12–0.14 vs 0.18; kerte 28–32 vs 26),
-fakat yayımlanmış yöntemlere göre (ölü birim ≈ 0, kerte 42–53) iyileşme küçüktür: ağırlık büyüklüğünü
-sınırlamak tek başına ReLU birimlerinin ölmesini engellememektedir (Lyle vd., 2025 ile uyumlu: birden fazla
+fakat yayımlanmış yöntemlere göre (L2 Init, CBP, Shrink & Perturb ve Parseval'de ölü birim ≈ 0; kerte 33–53)
+iyileşme küçüktür: ağırlık büyüklüğünü sınırlamak tek başına ReLU birimlerinin ölmesini engellememektedir (Lyle vd., 2025 ile uyumlu: birden fazla
 kısmen bağımsız mekanizma).
 
 ## 10. Durağan öğrenme kontrolü
@@ -440,7 +446,7 @@ farklar güven aralıklarının içinde). CIFAR-100'de sınırlı modellerin eğ
 (0.29/0.27 vs 0.32): sınırlı ağırlık uzayı aşırı uyumu bir miktar kısıtlar fakat genellemeyi değiştirmez.
 Dolayısıyla §6'daki plastisite farkı ve §7'deki fark yokluğu genel öğrenme kapasitesindeki bir eksiklikle
 açıklanamaz; fark, eğitim ilerledikçe ortaya çıkan dinamiklerle ilgilidir. Sınırlı modeller yüksek öğrenme
-oranlarına karşı daha dayanıklıdır (CIFAR-100, lr = 0.1: standart 0.126, sinüs 0.142, tanh 0.145), bu da
+oranlarına karşı daha dayanıklıdır (CIFAR-100, lr = 0.1: standart 0.126, sinüs 0.142, tanh 0.147), bu da
 §5'teki geliştirme akışı gözlemiyle (sınırlı modellerin büyük lr'de çökmemesi) tutarlıdır.
 
 ## 11. İkincil deneyler: Adam duyarlılığı, serbest parametre ölçeği, ikincil karşılaştırma kümesi
@@ -465,12 +471,13 @@ model farkı +0.08 / +0.13). Sınırlı modeller bu rejimde çok daha iyi korunu
 eşleştirilmiş farkı lr = 3e-4'te ΔAUC **+0.030 [+0.028, +0.034]**, koruma oranı **+0.068 [+0.067, +0.069]**,
 taze model farkı −0.068; lr = 1e-3'te ΔAUC **+0.087 [+0.080, +0.094]**, koruma +0.120 [+0.102, +0.141],
 ölü birim −0.32 (eşleştirilmiş t-testi p ≤ 0.02; n = 3 ile permütasyon testi p = 0.25). Sinüs modeli Adam 1e-3
-ile plastisiteyi tamamen korur (koruma 0.997) ve SGD'li bütün yapılandırmalardan daha yüksek AUC verir (0.824).
+ile plastisiteyi tamamen korur (koruma 0.997) ve SGD'li standart/sinüs/tanh yapılandırmalarından daha yüksek AUC
+verir (0.824; yayımlanmış yöntemlerin SGD sonuçları 0.81–0.84 ile aynı aralıktadır).
 H1, ağırlık büyümesinin güçlü olduğu Adam rejiminde çok daha büyük bir etki büyüklüğüyle desteklenmektedir.
 
 **Adam altında periyodiklik lehine bir fark ortaya çıkar (H2'nin eniyileyiciye bağlı kısmı).** SGD'de ayırt
 edilemeyen sinüs ve tanh modelleri Adam'da ayrışır: sinüs tanh'tan tutarlı biçimde daha iyidir (ΔAUC
-+0.009 [+0.008, +0.011] ve +0.012 [+0.010, +0.015]; koruma +0.023; t-testi p ≤ 0.04). Mekanistik açıklama
++0.009 [+0.008, +0.011] ve +0.012 [+0.010, +0.015], t-testi p = 0.012 / 0.013; koruma +0.023, p = 0.008 / 0.044). Mekanistik açıklama
 §9'daki Jacobian analizinden çıkar: Adam güncellemeyi parametre başına gradyan büyüklüğüne böldüğünden
 cos²(Θ) kaynaklı adım küçülmesi büyük ölçüde iptal olur; bu durumda sinüsün tanh'tan tek farkı, doyma
 bölgesinden (Θ ≈ ±π/2) ötesine geçerek ağırlığın tekrar küçülebilmesidir (periyodik geometri), tanh'ta ise
@@ -480,13 +487,13 @@ girişi engellediğinden periyodikliğin devreye gireceği bir durum oluşmaz.
 
 **Serbest parametre ölçeği.** Literal W = A·sin(Θ) biçimi (`theta_scale: unit`) lr = 0.1'de koruma 0.938
 (genlik-ölçekli ana biçim 0.926) fakat AUC 0.781 (0.785) vermiş; lr = 0.3 ve 1.0'da sırasıyla kısmi ve tam
-çöküş gözlenmiştir (koruma 0.894 ve 0.341; doygunluk ve ölü birim %50). Bu biçim katman başına A² ile ölçeklenen
+çöküş gözlenmiştir (koruma 0.894 ve 0.341; doygunluk %26 ve %75, ölü birim ≈ %50). Bu biçim katman başına A² ile ölçeklenen
 etkin öğrenme oranı nedeniyle ilk katmanı çok yavaş eğitir; ana deneylerde kullanılan Φ = A·Θ ölçeklemesi
 başlangıçta standart ağla eşit etkin adım sağladığından karşılaştırmalar için uygun biçimdir (§2, `docs/PROTOKOL.md`).
 
 **İkincil karşılaştırma kümesi** (§6 tablosu; 3 tohum, yarı bütçeli hiperparametre araması): Parseval
-düzenlileştirmesi bütün yöntemler içinde en yüksek son pencere doğruluğunu (0.844, koruma 1.016) ve en yüksek
-temsil kertesini (52.9) vermiştir; Shrink & Perturb plastisiteyi tam korumuş (1.000), UPGD (0.951) ve Smooth-Leaky
+düzenlileştirmesi bütün yöntemler içinde en yüksek son pencere doğruluğunu (0.844, koruma 1.016) ve yayımlanmış
+yöntemler içinde en yüksek temsil kertesini (52.9; Sin-MLP kontrolü 79.1) vermiştir; Shrink & Perturb plastisiteyi tam korumuş (1.000), UPGD (0.951) ve Smooth-Leaky
 aktivasyon (0.965) kısmen korumuştur. Smooth-Leaky ve Sin-MLP'nin ölü birim oranı sıfıra yakındır fakat
 plastisite kaybı sürmektedir — ölü birimlerin ortadan kalkması tek başına yeterli değildir (Lyle vd., 2023;
 2025 ile uyumlu).
