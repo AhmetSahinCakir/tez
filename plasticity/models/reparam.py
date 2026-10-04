@@ -34,6 +34,23 @@ Scaling of the free parameter (``theta_scale``)
                    experiments; ``'unit'`` is kept as a sensitivity analysis.
 In both cases :meth:`angle` returns the argument of sin/tanh and :meth:`normalized_jacobian` the factor
 ``cos(angle)`` (sin) or ``1 - tanh²(angle)`` (tanh) that multiplies the effective step (H3).
+
+Non-damped bounded maps (added after the project-stage mechanism analysis)
+--------------------------------------------------------------------------
+The mechanism analysis showed that the sin/tanh maps lose to hard Weight Clipping because their Jacobian
+vanishes at the bound (parameters freeze there), and that removing the damping multiplicatively
+(``scale_corrected``) only piles the parameters up at the bound.  Two bounded maps whose *update* never
+vanishes keep the structural-reparametrisation idea but remove the freeze:
+
+``mode='tri'``        : triangle wave ``W = A·tri(ang)``, ``tri(x) = (2/π)·asin(sin(πx/2))`` -- bounded in
+                        [-A, A], periodic (period 4), |dW/d(ang)| = 1 everywhere.  Inside the bound the layer
+                        is *exactly* the standard layer (tri(x) = x for |x| ≤ 1); a parameter that reaches the
+                        bound is *reflected* back instead of frozen (reflection vs. the projection of clipping).
+``jacobian_floor=ε``  : for sin/tanh the forward pass is unchanged but the backward pass uses
+                        ``sign(f'(ang))·max(|f'(ang)|, ε)`` instead of ``f'(ang)`` (a straight-through-type
+                        estimator).  ε = 0 is the plain reparametrisation, ε = 1 makes the sin map a smooth
+                        reflecting map (the parameter keeps moving past the crest, so |W| decreases again);
+                        intermediate ε interpolate.  Reported Jacobian statistics still use the true f'.
 """
 from __future__ import annotations
 
@@ -44,7 +61,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-REPARAM_MODES = ("standard", "sin", "tanh")
+REPARAM_MODES = ("standard", "sin", "tanh", "tri")
 INIT_SCHEMES = ("kaiming_uniform", "torch_default", "kaiming_normal")
 
 
@@ -76,22 +93,29 @@ class _BoundedMap(torch.autograd.Function):
     """
 
     @staticmethod
-    def forward(ctx, theta: torch.Tensor, amplitude: torch.Tensor, is_sin: bool, scaled: bool):
+    def forward(ctx, theta: torch.Tensor, amplitude: torch.Tensor, mode: str, scaled: bool, floor: float):
         ang = theta / amplitude if scaled else theta
-        if is_sin:
+        if mode == "sin":
             f = torch.sin(ang)
             d = torch.cos(ang)  # f'(ang)
-        else:
+        elif mode == "tanh":
             f = torch.tanh(ang)
             d = 1.0 - f * f
+        else:  # triangle wave: f(x) = (2/pi) asin(sin(pi x / 2)), f'(x) = sign(cos(pi x / 2)) in {-1, +1}
+            h = ang * (math.pi / 2)
+            f = torch.asin(torch.sin(h).clamp(-1.0, 1.0)) * (2.0 / math.pi)
+            d = torch.where(torch.cos(h) < 0, -torch.ones_like(ang), torch.ones_like(ang))
         ctx.save_for_backward(ang, f, d, amplitude)
         ctx.scaled = scaled
+        ctx.floor = float(floor)
         return amplitude * f
 
     @staticmethod
     def backward(ctx, grad: torch.Tensor):
         ang, f, d, amplitude = ctx.saved_tensors
         scaled = ctx.scaled
+        if ctx.floor > 0.0:  # straight-through-type estimator: keep the sign of f', floor its magnitude
+            d = torch.where(d < 0, -torch.ones_like(d), torch.ones_like(d)) * d.abs().clamp_min(ctx.floor)
         g_theta = g_amp = None
         if ctx.needs_input_grad[0]:
             g_theta = grad * d if scaled else grad * (amplitude * d)  # dW/dΘ = f'(ang)·d(ang)/dΘ·A
@@ -99,7 +123,7 @@ class _BoundedMap(torch.autograd.Function):
             # W = A f(ang): dW/dA = f(ang) + A f'(ang) d(ang)/dA, with d(ang)/dA = -Θ/A² = -ang/A (scaled) or 0
             dWdA = f - ang * d if scaled else f
             g_amp = (grad * dWdA).sum().reshape(amplitude.shape)
-        return g_theta, g_amp, None, None
+        return g_theta, g_amp, None, None, None
 
 
 class ReparamLinear(nn.Module):
@@ -118,6 +142,7 @@ class ReparamLinear(nn.Module):
         bias_init: str = "zeros",
         learn_amplitude: bool = False,
         theta_scale: str = "amplitude",
+        jacobian_floor: float = 0.0,
         generator: Optional[torch.Generator] = None,
     ) -> None:
         super().__init__()
@@ -126,8 +151,11 @@ class ReparamLinear(nn.Module):
         self.theta_scale = theta_scale
         if mode not in REPARAM_MODES:
             raise ValueError(f"mode must be one of {REPARAM_MODES}, got {mode!r}")
-        if mode != "standard" and gamma <= 1.0:
-            raise ValueError("gamma must be > 1 so that |W0|/A < 1 and the inverse map is defined")
+        if mode != "standard" and gamma < 1.0:
+            raise ValueError("gamma must be >= 1 so that |W0| <= A and the inverse map is defined")
+        if not 0.0 <= float(jacobian_floor) <= 1.0:
+            raise ValueError("jacobian_floor must be in [0, 1]")
+        self.jacobian_floor = float(jacobian_floor)
         self.in_features, self.out_features = int(in_features), int(out_features)
         self.mode = mode
         self.gamma = float(gamma)
@@ -177,13 +205,13 @@ class ReparamLinear(nn.Module):
         return theta / amplitude if theta_scale == "amplitude" else theta
 
     @staticmethod
-    def forward_map(theta: torch.Tensor, mode: str, amplitude, theta_scale: str = "unit") -> torch.Tensor:
+    def forward_map(theta: torch.Tensor, mode: str, amplitude, theta_scale: str = "unit", jacobian_floor: float = 0.0) -> torch.Tensor:
         if mode == "standard":
             return theta
-        if mode not in ("sin", "tanh"):
+        if mode not in ("sin", "tanh", "tri"):
             raise ValueError(mode)
         amp = amplitude if torch.is_tensor(amplitude) else torch.tensor(float(amplitude), dtype=theta.dtype)
-        return _BoundedMap.apply(theta, amp, mode == "sin", theta_scale == "amplitude")
+        return _BoundedMap.apply(theta, amp, mode, theta_scale == "amplitude", float(jacobian_floor))
 
     @staticmethod
     def inverse(w: torch.Tensor, mode: str, amplitude: float, theta_scale: str = "unit") -> torch.Tensor:
@@ -195,6 +223,8 @@ class ReparamLinear(nn.Module):
             ang = torch.asin(r)
         elif mode == "tanh":
             ang = torch.atanh(r)
+        elif mode == "tri":
+            ang = r  # tri(x) = x on [-1, 1]
         else:
             raise ValueError(mode)
         return ang * float(amplitude) if theta_scale == "amplitude" else ang
@@ -217,16 +247,19 @@ class ReparamLinear(nn.Module):
             return torch.cos(ang)
         if mode == "tanh":
             return 1.0 - torch.tanh(ang) ** 2
+        if mode == "tri":
+            c = torch.cos(ang * (math.pi / 2))
+            return torch.where(c < 0, -torch.ones_like(ang), torch.ones_like(ang))
         raise ValueError(mode)
 
     # --- effective quantities ----------------------------------------------------------------------
     def effective_weight(self) -> torch.Tensor:
-        return self.forward_map(self.theta, self.mode, self.amplitude, self.theta_scale)
+        return self.forward_map(self.theta, self.mode, self.amplitude, self.theta_scale, self.jacobian_floor)
 
     def effective_bias(self) -> Optional[torch.Tensor]:
         if self.theta_bias is None:
             return None
-        return self.forward_map(self.theta_bias, self.bias_mode, self.bias_amplitude, self.theta_scale)
+        return self.forward_map(self.theta_bias, self.bias_mode, self.bias_amplitude, self.theta_scale, self.jacobian_floor)
 
     def angle(self) -> torch.Tensor:
         """Argument of sin / tanh (Θ for unit scale, Φ/A for amplitude scale)."""
@@ -306,5 +339,6 @@ class ReparamLinear(nn.Module):
     def extra_repr(self) -> str:
         return (
             f"in={self.in_features}, out={self.out_features}, mode={self.mode}, compact_bias={self.compact_bias}, "
-            f"gamma={self.gamma}, A={float(self.amplitude):.4f}, theta_scale={self.theta_scale}, init={self.init_scheme}"
+            f"gamma={self.gamma}, A={float(self.amplitude):.4f}, theta_scale={self.theta_scale}, "
+            f"jacobian_floor={self.jacobian_floor}, init={self.init_scheme}"
         )

@@ -115,7 +115,8 @@ def test_inverse_forward_round_trip(mode, theta_scale):
     assert torch.allclose(back, w, atol=1e-6)
     if mode != "standard":
         # forward -> inverse on the principal branch
-        ang = 0.5 * math.pi * 0.95 * (2 * torch.rand(OUT, IN, generator=gen(6)) - 1)
+        half = 0.95 if mode == "tri" else 0.5 * math.pi * 0.95  # principal branch: [-1, 1] for tri, [-pi/2, pi/2] otherwise
+        ang = half * (2 * torch.rand(OUT, IN, generator=gen(6)) - 1)
         th0 = ang * A if theta_scale == "amplitude" else ang
         w0 = ReparamLinear.forward_map(th0, mode, A, theta_scale)
         assert torch.allclose(ReparamLinear.inverse(w0, mode, A, theta_scale), th0, atol=1e-5)
@@ -187,7 +188,13 @@ def test_normalized_jacobian_range_and_relation(mode, theta_scale):
             assert torch.equal(nj, torch.ones_like(nj)) and torch.equal(jac, torch.ones_like(jac))
         elif mode == "tanh":
             assert float(nj.min()) >= 0.0  # 1 - tanh^2 is non-negative
-    if mode != "standard":
+    if mode == "tri":
+        # the triangle map never damps: |normalised Jacobian| == 1 everywhere, W stays bounded
+        assert torch.equal(nj.abs(), torch.ones_like(nj))
+        with torch.no_grad():
+            lin.theta.mul_(40.0)
+        assert float(lin.effective_weight().detach().abs().max()) <= float(lin.amplitude) + 1e-6
+    elif mode != "standard":
         # at the bound the (normalised) Jacobian vanishes: the weight is frozen
         with torch.no_grad():
             A = float(lin.amplitude)
@@ -286,10 +293,16 @@ def test_zero_input_units_zeroes_columns(mode, theta_scale):
 
 # ------------------------------------------------------------------------------- validation
 @pytest.mark.parametrize("mode", ("sin", "tanh"))
-@pytest.mark.parametrize("gamma", (1.0, 0.5, 0.0))
+@pytest.mark.parametrize("gamma", ( 0.5, 0.0))
 def test_gamma_at_most_one_raises(mode, gamma):
     with pytest.raises(ValueError, match="gamma"):
         ReparamLinear(IN, OUT, mode=mode, gamma=gamma)
+
+
+@pytest.mark.parametrize("mode", ("sin", "tanh", "tri"))
+def test_gamma_one_is_allowed(mode):
+    lin = ReparamLinear(IN, OUT, mode=mode, gamma=1.0)  # A = b: the tightest bound (clipping with kappa=1)
+    assert float(lin.effective_weight().detach().abs().max()) <= float(lin.amplitude) + 1e-6
 
 
 def test_standard_mode_ignores_gamma_and_bad_arguments_raise():

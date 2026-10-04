@@ -35,6 +35,7 @@ class MLP(nn.Module):
         bias_init: str = "zeros",
         learn_amplitude: bool = False,
         theta_scale: str = "amplitude",
+        jacobian_floor: float = 0.0,
         generator: Optional[torch.Generator] = None,
     ) -> None:
         super().__init__()
@@ -53,14 +54,14 @@ class MLP(nn.Module):
         for h in self.hidden_sizes:
             layers.append(
                 ReparamLinear(d, h, mode=hidden_mode, compact_bias=compact_bias, gamma=gamma, init=init, gain=gain,
-                              bias_init=bias_init, learn_amplitude=learn_amplitude, theta_scale=theta_scale, generator=generator)
+                              bias_init=bias_init, learn_amplitude=learn_amplitude, theta_scale=theta_scale, jacobian_floor=jacobian_floor, generator=generator)
             )
             norms.append(nn.LayerNorm(h, elementwise_affine=ln_affine) if layer_norm else nn.Identity())
             acts.append(get_activation(activation, width=h, **(activation_kwargs or {})))
             d = h
         # output layer: linear gain (no nonlinearity follows)
         self.output = ReparamLinear(d, self.n_classes, mode=output_mode, compact_bias=compact_bias, gamma=gamma, init=init,
-                                    gain=1.0, bias_init=bias_init, learn_amplitude=learn_amplitude, theta_scale=theta_scale, generator=generator)
+                                    gain=1.0, bias_init=bias_init, learn_amplitude=learn_amplitude, theta_scale=theta_scale, jacobian_floor=jacobian_floor, generator=generator)
         self.hidden = nn.ModuleList(layers)
         self.norms = nn.ModuleList(norms)
         self.acts = nn.ModuleList(acts)

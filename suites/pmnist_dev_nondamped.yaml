@@ -1,0 +1,28 @@
+# Hyper-parameter search (same dev streams and budget rules as suites/pmnist_dev.yaml) for the non-damped
+# bounded maps added after the mechanism analysis: triangle wave (reflection) and sin/tanh with the Jacobian
+# floor (straight-through estimator). Results go into results/pmnist_dev next to the other dev runs.
+name: pmnist_dev
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+seeds: [0]
+stream_seed_offset: 1000
+common:
+  stream.n_tasks: 100
+  stream.samples_per_task: 5000
+  metrics.every_n_tasks: 10
+  metrics.fisher: false
+  metrics.update_tracking_every: 0
+  fresh_reference.every_n_tasks: 0
+runs:
+  - label: tri
+    overrides: {model.reparam.hidden: tri, model.reparam.output: tri}
+    sweep: {optimizer.lr: [0.003, 0.01], model.gamma: [1.0, 1.5]}
+  - label: sin_refl
+    overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.jacobian_floor: 1.0}
+    sweep: {optimizer.lr: [0.003, 0.01], model.gamma: [1.0, 1.5]}
+  - label: sin_floor
+    overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.jacobian_floor: 0.3}
+    sweep: {optimizer.lr: [0.003, 0.01], model.gamma: [1.5]}
+  - label: tanh_refl
+    overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh, model.jacobian_floor: 1.0}
+    sweep: {optimizer.lr: [0.003, 0.01], model.gamma: [1.0, 1.5]}
