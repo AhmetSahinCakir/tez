@@ -388,7 +388,26 @@ sınırlamak tek başına ReLU birimlerinin ölmesini engellememektedir (Lyle vd
 kısmen bağımsız mekanizma).
 
 ## 10. Durağan öğrenme kontrolü
-_(doldurulacak)_
+Sürekli öğrenme protokollerindeki farkların genel kapasite farkından kaynaklanmadığını göstermek için
+standart, sinüs ve tanh modelleri i.i.d. koşullarda karşılaştırılmıştır (`suites/stationary.yaml`,
+`reports/stationary_summary.md`; 5 tohum, lr ∈ {0.01, 0.03, 0.1} içinden model başına en iyi değer):
+
+| Veri kümesi / model | lr | Test doğruluğu | Eğitim doğruluğu |
+|---|---|---|---|
+| MNIST (784-100-100-100-10, 10 dönem), standart | 0.1 | 0.977 ± 0.001 | 0.993 |
+| MNIST, sinüs | 0.1 | 0.978 ± 0.002 | 0.993 |
+| MNIST, tanh | 0.1 | 0.978 ± 0.002 | 0.993 |
+| CIFAR-100 gri, 100 sınıf (1024-256-256-100, 20 dönem), standart | 0.01 | 0.162 ± 0.003 | 0.318 |
+| CIFAR-100 gri, sinüs | 0.01 | 0.163 ± 0.001 | 0.290 |
+| CIFAR-100 gri, tanh | 0.01 | 0.162 ± 0.002 | 0.273 |
+
+Üç model durağan koşullarda aynı test doğruluğuna ulaşmaktadır (MNIST 0.977–0.978; CIFAR-100 0.162–0.163;
+farklar güven aralıklarının içinde). CIFAR-100'de sınırlı modellerin eğitim doğruluğu biraz daha düşüktür
+(0.29/0.27 vs 0.32): sınırlı ağırlık uzayı aşırı uyumu bir miktar kısıtlar fakat genellemeyi değiştirmez.
+Dolayısıyla §6'daki plastisite farkı ve §7'deki fark yokluğu genel öğrenme kapasitesindeki bir eksiklikle
+açıklanamaz; fark, eğitim ilerledikçe ortaya çıkan dinamiklerle ilgilidir. Sınırlı modeller yüksek öğrenme
+oranlarına karşı daha dayanıklıdır (CIFAR-100, lr = 0.1: standart 0.126, sinüs 0.142, tanh 0.145), bu da
+§5'teki geliştirme akışı gözlemiyle (sınırlı modellerin büyük lr'de çökmemesi) tutarlıdır.
 
 ## 11. İkincil deneyler: Adam duyarlılığı, serbest parametre ölçeği, ikincil karşılaştırma kümesi
 Genlik taraması ve ölçek-düzeltmeli güncelleme §8'de; ikincil karşılaştırma kümesi (Shrink & Perturb, UPGD,
