@@ -122,7 +122,71 @@ bu yöntemler ana hipotez testlerinde yer almaz.
 _(seçilen değerler tablosu aşağıda, geliştirme akışı sonuçlarından doldurulacak)_
 
 ## 6. Ana karşılaştırma — Online Permuted MNIST (İP-5)
-_(doldurulacak)_
+Final akışlar (tohum ofseti 0), 200 görev × 5.000 örnek, batch 1, tek geçiş; standart/sinüs/tanh 10 tohum,
+yayımlanmış yöntemler 5 tohum, ikincil küme 3 tohum. Aynı tohum aynı görev akışını tanımlar (eşleştirilmiş
+tasarım). Bütün sayılar `reports/pmnist_summary_main.md`, `reports/pmnist_vs_baseline.md` ve
+`reports/pmnist_vs_sin.md` dosyalarından alınmıştır (ortalama ± %95 GA, tohumlar üzerinden).
+
+| Yöntem | n | Normalize AUC | Son pencere (son 20 görev) | Koruma oranı | Taze model farkı | Ölü birim | Ort. \|w\| | Etkin kerte |
+|---|---:|---|---|---|---|---|---|---|
+| Standart (baseline) | 10 | 0.774 ± 0.001 | 0.743 ± 0.003 | 0.906 ± 0.004 | +0.021 ± 0.008 | 0.177 | 0.109 | 25.5 |
+| **Sinüs A·sin(Θ)** | 10 | 0.785 ± 0.001 | 0.760 ± 0.004 | 0.926 ± 0.004 | −0.008 ± 0.009 | 0.141 | 0.098 | 28.1 |
+| Tanh A·tanh(Θ) | 10 | 0.785 ± 0.001 | 0.761 ± 0.002 | 0.931 ± 0.004 | −0.019 ± 0.012 | 0.119 | 0.093 | 31.7 |
+| Weight Clipping (κ=1) | 5 | 0.836 ± 0.001 | 0.839 ± 0.002 | 1.017 ± 0.004 | −0.077 ± 0.012 | 0.145 | 0.064 | 42.9 |
+| L2 Init (λ=0.01) | 5 | 0.830 ± 0.001 | 0.831 ± 0.002 | 1.007 ± 0.004 | −0.067 ± 0.006 | 0.013 | 0.061 | 45.8 |
+| Continual Backprop (ρ=1e-4) | 5 | 0.821 ± 0.001 | 0.821 ± 0.005 | 1.003 ± 0.008 | −0.055 ± 0.007 | 0.000 | 0.051 | 41.6 |
+| NaP | 5 | 0.833 ± 0.001 | 0.834 ± 0.001 | 1.007 ± 0.004 | −0.014 ± 0.003 | 0.155 | 0.047 | 36.3 |
+| LayerNorm + WD (λ=1e-3) | 5 | 0.816 ± 0.002 | 0.809 ± 0.003 | 0.976 ± 0.005 | +0.003 ± 0.008 | 0.102 | 0.043 | 33.2 |
+| Shrink & Perturb | 3 | 0.810 ± 0.000 | 0.810 ± 0.001 | 1.000 ± 0.007 | −0.018 ± 0.016 | 0.001 | 0.060 | 35.3 |
+| UPGD | 3 | 0.800 ± 0.003 | 0.786 ± 0.006 | 0.951 ± 0.006 | +0.011 ± 0.010 | 0.149 | 0.095 | 39.3 |
+| Parseval | 3 | 0.844 ± 0.001 | 0.844 ± 0.004 | 1.016 ± 0.009 | −0.095 ± 0.023 | 0.010 | 0.044 | 52.9 |
+| Smooth-Leaky aktivasyon | 3 | 0.799 ± 0.001 | 0.784 ± 0.003 | 0.965 ± 0.010 | −0.056 ± 0.031 | 0.012 | 0.263 | 49.9 |
+| Sin-MLP (sinüs aktivasyon) | 3 | 0.809 ± 0.002 | 0.799 ± 0.002 | 0.960 ± 0.006 | +0.014 ± 0.008 | 0.000 | 0.097 | 79.1 |
+
+Şekiller: `reports/pmnist_performance_core.png` (standart/sinüs/tanh eğrileri), `reports/pmnist_performance_methods.png`
+(yayımlanmış yöntemler), `reports/pmnist_mechanism_core.png` (mekanizma panelleri), `reports/pmnist_fresh_gap.png`,
+`reports/pmnist_dots_*.png` (özet ölçütler, tohum noktalarıyla).
+
+### 6.1 H1 — sınırlı yeniden parametrizasyon vs. standart ağ
+Sinüs modeli standart ağa göre bütün birincil ölçütlerde tutarlı ve istatistiksel olarak anlamlı biçimde
+daha iyidir (n = 10 eşleştirilmiş tohum): normalize AUC farkı **+0.011 [%95 GA +0.010, +0.012]**,
+son pencere doğruluğu **+0.017 [+0.013, +0.022]**, koruma oranı **+0.021 [+0.015, +0.026]**, taze model
+farkı **−0.029 [−0.035, −0.023]** (işaret-çevirme permütasyon testi p = 0.002, Holm düzeltmeli p = 0.023;
+eşleştirilmiş t-testi p < 1e-6; Cohen d_z 2.2–7.8). Görev 200'de standart ağ aynı görevi sıfırdan öğrenen
+taze modelin 0.021 altına düşerken sinüs modeli taze modelle eşit düzeydedir. Mekanizma düzeyinde sinüs modeli
+daha az ölü birim (0.141 vs 0.177; Holm p = 0.065 permütasyon, 0.020 t-testi) ve daha yüksek temsil kertesi
+(28.1 vs 25.5; Holm p = 0.023) ile birlikte daha küçük ağırlık büyüklüğü (0.098 vs 0.109) üretir.
+**H1 desteklenmiştir; etki büyüklüğü ise küçüktür**: koruma oranındaki iyileşme (0.906 → 0.926) standart ağın
+kaybının yaklaşık dörtte birini telafi eder; plastisite kaybı sinüs modelinde de sürmektedir
+(şekil: eğri eğimi standart ağa yakındır).
+
+### 6.2 H2 — sınırlılık mı, periyodiklik mi?
+Sinüs ve tanh modelleri birbirinden ayırt edilemez: normalize AUC farkı −0.000 [−0.001, +0.001] (p = 0.87),
+son pencere +0.001 [−0.003, +0.004] (p = 0.69), koruma oranı +0.004 [−0.001, +0.009] (p = 0.14). Tanh modeli
+yalnızca taze model farkında (−0.012 [−0.018, −0.004]; Holm p = 0.12 permütasyon, 0.04 t-testi) ve mekanizma
+ölçütlerinde (ölü birim −0.022, etkin kerte +3.6, doygunluk 0.003 vs 0.043; Holm p ≤ 0.05) sinüsten hafifçe
+daha iyidir. Öneri formundaki karar kuralına göre bu sonuç **sınırlılığın baskın rolünü** gösterir: periyodik
+geometri ölçülebilir bir ek katkı sağlamamakta, aksine sinüs parametrizasyonu daha fazla doygun parametre
+(cos Θ ≈ 0) ve biraz daha fazla ölü birim üretmektedir. Sin-MLP kontrolü (sinüs *aktivasyon*, sınırsız ağırlık;
+koruma 0.960, 3 tohum) ise sınırlı-ağırlık modellerinden daha iyi plastisite korumuş, fakat Chen ve Zhang'ın
+(2026) bildirdiği gibi kayıp devam etmiştir; aktivasyon periyodikliği ile ağırlık sınırlılığı birbirinden
+bağımsız etkenlerdir.
+
+### 6.3 Yayımlanmış yöntemlerle karşılaştırma
+Hiperparametreleri aynı bütçeyle seçilen yayımlanmış yöntemlerin tamamı bu ölçekte sinüs/tanh modellerinden
+belirgin biçimde daha iyidir ve çoğu plastisiteyi tamamen korur (koruma oranı ≈ 1.0): Weight Clipping 0.839,
+NaP 0.834, L2 Init 0.831, Continual Backprop 0.821, Shrink & Perturb 0.810, LayerNorm+WD 0.809 son pencere
+doğruluğu (standart 0.743, sinüs 0.760). Parseval düzenlileştirmesi (ikincil küme) en yüksek değeri vermiştir
+(0.844). Bu yöntemlerin standart ağa göre farkları eşleştirilmiş t-testinde p < 1e-6'dır; 5 ve 3 tohumlu
+karşılaştırmalarda işaret-çevirme testinin ulaşabileceği en küçük p değerleri (0.0625 ve 0.25) nedeniyle
+permütasyon p değerleri anlamlılık eşiğine ulaşamamaktadır (bkz. tablo notu).
+
+En öğretici karşılaştırma **Weight Clipping (κ = 1)** ile sinüs modelidir: ikisi de efektif ağırlıkları
+başlangıç sınırının katı bir aralığında tutar (κ = 1 ⇔ |W| ≤ b_l; sinüs modelinde |W| ≤ 1.5·b_l), fakat
+kırpma gradyanı değiştirmeden *projeksiyon* uygularken yeniden parametrizasyon gradyanı
+cos²(Θ) ile ölçekler. Kırpma 0.839, sinüs 0.760 son pencere doğruluğu vermiştir. Bu fark, sınırlılığın kendisi
+değil, sınıra yaklaşan parametrelerdeki Jacobian kaynaklı adım küçülmesinin (H3) yöntemin başarımını
+sınırladığına işaret eder; §8–§9'daki bileşen ve ölçek-düzeltme deneyleri bu yorumu doğrudan sınar.
 
 ## 7. Ardışık CIFAR-100 ikili sınıflandırma (İP-5)
 

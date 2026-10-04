@@ -104,9 +104,63 @@ def _labels_starting(runs: pd.DataFrame, prefix: str) -> List[str]:
     return sorted(l for l in runs["label"].unique() if l == prefix or l.startswith(prefix + "/"))
 
 
+def _p(v: float) -> str:
+    if v is None or (isinstance(v, float) and np.isnan(v)):
+        return "—"
+    s = "***" if v < 0.001 else "**" if v < 0.01 else "*" if v < 0.05 else ""
+    return (f"{v:.4f}" if v >= 1e-4 else f"{v:.1e}") + (" " + s if s else "")
+
+
+def _metric_name(metric: str, lang: str) -> str:
+    T = plots.label_text
+    if T(metric, lang) != metric:  # a summary metric with its own translation (final_window_mean, ...)
+        return T(metric, lang)
+    if metric.startswith("final_"):
+        return T("final_prefix", lang) + T(metric[6:], lang)
+    if metric.startswith("early_"):
+        return T("early_prefix", lang) + T(metric[6:], lang)
+    return metric
+
+
+def _format_cmp(cmp: pd.DataFrame, lang: str) -> pd.DataFrame:
+    """Formatted paired-comparison table with BOTH the pre-registered tests: the exact sign-flip permutation
+    test (whose smallest attainable two-sided p is 2/2^n, i.e. 0.0625 for n = 5 and 0.25 for n = 3) and the
+    paired t-test, each Holm-corrected within the family of comparisons of the same metric."""
+    from plasticity.metrics.stats import holm_correction
+    T = plots.label_text
+    cmp = cmp.copy()
+    cmp["p_t_holm"] = np.nan
+    for m, idx in cmp.groupby("metric").groups.items():
+        sub = cmp.loc[idx, "t_p"].to_numpy(dtype=float)
+        cmp.loc[idx, "p_t_holm"] = holm_correction(sub)
+    rows = []
+    for _, r in cmp.iterrows():
+        n = int(r["n_pairs"]) if not np.isnan(r["n_pairs"]) else 0
+        deg = n < 2 or np.isnan(r.get("mean_diff", np.nan))
+        rows.append({
+            T("metric", lang): _metric_name(str(r["metric"]), lang),
+            T("label", lang): r["label"], T("reference", lang): r["reference"], "n": n,
+            T("mean_label", lang): f"{r['mean_label']:.3f}", T("mean_ref", lang): f"{r['mean_ref']:.3f}",
+            T("mean_diff", lang) + " [%95 GA]": "—" if deg else f"{r['mean_diff']:+.3f} [{r['ci_low']:+.3f}, {r['ci_high']:+.3f}]",
+            "p (perm.)": "—" if deg else _p(r["p_perm"]), "p (perm., Holm)": "—" if deg else _p(r["p_holm"]),
+            "p (t)": "—" if deg else _p(r["t_p"]), "p (t, Holm)": "—" if deg else _p(r["p_t_holm"]),
+            "d_z": "—" if deg else f"{r['cohen_dz']:.2f}",
+        })
+    return pd.DataFrame(rows)
+
+
 def _write_tables(df_long: pd.DataFrame, out: Path, stem: str, lang: str, title: str, fmt_fn) -> None:
     df_long.to_csv(out / f"{stem}.csv", index=False)
-    md = f"# {title}\n\n" + df_to_markdown(fmt_fn(df_long, lang=lang)) + "\n"
+    if fmt_fn is format_comparison:
+        body = df_to_markdown(_format_cmp(df_long, lang))
+        note = ("\n_Eşleştirilmiş tasarım (aynı tohum = aynı görev akışı). İşaret-çevirme permütasyon testinin ulaşabileceği "
+                "en küçük iki yönlü p değeri 2/2ⁿ'dir (n=10: 0.002; n=5: 0.0625; n=3: 0.25); bu nedenle eşleştirilmiş t-testi "
+                "de verilmiştir. Holm düzeltmesi aynı ölçütün karşılaştırma ailesi içinde uygulanmıştır. "
+                "* p<0.05, ** p<0.01, *** p<0.001._\n")
+    else:
+        body = df_to_markdown(fmt_fn(df_long, lang=lang))
+        note = "\n_ortalama ± %95 GA (tohumlar üzerinden, t-dağılımı)._\n"
+    md = f"# {title}\n\n" + body + "\n" + note
     (out / f"{stem}.md").write_text(md, encoding="utf-8")
     _written.extend([f"{stem}.csv", f"{stem}.md"])
 

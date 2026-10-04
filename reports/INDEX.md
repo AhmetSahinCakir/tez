@@ -1,0 +1,32 @@
+# Üretilen dosyalar
+
+- `pmnist_dots_auc_norm.pdf`
+- `pmnist_dots_auc_norm.png`
+- `pmnist_dots_final_window_mean.pdf`
+- `pmnist_dots_final_window_mean.png`
+- `pmnist_dots_fresh_gap_final.pdf`
+- `pmnist_dots_fresh_gap_final.png`
+- `pmnist_dots_retention_ratio.pdf`
+- `pmnist_dots_retention_ratio.png`
+- `pmnist_fresh_gap.pdf`
+- `pmnist_fresh_gap.png`
+- `pmnist_mechanism_ablation.pdf`
+- `pmnist_mechanism_ablation.png`
+- `pmnist_mechanism_core.pdf`
+- `pmnist_mechanism_core.png`
+- `pmnist_mechanism_methods.pdf`
+- `pmnist_mechanism_methods.png`
+- `pmnist_performance_ablation.pdf`
+- `pmnist_performance_ablation.png`
+- `pmnist_performance_core.pdf`
+- `pmnist_performance_core.png`
+- `pmnist_performance_methods.pdf`
+- `pmnist_performance_methods.png`
+- `pmnist_performance_secondary.pdf`
+- `pmnist_performance_secondary.png`
+- `pmnist_summary_main.csv`
+- `pmnist_summary_main.md`
+- `pmnist_vs_baseline.csv`
+- `pmnist_vs_baseline.md`
+- `pmnist_vs_sin.csv`
+- `pmnist_vs_sin.md`
