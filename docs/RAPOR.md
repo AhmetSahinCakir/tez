@@ -216,6 +216,40 @@ yapılandırması (`configs/cifar_canonical.yaml`) korunmuştur. Bu, öneri form
 metninde raporlanacaktır: Chen ve Zhang'ın klasik MLP'de bildirdiği performans düşüşü, bu depodaki
 ölçek/eniyileyici seçimleriyle mini-batch rejiminde yeniden üretilememiştir.
 
+### 7.2 Ana karşılaştırma (çevrimiçi varyant, 1000 görev, 5 tohum)
+`reports/cifar_summary_main.md`, `reports/cifar_vs_baseline.md`, `reports/cifar_performance_*.png`,
+`reports/cifar_mechanism_*.png`:
+
+| Yöntem | Normalize AUC | Son pencere | Koruma oranı | Taze model farkı | Ölü birim | Ort. \|w\| | Etkin kerte |
+|---|---|---|---|---|---|---|---|
+| Standart | 0.749 ± 0.003 | 0.749 ± 0.012 | 0.983 ± 0.035 | +0.025 ± 0.017 | 0.184 | 0.047 | 13.3 |
+| Sinüs (γ = 5) | 0.747 ± 0.003 | 0.744 ± 0.010 | 0.977 ± 0.031 | +0.016 ± 0.011 | 0.212 | 0.047 | 12.2 |
+| Tanh (γ = 5) | 0.748 ± 0.002 | 0.747 ± 0.010 | 0.983 ± 0.028 | +0.006 ± 0.027 | 0.198 | 0.047 | 13.6 |
+| Weight Clipping (κ = 1) | 0.750 ± 0.003 | 0.752 ± 0.006 | 0.988 ± 0.025 | +0.014 ± 0.016 | 0.188 | 0.040 | 13.8 |
+| L2 Init | 0.759 ± 0.002 | 0.763 ± 0.012 | 1.001 ± 0.034 | −0.012 ± 0.019 | 0.001 | 0.045 | 42.0 |
+| Continual Backprop | 0.760 ± 0.002 | 0.766 ± 0.009 | 1.007 ± 0.030 | +0.004 ± 0.023 | 0.000 | 0.047 | 44.3 |
+| NaP | 0.760 ± 0.001 | 0.766 ± 0.011 | 1.010 ± 0.031 | −0.018 ± 0.030 | 0.009 | 0.039 | 32.3 |
+| LayerNorm + WD | 0.742 ± 0.003 | 0.741 ± 0.011 | 0.981 ± 0.029 | +0.024 ± 0.029 | 0.270 | 0.012 | 8.8 |
+
+* Standart ağ 1000 görevde performans düzeyinde yalnızca hafif bir plastisite kaybı gösterir (koruma 0.983;
+  taze model farkı +0.025 ± 0.017), buna karşın iç yapı güçlü biçimde bozulur (ölü birim 0.18, etkin kerte
+  45 → 13). Görev başına test doğruluğunun tohumlar arası değişkenliği (sınıf çiftlerinin zorluğu) PMNIST'e
+  göre çok yüksektir; bu nedenle güven aralıkları geniştir.
+* **H1/H2 bu protokolde desteklenmemiştir**: sinüs ve tanh modelleri standart ağdan ayırt edilemez (AUC farkı
+  −0.002 [−0.003, −0.001] ve −0.001 [−0.002, +0.001]; Holm p > 0.17). Mekanizma ölçütleri nedenini gösterir:
+  bu protokolde ağırlık büyüklüğü hiç büyümemektedir (ortalama |w| 0.046 → 0.047), dolayısıyla sınırın
+  (γ = 5 ile |W|/A ≈ 0.1, doygunluk 0) devreye gireceği bir rejim oluşmaz; Weight Clipping de aynı nedenle
+  etkisizdir (+0.001). Plastisite kaybının bu protokoldeki taşıyıcısı ağırlık büyümesi değil, ölü birimler ve
+  kerte çöküşüdür.
+* Buna uygun olarak, ölü birimleri doğrudan hedefleyen yöntemler — Continual Backprop (ölü birim 0.000,
+  kerte 44), L2 Init (0.001, 42) ve NaP (0.009, 32) — anlamlı iyileşme sağlar (AUC +0.010 … +0.011
+  [+0.008, +0.013]; eşleştirilmiş t-testi Holm p ≤ 0.004; permütasyon testi n = 5 ile en küçük p = 0.0625).
+  LayerNorm + WD ise seçilen λ = 10⁻³ ile ağırlıkları aşırı küçültmüş (|w| 0.012) ve en kötü sonucu vermiştir
+  (−0.007 [−0.009, −0.005]).
+* Bu bulgu PMNIST sonuçlarını tamamlar: sınırlı yeniden parametrizasyonun etkisi, plastisite kaybının ağırlık
+  büyümesi kanalıyla gerçekleştiği rejimlerle sınırlıdır (Lyle vd., 2025'in "birden fazla bağımsız mekanizma"
+  bulgusuyla uyumlu).
+
 ## 8. Bileşen analizi (İP-4): sınırlılık, periyodiklik, yanlılık, katman seçimi
 _(doldurulacak)_
 

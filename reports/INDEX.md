@@ -1,5 +1,33 @@
 # Üretilen dosyalar
 
+- `cifar_dots_auc_norm.pdf`
+- `cifar_dots_auc_norm.png`
+- `cifar_dots_final_window_mean.pdf`
+- `cifar_dots_final_window_mean.png`
+- `cifar_dots_fresh_gap_final.pdf`
+- `cifar_dots_fresh_gap_final.png`
+- `cifar_dots_retention_ratio.pdf`
+- `cifar_dots_retention_ratio.png`
+- `cifar_fresh_gap.pdf`
+- `cifar_fresh_gap.png`
+- `cifar_mechanism_ablation.pdf`
+- `cifar_mechanism_ablation.png`
+- `cifar_mechanism_core.pdf`
+- `cifar_mechanism_core.png`
+- `cifar_mechanism_methods.pdf`
+- `cifar_mechanism_methods.png`
+- `cifar_performance_ablation.pdf`
+- `cifar_performance_ablation.png`
+- `cifar_performance_core.pdf`
+- `cifar_performance_core.png`
+- `cifar_performance_methods.pdf`
+- `cifar_performance_methods.png`
+- `cifar_summary_main.csv`
+- `cifar_summary_main.md`
+- `cifar_vs_baseline.csv`
+- `cifar_vs_baseline.md`
+- `cifar_vs_sin.csv`
+- `cifar_vs_sin.md`
 - `pmnist_dots_auc_norm.pdf`
 - `pmnist_dots_auc_norm.png`
 - `pmnist_dots_final_window_mean.pdf`
