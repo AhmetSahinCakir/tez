@@ -1,0 +1,23 @@
+# Scale-up 1 of 2: the FULL canonical stream length of Dohare et al. (2024) -- 800 tasks x all 60,000 MNIST
+# images per task (48 M online updates per run, batch 1, one pass) -- with the small 3x100 network.
+# Tests whether the sin/tanh advantage over the standard network persists (grows / shrinks) over the long
+# horizon.  Cost on this machine: ~7 h (standard), ~9 h (clipping), ~17 h (sin / tanh) per run.
+name: pmnist_fullstream
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+stream_seed_offset: 0
+selected_hparams: suites/selected_pmnist.yaml
+seeds: [0, 1, 2]
+common:
+  stream.n_tasks: 800
+  stream.samples_per_task: 60000
+  metrics.every_n_tasks: 20
+  metrics.fisher_samples: 32
+  metrics.update_tracking_every: 1000
+  fresh_reference.every_n_tasks: 100
+  log_every: 20
+runs:
+  - {label: baseline, overrides: {method.name: baseline}}
+  - {label: sin, overrides: {model.reparam.hidden: sin, model.reparam.output: sin}}
+  - {label: tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}}
+  - {label: weight_clipping, overrides: {method.name: weight_clipping}}

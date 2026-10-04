@@ -5,6 +5,8 @@ data/processed/
 results/**/model_final.pt
 results/**/stdout.log
 results/pilot/
+results/*.log
+results/scaleup_chain.log
 # python
 __pycache__/
 *.pyc

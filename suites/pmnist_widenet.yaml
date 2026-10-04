@@ -1,0 +1,22 @@
+# Scale-up 2 of 2: the canonical network WIDTH of Dohare et al. (2024) -- 3 hidden layers of 2000 units
+# (~12 M parameters) -- on the reduced stream (200 tasks x 5000 samples).  Tests whether the findings hold
+# for a wide network, where loss of plasticity is known to be milder.  ~6 h (standard) / ~12 h (sin) per run.
+name: pmnist_widenet
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+stream_seed_offset: 0
+selected_hparams: suites/selected_pmnist.yaml
+seeds: [0, 1, 2]
+common:
+  stream.n_tasks: 200
+  stream.samples_per_task: 5000
+  model.hidden_sizes: [2000, 2000, 2000]
+  metrics.every_n_tasks: 10
+  metrics.probe_size: 1000
+  metrics.fisher_samples: 16
+  metrics.update_tracking_every: 500
+  fresh_reference.every_n_tasks: 50
+runs:
+  - {label: baseline, overrides: {method.name: baseline}}
+  - {label: sin, overrides: {model.reparam.hidden: sin, model.reparam.output: sin}}
+  - {label: tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}}
