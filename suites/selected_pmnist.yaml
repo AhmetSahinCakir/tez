@@ -1,0 +1,112 @@
+# Hyper-parameters selected by scripts/select_hparams.py from results/pmnist_dev
+# metric: auc_norm (higher is better), mean over seeds; 'selected' maps base label -> dotted overrides (consumed by run_suite.py via 'selected_hparams').
+metric: auc_norm
+direction: max
+results: results/pmnist_dev
+min_seeds: 1
+selected:
+  baseline: {optimizer.lr: 0.003}
+  continual_backprop: {method.replacement_rate: 0.0001, optimizer.lr: 0.003}
+  l2_init: {method.lam: 0.01, optimizer.lr: 0.003}
+  ln_wd: {method.weight_decay: 0.001, optimizer.lr: 0.003}
+  nap: {optimizer.lr: 0.01}
+  parseval: {method.beta: 0.01, optimizer.lr: 0.003}
+  shrink_perturb: {method.shrink: 0.0001, optimizer.lr: 0.01}
+  sin: {model.gamma: 1.5, optimizer.lr: 0.003}
+  sin_act: {optimizer.lr: 0.003}
+  smooth_leaky: {optimizer.lr: 0.03}
+  tanh: {model.gamma: 1.5, optimizer.lr: 0.003}
+  upgd: {method.sigma: 0.0001, optimizer.lr: 0.01}
+  weight_clipping: {method.kappa: 1.0, optimizer.lr: 0.003}
+details:
+  baseline:
+    variant: baseline/lr=0.003
+    mean: 0.795366
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 5
+  continual_backprop:
+    variant: continual_backprop/lr=0.003/replacement_rate=0.0001
+    mean: 0.8216539999999999
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 8
+  l2_init:
+    variant: l2_init/lr=0.003/lam=0.01
+    mean: 0.831662
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 8
+  ln_wd:
+    variant: ln_wd/lr=0.003/weight_decay=0.001
+    mean: 0.82172
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 8
+  nap:
+    variant: nap/lr=0.01
+    mean: 0.8321520000000001
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 5
+  parseval:
+    variant: parseval/lr=0.003/beta=0.01
+    mean: 0.84195
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 4
+  shrink_perturb:
+    variant: shrink_perturb/lr=0.01/shrink=0.0001
+    mean: 0.81022
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 4
+  sin:
+    variant: sin/lr=0.003
+    mean: 0.80111
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 9
+  sin_act:
+    variant: sin_act/lr=0.003
+    mean: 0.817428
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 5
+  smooth_leaky:
+    variant: smooth_leaky/lr=0.03
+    mean: 0.8109619999999998
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 5
+  tanh:
+    variant: tanh/lr=0.003
+    mean: 0.803796
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 9
+  upgd:
+    variant: upgd/lr=0.01/sigma=0.0001
+    mean: 0.81121
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 4
+  weight_clipping:
+    variant: weight_clipping/lr=0.003/kappa=1.0
+    mean: 0.834148
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 8

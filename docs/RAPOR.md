@@ -14,9 +14,34 @@ _(sonuçlar tamamlandığında doldurulacak)_
 
 ## 2. Deney altyapısı (İP-1, İP-2)
 Altyapı Python 3.11 / PyTorch ile yapılandırma dosyası tabanlı olarak geliştirilmiştir (bkz. `README.md`,
-`docs/PROTOKOL.md`). Temel bileşenler: deterministik görev akışları, eşleştirilmiş başlangıçlı
-`ReparamLinear` katmanı, yöntem eklenti arayüzü, çevrimiçi eğitici, mekanizma ölçütleri, paket çalıştırıcı,
-analiz ve istatistik araçları, birim testleri.
+`docs/PROTOKOL.md`). Bileşenler:
+
+* **Görev akışları** (`plasticity/data`): Online Permuted MNIST ve ardışık CIFAR-100 ikili akışları
+  `(tohum, görev)` çiftinin deterministik fonksiyonudur; aynı tohumla çalışan yöntemler birebir aynı
+  permütasyon/sınıf çifti/örnek sırasını görür (eşleştirilmiş tasarım). Geliştirme akışları tohum ofsetiyle
+  final akışlarından ayrılır.
+* **Yeniden parametrizasyon** (`plasticity/models/reparam.py`): `ReparamLinear` katmanı standart / A·sin(Θ) /
+  A·tanh(Θ) efektif ağırlıkları, eşleştirilmiş başlangıcı (Θ₀ = arcsin(W₀/A) vb.), tam-kompakt yanlılığı,
+  öğrenilebilir genlik seçeneğini, Jacobian ve normalize Jacobian (cos Θ) yardımcılarını ve CBP için birim
+  yeniden başlatma işlemlerini içerir; ileri/geri geçiş tek bir kaynaşık `autograd.Function` ile hesaplanır
+  (gradyan denetimi testlerle doğrulanmıştır).
+* **Yöntem eklentileri** (`plasticity/methods`): ortak arayüz (`regularizer`, `before_step`, `after_step`,
+  görev başı/sonu kancaları) üzerinde 10 yöntem. Her uygulama, kaynak makalenin formülasyonuna karşı bağımsız
+  bir inceleme turundan geçirilmiş ve birim testlerle doğrulanmıştır (toplam 305 test, `tests/`).
+* **Eğitici** (`plasticity/training`): çevrimiçi protokol (güncellemeden önce tahmin → çevrimiçi doğruluk),
+  mini-batch/dönemli protokol (CIFAR), durağan kontrol ve seçilmiş görevlerde eşleştirilmiş başlangıçlı taze
+  model referansı.
+* **Ölçütler ve istatistik** (`plasticity/metrics`): mekanizma ölçütleri (ağırlık büyüklüğü/normu, ölü ve
+  etkisiz birim oranı, kararlı/etkin kerte, aktivasyon ve gradyan büyüklükleri, Fisher izi ve etkin kertesi —
+  hem Θ hem W koordinatlarında, F_Θ = Jᵀ F_W J uyarısıyla), özet ölçütler (normalize AUC, erken/son pencere,
+  plastisite koruma oranı, taze model farkı) ve eşleştirilmiş istatistik (bootstrap GA, işaret-çevirme
+  permütasyon testi, Wilcoxon, Cohen d_z, Holm düzeltmesi).
+* **Çalıştırma ve analiz** (`scripts/`): yeniden başlatılabilir paralel paket çalıştırıcı, geliştirme
+  akışlarında hiperparametre seçimi, tablo/şekil üretimi.
+
+Yöntemlerin adım maliyeti (784-100-100-100-10, batch 1, tek iş parçacığı; standart = 1.0×): weight clipping
+0.89×, L2 Init 0.77×, NaP 0.71×, LN+WD 0.65×, Continual Backprop 0.48×, tanh modeli 0.47×, Shrink&Perturb
+0.43×, sinüs modeli 0.39×, ölçek-düzeltmeli sinüs 0.31×, Parseval 0.30×, UPGD 0.27×.
 
 ## 3. Hesaplama bütçesi ve protokol ölçekleri
 Proje aşamasındaki bütün deneyler GPU'suz, 4 çekirdekli bir CPU ortamında yürütülmüştür. Ölçülen verimlilik
@@ -74,7 +99,27 @@ daha hızlı düşmektedir (47 → 13). Bu gözlem, genlik taraması ve ölçek-
 (§11) gerekçesini oluşturur.
 
 ## 5. Hiperparametre seçimi (İP-2)
-_(doldurulacak)_
+Öneri formunun gereği olarak yöntemlere ortak bir öğrenme oranı dayatılmamış; her yöntem için önceden
+belirlenmiş, eşit büyüklükte bir arama bütçesi **geliştirme akışlarında** (tohum ofseti 1000; final
+akışlarıyla permütasyon/sınıf çifti paylaşmaz) tek tohumla uygulanmıştır. Seçim ölçütü normalize AUC'dir.
+
+| Yöntem | Arama ızgarası (PMNIST ve CIFAR-100 için aynı) | Yapılandırma sayısı |
+|---|---|---|
+| Standart, Sin-MLP, Smooth-Leaky, NaP | lr ∈ {0.001, 0.003, 0.01, 0.03, 0.1} (NaP: {0.003 … 0.3}) | 5 |
+| Sinüs, tanh | lr ∈ {0.001 … 0.1} (γ = 1.5) ∪ lr ∈ {0.003, 0.01} × γ ∈ {2.5, 5} | 9 |
+| Weight Clipping | lr ∈ {0.003, 0.01, 0.03, 0.1} × κ ∈ {1, 2} | 8 |
+| L2 Init | lr × λ ∈ {1e-3, 1e-2} | 8 |
+| Continual Backprop | lr × ρ ∈ {1e-4, 1e-3} (m = 100, η = 0.99) | 8 |
+| LayerNorm + WD | lr × λ ∈ {1e-4, 1e-3} | 8 |
+| Shrink & Perturb, UPGD, Parseval (ikincil küme) | lr ∈ {0.003, 0.01} × 2 yönteme özgü değer | 4 |
+
+Geliştirme akışları: PMNIST 100 görev × 5.000 örnek; CIFAR-100 300 görev. Seçilen değerler
+`suites/selected_pmnist.yaml` ve `suites/selected_cifar.yaml` dosyalarında dondurulmuş, bütün varyantların
+sonuçları `reports/pmnist_dev_hparams.md` ve `reports/cifar_dev_hparams.md` tablolarında verilmiştir.
+İkincil kümenin bütçesi hesaplama maliyeti (adım başına 3–4 kat yavaş) nedeniyle yarıya indirilmiştir;
+bu yöntemler ana hipotez testlerinde yer almaz.
+
+_(seçilen değerler tablosu aşağıda, geliştirme akışı sonuçlarından doldurulacak)_
 
 ## 6. Ana karşılaştırma — Online Permuted MNIST (İP-5)
 _(doldurulacak)_
