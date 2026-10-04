@@ -40,6 +40,7 @@ from plasticity.analysis.tables import (  # noqa: E402
 )
 
 CORE = ["baseline", "sin", "tanh"]
+NONDAMPED = ["tri", "sin_refl", "tanh_refl", "sin_floor"]  # non-damped bounded maps (added after the mechanism analysis)
 PUBLISHED = ["weight_clipping", "l2_init", "continual_backprop", "nap", "ln_wd"]
 SECONDARY = ["shrink_perturb", "upgd", "parseval", "smooth_leaky", "sin_act"]
 SUMMARY_METRICS = ["auc_norm", "early_window_mean", "final_window_mean", "retention_ratio", "fresh_gap_final",
@@ -192,7 +193,8 @@ def protocol_assets(P: str, results: Path, out: Path, lang: str, smooth: Optiona
     core = _present(main, CORE)
     published = _present(main, PUBLISHED)
     secondary = _present(main, SECONDARY)
-    main_labels = core + published + secondary
+    nondamped = _present(main, NONDAMPED)
+    main_labels = core + nondamped + published + secondary
 
     # ---- tables ------------------------------------------------------------------------------------
     if main_labels:
@@ -237,7 +239,7 @@ def protocol_assets(P: str, results: Path, out: Path, lang: str, smooth: Optiona
         if has_fresh_data(curves[curves["label"].isin(core)]):
             _try("fresh_gap", lambda: _save(plots.plot_fresh_gap(curves, metric=metric, labels=core, lang=lang, colors=_colors(core, runs), runs=runs), out, f"{P}_fresh_gap"))
     if published:
-        labs = [l for l in ["baseline", "sin"] if l in main_labels] + published
+        labs = [l for l in ["baseline", "sin", "tri", "sin_refl"] if l in main_labels] + published
         _try("perf_methods", lambda: _save(plots.plot_performance_curves(curves, metric, labels=labs, smooth=smooth, lang=lang, colors=_colors(labs, runs), runs=runs),
                                            out, f"{P}_performance_methods"))
         _try("mech_methods", lambda: _save(plots.plot_mechanism_panels(curves, keys=["dead_frac/all", "w_abs_mean/all", "effective_rank_c/last",
@@ -247,6 +249,12 @@ def protocol_assets(P: str, results: Path, out: Path, lang: str, smooth: Optiona
         labs = [l for l in ["baseline", "sin"] if l in main_labels] + secondary
         _try("perf_secondary", lambda: _save(plots.plot_performance_curves(curves, metric, labels=labs, smooth=smooth, lang=lang, colors=_colors(labs, runs), runs=runs),
                                              out, f"{P}_performance_secondary"))
+    if nondamped:
+        labs = [l for l in ["baseline", "sin", "tanh", "weight_clipping"] if l in main_labels] + nondamped
+        _try("perf_nondamped", lambda: _save(plots.plot_performance_curves(curves, metric, labels=labs, smooth=smooth, lang=lang, colors=_colors(labs, runs), runs=runs),
+                                             out, f"{P}_performance_nondamped"))
+        _try("mech_nondamped", lambda: _save(plots.plot_mechanism_panels(curves, keys=MECH_KEYS_CORE, labels=labs, smooth=smooth, lang=lang, colors=_colors(labs, runs), runs=runs),
+                                             out, f"{P}_mechanism_nondamped"))
     for m in ["auc_norm", "final_window_mean", "retention_ratio", "fresh_gap_final"]:
         if main_labels and m in main.columns and main[m].notna().any():
             _try(f"dots_{m}", lambda m=m: _save(plots.plot_summary_dots(main, m, labels=main_labels, reference="baseline" if "baseline" in main_labels else None,

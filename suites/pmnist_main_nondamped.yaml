@@ -1,0 +1,19 @@
+# Main-suite runs (FINAL streams, same seeds as pmnist_main) for the non-damped bounded maps; learning rate
+# and gamma come from the dev search (suites/selected_pmnist.yaml, regenerated after suites/pmnist_dev_nondamped).
+name: pmnist_main
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+stream_seed_offset: 0
+selected_hparams: suites/selected_pmnist.yaml
+common:
+  stream.n_tasks: 200
+  stream.samples_per_task: 5000
+  metrics.every_n_tasks: 5
+  metrics.fisher_samples: 32
+  metrics.update_tracking_every: 100
+  fresh_reference.every_n_tasks: 25
+runs:
+  - {label: tri, overrides: {model.reparam.hidden: tri, model.reparam.output: tri}, n_seeds: 10}
+  - {label: sin_refl, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.jacobian_floor: 1.0}, n_seeds: 10}
+  - {label: tanh_refl, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh, model.jacobian_floor: 1.0}, n_seeds: 5}
+  - {label: sin_floor, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.jacobian_floor: 0.3}, n_seeds: 5}
