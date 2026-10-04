@@ -28,6 +28,12 @@
 - `cifar_vs_baseline.md`
 - `cifar_vs_sin.csv`
 - `cifar_vs_sin.md`
+- `pmnist_ablation_summary.csv`
+- `pmnist_ablation_summary.md`
+- `pmnist_adam.pdf`
+- `pmnist_adam.png`
+- `pmnist_adam_unit.csv`
+- `pmnist_adam_unit.md`
 - `pmnist_dots_auc_norm.pdf`
 - `pmnist_dots_auc_norm.png`
 - `pmnist_dots_final_window_mean.pdf`
@@ -38,6 +44,10 @@
 - `pmnist_dots_retention_ratio.png`
 - `pmnist_fresh_gap.pdf`
 - `pmnist_fresh_gap.png`
+- `pmnist_gamma.pdf`
+- `pmnist_gamma.png`
+- `pmnist_gamma_curves.pdf`
+- `pmnist_gamma_curves.png`
 - `pmnist_mechanism_ablation.pdf`
 - `pmnist_mechanism_ablation.png`
 - `pmnist_mechanism_core.pdf`
@@ -52,6 +62,12 @@
 - `pmnist_performance_methods.png`
 - `pmnist_performance_secondary.pdf`
 - `pmnist_performance_secondary.png`
+- `pmnist_scale_corrected.pdf`
+- `pmnist_scale_corrected.png`
+- `pmnist_scale_corrected_mechanism.pdf`
+- `pmnist_scale_corrected_mechanism.png`
+- `pmnist_sin_unit.pdf`
+- `pmnist_sin_unit.png`
 - `pmnist_summary_main.csv`
 - `pmnist_summary_main.md`
 - `pmnist_vs_baseline.csv`

@@ -251,7 +251,72 @@ metninde raporlanacaktır: Chen ve Zhang'ın klasik MLP'de bildirdiği performan
   bulgusuyla uyumlu).
 
 ## 8. Bileşen analizi (İP-4): sınırlılık, periyodiklik, yanlılık, katman seçimi
-_(doldurulacak)_
+Final PMNIST akışlarında, ana paketle aynı tohumlarda (eşleştirilmiş) yürütülen bileşen deneyleri
+(`reports/pmnist_ablation_summary.md`, `reports/pmnist_vs_sin.md`, `reports/pmnist_performance_ablation.png`,
+`reports/pmnist_gamma*.png`, `reports/pmnist_scale_corrected*.png`, `reports/pmnist_sin_unit.png`). Referans:
+tam-kompakt sinüs modeli (γ = 1.5, lr = 0.003; AUC 0.785, son pencere 0.760, koruma 0.926). Farklar sinüs
+modeline göre eşleştirilmiş farklardır [%95 GA]; p değerleri eşleştirilmiş t-testi (Holm) — 3–5 tohumlu
+karşılaştırmalarda permütasyon testi anlamlılık eşiğine ulaşamaz (bkz. §6.3).
+
+| Varyant | n | AUC | Son pencere | Koruma | Doygunluk | Ölü birim | Kerte | ΔAUC vs sinüs |
+|---|---:|---|---|---|---|---|---|---|
+| Sinüs, tam-kompakt (referans) | 10 | 0.785 | 0.760 | 0.926 | 0.043 | 0.141 | 28.1 | — |
+| Yanlılık standart (`compact_bias: false`) | 5 | 0.784 | 0.761 | 0.927 | 0.043 | 0.150 | 29.0 | −0.000 [−0.001, +0.001] |
+| Yalnızca gizli katmanlar sınırlı | 5 | 0.778 | 0.752 | 0.918 | 0.046 | 0.151 | 26.5 | −0.007 [−0.009, −0.006] (Holm p = 0.016) |
+| Yalnızca çıkış katmanı sınırlı | 5 | 0.784 | 0.759 | 0.923 | 0.193 | 0.170 | 26.6 | −0.001 [−0.002, +0.000] |
+| Tanh, yanlılık standart | 3 | 0.783 | 0.758 | 0.927 | 0.003 | 0.148 | 30.6 | −0.002 [−0.003, −0.001] |
+| γ = 1.2 (daha sıkı sınır) | 3 | 0.782 | 0.751 | 0.917 | 0.138 | 0.117 | 30.8 | −0.003 [−0.004, −0.002] |
+| γ = 2.5 | 3 | 0.784 | 0.758 | 0.922 | 0.001 | 0.136 | 26.3 | −0.001 [−0.003, +0.001] |
+| γ = 5.0 (gevşek sınır) | 3 | 0.778 | 0.756 | 0.921 | 0.000 | 0.165 | 25.8 | −0.007 [−0.009, −0.004] |
+| Ölçek-düzeltmeli, c_max = 3 | 3 | 0.782 | 0.749 | 0.909 | 0.281 | 0.155 | 27.2 | −0.003 [−0.004, −0.002] (Holm p = 0.21) |
+| Ölçek-düzeltmeli, c_max = 10 | 3 | 0.764 | 0.699 | 0.849 | 0.545 | 0.179 | 24.9 | −0.021 [−0.024, −0.019] (Holm p = 0.049) |
+| Ölçek-düzeltmeli, c_max = 30 | 3 | 0.744 | 0.624 | 0.757 | 0.671 | 0.218 | 23.1 | −0.042 [−0.045, −0.040] (Holm p = 0.018) |
+| Öğrenilebilir A | 3 | 0.773 | 0.749 | 0.913 | — | 0.143 | 29.6 | −0.012 [−0.012, −0.012] (Holm p = 0.002) |
+| Sinüs + Continual Backprop | 3 | 0.825 | 0.827 | 1.009 | — | — | — | +0.039 [+0.038, +0.041] (Holm p = 0.004) |
+| Standart (karşılaştırma için) | 10 | 0.774 | 0.743 | 0.906 | — | 0.177 | 25.5 | −0.011 |
+
+**Yanlılık terimleri.** Öneri formundaki ön gözlemin aksine, yanlılıkların serbest bırakılması bu ölçekte
+sonucu değiştirmemektedir (fark −0.000 [−0.001, +0.001]; tanh için de aynı). Tam-kompakt yapılandırma gereksiz
+değildir fakat etkinin kaynağı değildir.
+
+**Katman seçimi.** Etkinin büyük bölümü **çıkış katmanının** sınırlanmasından gelmektedir: yalnızca çıkış
+katmanı sınırlı model referansla hemen hemen aynıdır (−0.001), yalnızca gizli katmanları sınırlı model ise
+etkinin yaklaşık üçte ikisini kaybeder (−0.007, koruma 0.918). Standart ağda büyüyen ağırlıkların plastisiteyi
+en çok zedelediği yer çıkış katmanıdır (çıkış ağırlıklarının büyümesi lojit ölçeğini ve dolayısıyla
+softmax'ın doygunluğunu artırır); bu, Dohare vd. (2024)'ün ağırlık büyümesi bulgusunun katman düzeyinde bir
+ayrıştırmasıdır. Yalnızca çıkış katmanı sınırlandığında çıkış ağırlıklarının %19'u doygunluğa ulaşır.
+
+**Genlik (sınır genişliği).** Etki γ'ya karşı tek tepeli ve geniştir: γ = 1.2'de doygunluk %14'e çıkar ve
+koruma düşer (0.917); γ = 2.5 referansla eşdeğerdir; γ = 5'te sınır o kadar gevşektir ki (|W|/A ≈ 0.20,
+doygunluk 0) model standart ağa yaklaşır (0.921 → standart 0.906). Yani yöntem, "sınıra yaklaşan ama doymayan"
+bir rejimde çalışmakta; etkisi ağırlıkların büyümesine izin verilen alanla orantılı olarak azalmaktadır.
+
+**Jacobian maliyetinin giderilmesi (H3 testi).** Ölçek-düzeltmeli güncelleme — gradyanın min(1/cos², c_max) ile
+ölçeklenerek sınıra yakın adımların standart büyüklüğe getirilmesi — plastisiteyi *iyileştirmemiş*, tersine
+c_max arttıkça tekdüze biçimde bozmuştur (koruma 0.909 → 0.849 → 0.757; doygunluk %28 → %55 → %67). Adım
+küçülmesi giderilince parametreler sınıra yığılıp donmakta ve ölü birimler artmaktadır. Sonuç, öneri
+formundaki üçüncü senaryoya karşılık gelir: cos² kaynaklı sönüm bir "optimizasyon maliyeti" olmaktan çok,
+sınırlı parametrizasyonun örtük bir koruyucu (yumuşak projeksiyon) mekanizmasıdır; onu kaldırmak sınırlılığın
+yararını da ortadan kaldırmaktadır. Weight Clipping'in sert projeksiyonu (§6.3) bu ikilemi yaşamadığı için
+üstündür: ağırlık sınırda kalır, gradyan ne ölçeklenir ne de parametre donar.
+
+**Öğrenilebilir genlik.** A öğrenilebilir yapıldığında (ikincil duyarlılık analizi) performans düşmüştür
+(−0.012; koruma 0.913): genlik eğitim boyunca sürüklenmiş (bazı katmanlarda işaret değiştirmiş; fonksiyon
+A → −A dönüşümüne göre simetrik olduğundan bu bir hata değildir, ancak |A|'nın büyümesi sınırı gevşetir). Bu
+yapılandırma için |W|/A tabanlı doygunluk ölçütleri işaretli A ile hesaplandığından tabloda verilmemiştir.
+
+**Birim yeniden başlatma ile birleşim.** Sinüs modeline Continual Backprop eklendiğinde plastisite tamamen
+korunmuş (koruma 1.009, son pencere 0.827) ve tek başına CBP'den (0.821, 1.003) bir miktar daha iyi sonuç
+alınmıştır; sınırlılık ve ölü birim yeniden başlatma birbirini tamamlayan, kısmen bağımsız mekanizmalara
+etki etmektedir (Lyle vd., 2025).
+
+**Serbest parametre ölçeği (`theta_scale: unit`).** Literal W = A·sin(Θ) biçiminde (katman başına η·A²
+etkin öğrenme oranı; ana deneylerde kullanılan genlik-ölçekli Φ = A·Θ biçimi yerine) en iyi öğrenme oranıyla
+(lr = 0.1) koruma oranı 0.938'e çıkmış fakat normalize AUC 0.782'ye düşmüştür: ilk katmanın etkin öğrenme
+oranı ≈ 60 kat küçük olduğundan ağ daha yavaş öğrenir, ancak daha az plastisite kaybeder (ölü birim oranı
+%42'ye rağmen). Bu, "yavaş öğrenen ağ daha az plastisite kaybeder" ödünleşiminin bir örneğidir ve iki
+ölçeklendirmenin aynı mekanizmayı farklı öğrenme oranı dağılımlarıyla sergilediğini gösterir
+(`reports/pmnist_sin_unit.png`).
 
 ## 9. Mekanizma analizi (İP-3): Jacobian, etkin adım, Fisher koordinatları
 PMNIST ana paketindeki standart/sinüs/tanh çalışmalarından (10 tohum) ilk 20 ve son 20 görevin ortalamaları
