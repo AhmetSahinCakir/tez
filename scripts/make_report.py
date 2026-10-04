@@ -165,6 +165,13 @@ def _write_tables(df_long: pd.DataFrame, out: Path, stem: str, lang: str, title:
     _written.extend([f"{stem}.csv", f"{stem}.md"])
 
 
+def _colors(labels: Sequence[str], runs: Optional[pd.DataFrame] = None) -> Dict[str, str]:
+    """Fresh palette for one figure: the shared registry is reset so a figure never inherits the grey
+    'overflow' colour from labels drawn in earlier figures (core labels keep their pinned mode slots)."""
+    plots.reset_palette()
+    return plots.make_palette(list(labels), runs=runs)
+
+
 def _save(fig, out: Path, stem: str) -> None:
     if fig is None:
         return
@@ -223,22 +230,22 @@ def protocol_assets(P: str, results: Path, out: Path, lang: str, smooth: Optiona
     # ---- figures -------------------------------------------------------------------------------------
     T = plots.label_text
     if core:
-        _try("perf_core", lambda: _save(plots.plot_performance_curves(curves, metric, labels=core, smooth=smooth, lang=lang, runs=runs,
+        _try("perf_core", lambda: _save(plots.plot_performance_curves(curves, metric, labels=core, smooth=smooth, lang=lang, colors=_colors(core, runs), runs=runs,
                                                                         title=T("performance_title", lang)), out, f"{P}_performance_core"))
-        _try("mech_core", lambda: _save(plots.plot_mechanism_panels(curves, keys=MECH_KEYS_CORE, labels=core, smooth=smooth, lang=lang, runs=runs),
+        _try("mech_core", lambda: _save(plots.plot_mechanism_panels(curves, keys=MECH_KEYS_CORE, labels=core, smooth=smooth, lang=lang, colors=_colors(core, runs), runs=runs),
                                         out, f"{P}_mechanism_core"))
         if has_fresh_data(curves[curves["label"].isin(core)]):
-            _try("fresh_gap", lambda: _save(plots.plot_fresh_gap(curves, metric=metric, labels=core, lang=lang, runs=runs), out, f"{P}_fresh_gap"))
+            _try("fresh_gap", lambda: _save(plots.plot_fresh_gap(curves, metric=metric, labels=core, lang=lang, colors=_colors(core, runs), runs=runs), out, f"{P}_fresh_gap"))
     if published:
         labs = [l for l in ["baseline", "sin"] if l in main_labels] + published
-        _try("perf_methods", lambda: _save(plots.plot_performance_curves(curves, metric, labels=labs, smooth=smooth, lang=lang, runs=runs),
+        _try("perf_methods", lambda: _save(plots.plot_performance_curves(curves, metric, labels=labs, smooth=smooth, lang=lang, colors=_colors(labs, runs), runs=runs),
                                            out, f"{P}_performance_methods"))
         _try("mech_methods", lambda: _save(plots.plot_mechanism_panels(curves, keys=["dead_frac/all", "w_abs_mean/all", "effective_rank_c/last",
                                                                                       "grad_norm_w", "fisher_trace_w", "step_dw_norm"],
                                                                         labels=labs, smooth=smooth, lang=lang, runs=runs), out, f"{P}_mechanism_methods"))
     if secondary:
         labs = [l for l in ["baseline", "sin"] if l in main_labels] + secondary
-        _try("perf_secondary", lambda: _save(plots.plot_performance_curves(curves, metric, labels=labs, smooth=smooth, lang=lang, runs=runs),
+        _try("perf_secondary", lambda: _save(plots.plot_performance_curves(curves, metric, labels=labs, smooth=smooth, lang=lang, colors=_colors(labs, runs), runs=runs),
                                              out, f"{P}_performance_secondary"))
     for m in ["auc_norm", "final_window_mean", "retention_ratio", "fresh_gap_final"]:
         if main_labels and m in main.columns and main[m].notna().any():
@@ -247,33 +254,33 @@ def protocol_assets(P: str, results: Path, out: Path, lang: str, smooth: Optiona
     comp = [l for l in ["sin", "sin/bias_std", "sin/hidden_only", "sin/output_only", "tanh", "tanh/bias_std", "sin/learn_amplitude", "sin/cbp"]
             if l in set(runs["label"])]
     if len(comp) > 1:
-        _try("perf_ablation", lambda: _save(plots.plot_performance_curves(curves, metric, labels=comp, smooth=smooth, lang=lang, runs=runs),
+        _try("perf_ablation", lambda: _save(plots.plot_performance_curves(curves, metric, labels=comp, smooth=smooth, lang=lang, colors=_colors(comp, runs), runs=runs),
                                             out, f"{P}_performance_ablation"))
-        _try("mech_ablation", lambda: _save(plots.plot_mechanism_panels(curves, keys=MECH_KEYS_CORE, labels=comp, smooth=smooth, lang=lang, runs=runs),
+        _try("mech_ablation", lambda: _save(plots.plot_mechanism_panels(curves, keys=MECH_KEYS_CORE, labels=comp, smooth=smooth, lang=lang, colors=_colors(comp, runs), runs=runs),
                                             out, f"{P}_mechanism_ablation"))
     gamma_labels = ["sin"] + _labels_starting(runs, "sin/gamma")
     if len(gamma_labels) > 1 and "cfg.model.gamma" in runs.columns:
         sub = runs[runs["label"].isin(gamma_labels)].copy()
         sub["grp"] = "sin"
-        _try("gamma", lambda: _save(plots.plot_sweep(sub, "cfg.model.gamma", "auc_norm", group_key="grp", lang=lang,
+        _try("gamma", lambda: _save(plots.plot_sweep(sub, "cfg.model.gamma", "auc_norm", group_key="grp", lang=lang, colors=_colors(["sin"], runs),
                                                       title="Genlik duyarlılığı (γ)" if lang == "tr" else "Amplitude sensitivity (γ)",
                                                       xlabel="γ"), out, f"{P}_gamma"))
-        _try("gamma_curves", lambda: _save(plots.plot_performance_curves(curves, metric, labels=gamma_labels, smooth=smooth, lang=lang, runs=runs),
+        _try("gamma_curves", lambda: _save(plots.plot_performance_curves(curves, metric, labels=gamma_labels, smooth=smooth, lang=lang, colors=_colors(gamma_labels, runs), runs=runs),
                                            out, f"{P}_gamma_curves"))
     sc_labels = ["sin"] + _labels_starting(runs, "sin/scale_corrected")
     if len(sc_labels) > 1:
-        _try("scale_corrected", lambda: _save(plots.plot_performance_curves(curves, metric, labels=sc_labels, smooth=smooth, lang=lang, runs=runs),
+        _try("scale_corrected", lambda: _save(plots.plot_performance_curves(curves, metric, labels=sc_labels, smooth=smooth, lang=lang, colors=_colors(sc_labels, runs), runs=runs),
                                               out, f"{P}_scale_corrected"))
         _try("scale_corrected_mech", lambda: _save(plots.plot_mechanism_panels(curves, keys=["sat_frac/all", "jac_sq_mean/all", "w_over_A_mean/all",
                                                                                               "dead_frac/all", "effective_rank_c/last", "step_dw_norm"],
                                                                                 labels=sc_labels, smooth=smooth, lang=lang, runs=runs), out, f"{P}_scale_corrected_mechanism"))
     unit_labels = ["sin"] + _labels_starting(runs, "sin_unit")
     if len(unit_labels) > 1:
-        _try("sin_unit", lambda: _save(plots.plot_performance_curves(curves, metric, labels=unit_labels, smooth=smooth, lang=lang, runs=runs),
+        _try("sin_unit", lambda: _save(plots.plot_performance_curves(curves, metric, labels=unit_labels, smooth=smooth, lang=lang, colors=_colors(unit_labels, runs), runs=runs),
                                        out, f"{P}_sin_unit"))
     adam_labels = [l for l in runs["label"].unique() if l.startswith("adam_")]
     if adam_labels:
-        _try("adam", lambda: _save(plots.plot_performance_curves(curves, metric, labels=sorted(adam_labels), smooth=smooth, lang=lang, runs=runs),
+        _try("adam", lambda: _save(plots.plot_performance_curves(curves, metric, labels=sorted(adam_labels), smooth=smooth, lang=lang, colors=_colors(sorted(adam_labels), runs), runs=runs),
                                    out, f"{P}_adam"))
 
 
