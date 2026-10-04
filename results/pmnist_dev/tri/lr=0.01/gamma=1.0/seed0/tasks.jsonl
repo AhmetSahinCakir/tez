@@ -53,3 +53,4 @@
 {"task": 52, "time": 15.0720853805542, "online_accuracy": 0.7726, "online_loss": 0.693433544921875, "n_train": 5000}
 {"task": 53, "time": 14.962260007858276, "online_accuracy": 0.7842, "online_loss": 0.654093212890625, "n_train": 5000}
 {"task": 54, "time": 16.214868783950806, "online_accuracy": 0.7752, "online_loss": 0.687774951171875, "n_train": 5000}
+{"task": 55, "time": 15.79593539237976, "online_accuracy": 0.7662, "online_loss": 0.699117529296875, "n_train": 5000}
