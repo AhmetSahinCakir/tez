@@ -144,7 +144,28 @@ sonuçları `reports/pmnist_dev_hparams.md` ve `reports/cifar_dev_hparams.md` ta
 İkincil kümenin bütçesi hesaplama maliyeti (adım başına 3–4 kat yavaş) nedeniyle yarıya indirilmiştir;
 bu yöntemler ana hipotez testlerinde yer almaz.
 
-_(seçilen değerler tablosu aşağıda, geliştirme akışı sonuçlarından doldurulacak)_
+Seçilen değerler (parantez içinde geliştirme akışındaki normalize AUC; ikincil küme CIFAR-100'de aranmamıştır):
+
+| Yöntem | PMNIST (geliştirme AUC) | CIFAR-100 (geliştirme AUC) |
+|---|---|---|
+| Standart | lr=0.003 (0.795) | lr=0.003 (0.746) |
+| Sinüs | gamma=1.5, lr=0.003 (0.801) | gamma=5.0, lr=0.003 (0.748) |
+| Tanh | gamma=1.5, lr=0.003 (0.804) | gamma=5.0, lr=0.003 (0.747) |
+| Weight Clipping | kappa=1.0, lr=0.003 (0.834) | kappa=1.0, lr=0.003 (0.750) |
+| L2 Init | lam=0.01, lr=0.003 (0.832) | lam=0.01, lr=0.003 (0.753) |
+| Continual Backprop | replacement_rate=0.0001, lr=0.003 (0.822) | replacement_rate=0.0001, lr=0.003 (0.753) |
+| NaP | lr=0.01 (0.832) | lr=0.03 (0.755) |
+| LayerNorm + WD | weight_decay=0.001, lr=0.003 (0.822) | weight_decay=0.001, lr=0.003 (0.742) |
+| Shrink & Perturb | shrink=0.0001, lr=0.01 (0.810) | — |
+| UPGD | sigma=0.0001, lr=0.01 (0.811) | — |
+| Parseval | beta=0.01, lr=0.003 (0.842) | — |
+| Smooth-Leaky | lr=0.03 (0.811) | — |
+| Sin-MLP | lr=0.003 (0.817) | — |
+
+Geliştirme akışlarında (100 görev) yayımlanmış yöntemler sinüs/tanh modellerinden daha yüksek AUC vermiştir
+(Weight Clipping 0.834, NaP 0.832, L2 Init 0.832, CBP 0.822; sinüs 0.801, tanh 0.804, standart 0.795);
+sinüs modeli lr ≥ 0.03'te sınır doygunluğuyla (parametrelerin %80'inden fazlasında |cos Θ| < 0.1) tamamen
+donarken tanh modeli aynı öğrenme oranlarında kısmen öğrenmeye devam etmiştir (`reports/pmnist_dev_hparams.md`).
 
 ## 6. Ana karşılaştırma — Online Permuted MNIST (İP-5)
 Final akışlar (tohum ofseti 0), 200 görev × 5.000 örnek, batch 1, tek geçiş; standart/sinüs/tanh 10 tohum,
