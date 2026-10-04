@@ -10,7 +10,31 @@
      9 Mekanizma analizi (H3) · 10 Durağan kontrol · 11 İkincil deneyler · 12 Sınırlılıklar ve sonraki adımlar -->
 
 ## 1. Özet
-_(sonuçlar tamamlandığında doldurulacak)_
+* **Altyapı** (İP-1/2): PyTorch tabanlı, yapılandırma dosyalarıyla sürülen, tohum/görev akışı deterministik,
+  305 birim testli bir deney altyapısı kurulmuş; 10 karşılaştırma yöntemi, mekanizma ölçütleri, eşleştirilmiş
+  istatistik, paket çalıştırıcı ve rapor üretimi tamamlanmıştır. Proje aşamasında toplam 86 geliştirme, 70 + 69
+  PMNIST, 40 + 24 CIFAR-100 ve 90 durağan kontrol çalışması yürütülmüştür (≈ 30 saat, 4 CPU çekirdeği).
+* **Pilot replikasyon** (İP-1): Dohare vd. (2024)'ün plastisite kaybı imzaları (çevrimiçi doğruluğun azalması,
+  ölü birim ve ağırlık büyümesi, kerte çöküşü, taze modelle açılan fark) küçültülmüş Online Permuted MNIST
+  protokolünde yeniden üretilmiştir.
+* **H1 (sınırlı yeniden parametrizasyon)**: A·sin(Θ) modeli standart ağa göre PMNIST'te anlamlı fakat küçük bir
+  plastisite koruması sağlar (normalize AUC +0.011 [+0.010, +0.012], koruma oranı 0.906 → 0.926, taze model
+  farkı kapanır; 10 eşleştirilmiş tohum). CIFAR-100 çevrimiçi protokolünde — ağırlıklar büyümediğinden — etki
+  yoktur.
+* **H2 (sınırlılık vs periyodiklik)**: A·sin(Θ) ile A·tanh(Θ) ayırt edilemez; etki sınırlılıktan kaynaklanır,
+  periyodikliğin ek katkısı yoktur (aksine daha fazla doygunluk).
+* **H3 (optimizasyon geometrisi)**: Sınıra yaklaşan parametrelerde cos² kaynaklı adım küçülmesi ölçülmüş
+  (etkin adım %30 küçülür; Fisher/gradyan ölçümleri koordinat bağımlı), bu küçülmeyi gideren ölçek-düzeltmeli
+  güncelleme plastisiteyi *bozmuştur*: Jacobian sönümü yöntemin koruyucu bileşenidir. Sert projeksiyonlu
+  Weight Clipping, aynı sınırla, çok daha iyi sonuç verir (koruma 1.017).
+* **Bileşenler**: etkinin büyük bölümü çıkış katmanının sınırlanmasından gelir; yanlılıkların sınırlanması
+  önemsizdir; sınır genişliği γ ∈ [1.5, 2.5] en iyidir; sinüs + Continual Backprop plastisiteyi tamamen korur.
+* **Yayımlanmış yöntemler** (eşit arama bütçesiyle): Weight Clipping, NaP, L2 Init, Continual Backprop,
+  Shrink & Perturb ve Parseval PMNIST'te plastisiteyi tamamen korurken önerilen yöntemin önündedir; CIFAR-100'de
+  yalnızca ölü birimleri hedefleyen yöntemler (CBP, L2 Init, NaP) iyileşme sağlar.
+* Sonuç olarak tez, öneri formunda öngörülen "mekanizma ayrıştırması" senaryosunu gerçekleştirmiştir: önerilen
+  parametrizasyon yeni bir en-iyi yöntem değildir, ancak sınırlılık–periyodiklik–eğitilebilirlik ödünleşimini
+  nicel ve yeniden üretilebilir biçimde ortaya koymaktadır (ayrıntılar §6–§11).
 
 ## 2. Deney altyapısı (İP-1, İP-2)
 Altyapı Python 3.11 / PyTorch ile yapılandırma dosyası tabanlı olarak geliştirilmiştir (bkz. `README.md`,
@@ -370,4 +394,37 @@ _(doldurulacak)_
 _(doldurulacak)_
 
 ## 12. Sınırlılıklar ve sonraki adımlar
-_(doldurulacak)_
+**Ölçek.** Bütün sonuçlar CPU bütçesine uyarlanmış küçültülmüş protokollerden gelmektedir (PMNIST: 200 görev ×
+5.000 örnek, 3×100 birim; CIFAR-100: 1000 görev, 2×64 birim, çevrimiçi varyant). Kanonik protokoller (800 görev ×
+60.000 örnek, 3×2000 birim; 3000 görev) aynı kodla ve yapılandırma dosyalarıyla çalıştırılmaya hazırdır
+(`configs/*_canonical.yaml`); İP-5'in GPU altyapısında yürütülmesiyle (i) sinüs/tanh modelinin uzun ufukta
+yavaşlayan kaybının standart ağa göre farkının büyüyüp büyümediği, (ii) geniş ağlarda (2000 birim) ölü birim
+ve sınır doygunluğu dinamiklerinin değişip değişmediği sınanmalıdır. Küçültülmüş protokolde 10 tohumla güven
+aralıkları çok dardır; etki büyüklükleri küçük (ΔAUC ≈ 0.01) olsa da yönleri kesindir.
+
+**CIFAR-100 protokolü.** Chen ve Zhang (2026)'ın klasik MLP'de bildirdiği performans düzeyindeki plastisite
+kaybı, mini-batch/çok dönemli rejimde bu altyapıda yeniden üretilememiş; çevrimiçi varyantta zayıf biçimde
+gözlenmiştir (§7). Kaynak çalışmanın kesin eğitim bütçesi (dönem/adım sayısı, eniyileyici, genişlik) ve kod
+çıktılarıyla birebir karşılaştırma tez aşamasında yapılmalıdır.
+
+**İstatistik.** 5 ve 3 tohumlu karşılaştırmalarda ön-kayıtlı işaret-çevirme testinin çözünürlüğü yetersiz
+kalmış (en küçük p = 0.0625 / 0.25), sonuçlar eşleştirilmiş t-testiyle birlikte raporlanmıştır. Tez
+aşamasında yayımlanmış yöntemlerin de 10 tohumla çalıştırılması (ek ≈ 6 saat CPU) permütasyon testini
+yeterli hale getirir.
+
+**Yöntem uygulamaları.** Karşılaştırma yöntemleri kaynak makalelerin tanımlarına göre yazılmış ve bağımsız
+inceleme + birim testlerinden geçirilmiştir; ancak kaynak kodlarla birebir doğrulama (Dohare vd., 2024 ve
+Elsayed vd., 2024'ün açık uygulamaları) yapılmamıştır. Smooth-Leaky aktivasyonu kavramsal bir uygulamadır
+(a·x + (1−a)·softplus(x)); Lillo ve Cheney (2026)'ın kesin tanımıyla eşleştirilmelidir. Hyperspherical
+normalization (Lee vd., 2025) kapsam dışı bırakılmıştır. Öğrenilebilir genlik varyantında genlik
+işaret/ölçek sürüklenmesine karşı kısıtlanmamıştır (|A| parametrizasyonu veya A için ayrı öğrenme oranı
+denenebilir).
+
+**Yöntemin kendisi hakkında.** Bulgular, sınırlı yeniden parametrizasyonun (i) yalnızca ağırlık büyümesinin
+plastisite kaybını taşıdığı rejimlerde, (ii) küçük ama tutarlı bir koruma sağladığını ve (iii) yararının sert
+projeksiyon (Weight Clipping) karşısında Jacobian sönümünün çift yönlü etkisi nedeniyle sınırlı kaldığını
+göstermektedir. Tez için en verimli sonraki adımlar: (a) kırpma ile reparametrizasyonu aynı sınırda doğrudan
+eşleyen bir "yumuşak/sert projeksiyon" deney dizisi (A·tanh(Θ) ile kırpma arasında enterpolasyon), (b)
+sınırlılığı ölü birim yeniden başlatma ile birleştiren varyant (sinüs + CBP bu aşamada en iyi sonuçlardan
+birini vermiştir), (c) çıkış katmanı sınırlamasının tek başına incelenmesi (etkinin ana taşıyıcısı), (d)
+Fisher/gradyan ölçümlerinin tez metninde yalnızca efektif ağırlık koordinatlarında raporlanması.
