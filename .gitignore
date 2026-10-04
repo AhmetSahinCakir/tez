@@ -18,3 +18,4 @@ dist/
 # misc
 .DS_Store
 *.swp
+results/**/running.lock
