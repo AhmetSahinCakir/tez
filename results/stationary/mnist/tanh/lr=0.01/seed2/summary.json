@@ -1,0 +1,11 @@
+{
+  "metric": "test_accuracy",
+  "final_test_accuracy": 0.9615,
+  "best_test_accuracy": 0.9615,
+  "final_train_accuracy": 0.9654333333333334,
+  "epochs": 10,
+  "seed": 2,
+  "wall_time": 33.95987820625305,
+  "method": "baseline",
+  "stream": "mnist_stationary"
+}

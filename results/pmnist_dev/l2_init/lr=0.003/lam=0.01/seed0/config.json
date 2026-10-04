@@ -1,0 +1,62 @@
+{
+  "seed": 0,
+  "stream_seed_offset": 1000,
+  "threads": 1,
+  "log_every": 0,
+  "save_model": false,
+  "model": {
+    "name": "mlp",
+    "hidden_sizes": [
+      100,
+      100,
+      100
+    ],
+    "activation": "relu",
+    "layer_norm": false,
+    "ln_affine": true,
+    "reparam": {
+      "hidden": "standard",
+      "output": "standard"
+    },
+    "gamma": 1.5,
+    "compact_bias": true,
+    "init": "kaiming_uniform",
+    "bias_init": "zeros",
+    "learn_amplitude": false,
+    "theta_scale": "amplitude"
+  },
+  "method": {
+    "name": "l2_init",
+    "lam": 0.01
+  },
+  "optimizer": {
+    "name": "sgd",
+    "lr": 0.003,
+    "weight_decay": 0.0
+  },
+  "train": {
+    "batch_size": 1,
+    "epochs_per_task": 1
+  },
+  "metrics": {
+    "every_n_tasks": 10,
+    "probe_size": 1000,
+    "weights": true,
+    "representation": true,
+    "fisher": false,
+    "fisher_samples": 32,
+    "update_tracking_every": 0
+  },
+  "fresh_reference": {
+    "every_n_tasks": 0
+  },
+  "summary": {
+    "window": 0.1
+  },
+  "stream": {
+    "name": "pmnist",
+    "n_tasks": 100,
+    "samples_per_task": 5000,
+    "normalize": "unit"
+  }
+}

@@ -12,8 +12,9 @@
 ## 1. Özet
 * **Altyapı** (İP-1/2): PyTorch tabanlı, yapılandırma dosyalarıyla sürülen, tohum/görev akışı deterministik,
   305 birim testli bir deney altyapısı kurulmuş; 10 karşılaştırma yöntemi, mekanizma ölçütleri, eşleştirilmiş
-  istatistik, paket çalıştırıcı ve rapor üretimi tamamlanmıştır. Proje aşamasında toplam 86 geliştirme, 70 + 69
-  PMNIST, 40 + 24 CIFAR-100 ve 90 durağan kontrol çalışması yürütülmüştür (≈ 30 saat, 4 CPU çekirdeği).
+  istatistik, paket çalıştırıcı ve rapor üretimi tamamlanmıştır. Proje aşamasında 16 pilot, 142 geliştirme (hiperparametre), 70 + 69 PMNIST, 40 + 24 CIFAR-100 ve 90
+  durağan kontrol olmak üzere 451 çalışma yürütülmüştür (≈ 95 CPU-saati, 4 çekirdek, ≈ 24 saat duvar süresi);
+  hiçbir çalışma başarısız olmamıştır.
 * **Pilot replikasyon** (İP-1): Dohare vd. (2024)'ün plastisite kaybı imzaları (çevrimiçi doğruluğun azalması,
   ölü birim ve ağırlık büyümesi, kerte çöküşü, taze modelle açılan fark) küçültülmüş Online Permuted MNIST
   protokolünde yeniden üretilmiştir.
@@ -273,6 +274,18 @@ metninde raporlanacaktır: Chen ve Zhang'ın klasik MLP'de bildirdiği performan
 * Bu bulgu PMNIST sonuçlarını tamamlar: sınırlı yeniden parametrizasyonun etkisi, plastisite kaybının ağırlık
   büyümesi kanalıyla gerçekleştiği rejimlerle sınırlıdır (Lyle vd., 2025'in "birden fazla bağımsız mekanizma"
   bulgusuyla uyumlu).
+
+### 7.3 CIFAR-100 bileşen deneyleri (3 tohum, `reports/cifar_ablation_summary.md`, `reports/cifar_vs_sin.md`)
+Sinüs modelinin bileşen varyantları (yanlılık standart, yalnızca gizli / yalnızca çıkış katmanı, γ = 2.5,
+ölçek-düzeltmeli c_max = 10) bu protokolde referansla aynıdır (ΔAUC ≤ 0.001; ağırlıklar büyümediğinden
+hiçbir varyantta sınır devreye girmez). Tek istisna sıkı sınırdır: γ = 1.2 ile AUC 0.712 (−0.035 [−0.039,
+−0.032]; Holm p = 0.027), koruma 0.912 — ölü birim oranı %3'e düşüp kerte 35'e çıkmasına rağmen ağırlıkların
+başlangıç ölçeğinin 1.2 katını aşamaması görev başına öğrenmeyi sınırlar (kapasite kısıtı). Aktivasyon
+kontrolleri (CIFAR için geliştirme araması yapılmadan lr = 0.003 ile): Smooth-Leaky bu protokolde en iyi
+sonucu vermiştir (AUC 0.755 ± 0.003, koruma 1.026, ölü birim 0, kerte 32 — ölü birim mekanizmasını doğrudan
+ortadan kaldırdığı için); Sin-MLP (sinüs aktivasyon) ise bu öğrenme oranında çökmüştür (AUC 0.532, son pencere
+şans düzeyine yakın; PMNIST'te aynı kontrol 0.809 vermişti), yani sinüs aktivasyonu veri kümesine ve öğrenme
+oranına güçlü biçimde duyarlıdır.
 
 ## 8. Bileşen analizi (İP-4): sınırlılık, periyodiklik, yanlılık, katman seçimi
 Final PMNIST akışlarında, ana paketle aynı tohumlarda (eşleştirilmiş) yürütülen bileşen deneyleri

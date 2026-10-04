@@ -49,6 +49,7 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 * CIFAR-100 ikili akışında ağırlıklar büyümediğinden sınırlı modellerin etkisi yoktur; yalnızca ölü birimleri
   hedefleyen yöntemler (CBP, L2 Init, NaP) iyileşme sağlar.
 * Durağan kontrol: üç model i.i.d. koşullarda aynı test doğruluğuna ulaşır.
+* Toplam 451 çalışma (≈ 95 CPU-saati); bütün ham kayıtlar `results/`, tablolar/şekiller `reports/` altındadır.
 
 ## Kurulum
 

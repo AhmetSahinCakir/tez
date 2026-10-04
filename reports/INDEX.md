@@ -1,5 +1,7 @@
 # Üretilen dosyalar
 
+- `cifar_ablation_summary.csv`
+- `cifar_ablation_summary.md`
 - `cifar_dots_auc_norm.pdf`
 - `cifar_dots_auc_norm.png`
 - `cifar_dots_final_window_mean.pdf`
@@ -10,6 +12,10 @@
 - `cifar_dots_retention_ratio.png`
 - `cifar_fresh_gap.pdf`
 - `cifar_fresh_gap.png`
+- `cifar_gamma.pdf`
+- `cifar_gamma.png`
+- `cifar_gamma_curves.pdf`
+- `cifar_gamma_curves.png`
 - `cifar_mechanism_ablation.pdf`
 - `cifar_mechanism_ablation.png`
 - `cifar_mechanism_core.pdf`
@@ -22,6 +28,10 @@
 - `cifar_performance_core.png`
 - `cifar_performance_methods.pdf`
 - `cifar_performance_methods.png`
+- `cifar_scale_corrected.pdf`
+- `cifar_scale_corrected.png`
+- `cifar_scale_corrected_mechanism.pdf`
+- `cifar_scale_corrected_mechanism.png`
 - `cifar_summary_main.csv`
 - `cifar_summary_main.md`
 - `cifar_vs_baseline.csv`

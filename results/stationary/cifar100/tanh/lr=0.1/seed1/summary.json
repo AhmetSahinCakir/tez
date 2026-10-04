@@ -1,0 +1,11 @@
+{
+  "metric": "test_accuracy",
+  "final_test_accuracy": 0.141,
+  "best_test_accuracy": 0.1543,
+  "final_train_accuracy": 0.41612,
+  "epochs": 20,
+  "seed": 1,
+  "wall_time": 105.38175082206726,
+  "method": "baseline",
+  "stream": "cifar100_stationary"
+}

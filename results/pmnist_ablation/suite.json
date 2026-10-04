@@ -1,0 +1,1589 @@
+{
+ "suite": {
+  "name": "pmnist_ablation",
+  "base_config": "/home/user/tez/configs/pmnist_pilot.yaml",
+  "workers": 4,
+  "stream_seed_offset": 0,
+  "selected_hparams": "suites/selected_pmnist.yaml",
+  "common": {
+   "stream.n_tasks": 200,
+   "stream.samples_per_task": 5000,
+   "metrics.every_n_tasks": 5,
+   "metrics.fisher_samples": 32,
+   "metrics.update_tracking_every": 100,
+   "fresh_reference.every_n_tasks": 25
+  },
+  "runs": [
+   {
+    "label": "sin/bias_std",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin",
+     "model.compact_bias": false
+    },
+    "n_seeds": 5
+   },
+   {
+    "label": "sin/hidden_only",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "standard"
+    },
+    "n_seeds": 5
+   },
+   {
+    "label": "sin/output_only",
+    "overrides": {
+     "model.reparam.hidden": "standard",
+     "model.reparam.output": "sin"
+    },
+    "n_seeds": 5
+   },
+   {
+    "label": "tanh/bias_std",
+    "overrides": {
+     "model.reparam.hidden": "tanh",
+     "model.reparam.output": "tanh",
+     "model.compact_bias": false
+    },
+    "n_seeds": 3
+   },
+   {
+    "label": "sin/gamma",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin"
+    },
+    "sweep": {
+     "model.gamma": [
+      1.2,
+      2.5,
+      5.0
+     ]
+    },
+    "n_seeds": 3
+   },
+   {
+    "label": "sin/scale_corrected",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin",
+     "method.name": "scale_corrected"
+    },
+    "sweep": {
+     "method.max_scale": [
+      3.0,
+      10.0,
+      30.0
+     ]
+    },
+    "n_seeds": 3
+   },
+   {
+    "label": "sin/learn_amplitude",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin",
+     "model.learn_amplitude": true
+    },
+    "n_seeds": 3
+   },
+   {
+    "label": "sin_unit",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin",
+     "model.theta_scale": "unit"
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.1,
+      0.3,
+      1.0
+     ]
+    },
+    "n_seeds": 3
+   },
+   {
+    "label": "sin/cbp",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin",
+     "method.name": "continual_backprop",
+     "method.replacement_rate": 0.0001
+    },
+    "n_seeds": 3
+   },
+   {
+    "label": "adam_std",
+    "overrides": {
+     "optimizer.name": "adam"
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.0003,
+      0.001
+     ]
+    },
+    "n_seeds": 3
+   },
+   {
+    "label": "adam_sin",
+    "overrides": {
+     "optimizer.name": "adam",
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin"
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.0003,
+      0.001
+     ]
+    },
+    "n_seeds": 3
+   },
+   {
+    "label": "adam_tanh",
+    "overrides": {
+     "optimizer.name": "adam",
+     "model.reparam.hidden": "tanh",
+     "model.reparam.output": "tanh"
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.0003,
+      0.001
+     ]
+    },
+    "n_seeds": 3
+   }
+  ]
+ },
+ "suite_path": "/home/user/tez/suites/pmnist_ablation.yaml",
+ "jobs": [
+  {
+   "label": "sin/bias_std",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/bias_std/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.compact_bias": false
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/bias_std",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/bias_std/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.compact_bias": false
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/bias_std",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/bias_std/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.compact_bias": false
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/bias_std",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/bias_std/seed3",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.compact_bias": false
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/bias_std",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/bias_std/seed4",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.compact_bias": false
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/hidden_only",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/hidden_only/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "standard"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/hidden_only",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/hidden_only/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "standard"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/hidden_only",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/hidden_only/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "standard"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/hidden_only",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/hidden_only/seed3",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "standard"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/hidden_only",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/hidden_only/seed4",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "standard"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/output_only",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/output_only/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "standard",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/output_only",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/output_only/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "standard",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/output_only",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/output_only/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "standard",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/output_only",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/output_only/seed3",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "standard",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/output_only",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/output_only/seed4",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "standard",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh/bias_std",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/tanh/bias_std/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "model.compact_bias": false
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh/bias_std",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/tanh/bias_std/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "model.compact_bias": false
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh/bias_std",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/tanh/bias_std/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "model.compact_bias": false
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=1.2",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=1.2/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.2,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 1.2
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=1.2",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=1.2/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.2,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 1.2
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=1.2",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=1.2/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.2,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 1.2
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=2.5",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=2.5/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 2.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 2.5
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=2.5",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=2.5/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 2.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 2.5
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=2.5",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=2.5/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 2.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 2.5
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=5.0",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=5.0/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 5.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 5.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=5.0",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=5.0/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 5.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 5.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/gamma/gamma=5.0",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/gamma/gamma=5.0/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 5.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {
+    "model.gamma": 5.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=3.0",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=3.0/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 3.0
+   },
+   "sweep": {
+    "method.max_scale": 3.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=3.0",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=3.0/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 3.0
+   },
+   "sweep": {
+    "method.max_scale": 3.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=3.0",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=3.0/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 3.0
+   },
+   "sweep": {
+    "method.max_scale": 3.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=10.0",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=10.0/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 10.0
+   },
+   "sweep": {
+    "method.max_scale": 10.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=10.0",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=10.0/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 10.0
+   },
+   "sweep": {
+    "method.max_scale": 10.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=10.0",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=10.0/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 10.0
+   },
+   "sweep": {
+    "method.max_scale": 10.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=30.0",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=30.0/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 30.0
+   },
+   "sweep": {
+    "method.max_scale": 30.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=30.0",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=30.0/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 30.0
+   },
+   "sweep": {
+    "method.max_scale": 30.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/scale_corrected/max_scale=30.0",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/scale_corrected/max_scale=30.0/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "scale_corrected",
+    "method.max_scale": 30.0
+   },
+   "sweep": {
+    "method.max_scale": 30.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/learn_amplitude",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/learn_amplitude/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.learn_amplitude": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/learn_amplitude",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/learn_amplitude/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.learn_amplitude": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/learn_amplitude",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/learn_amplitude/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.learn_amplitude": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=0.1",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=0.1/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=0.1",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=0.1/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=0.1",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=0.1/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=0.3",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=0.3/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 0.3
+   },
+   "sweep": {
+    "optimizer.lr": 0.3
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=0.3",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=0.3/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 0.3
+   },
+   "sweep": {
+    "optimizer.lr": 0.3
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=0.3",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=0.3/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 0.3
+   },
+   "sweep": {
+    "optimizer.lr": 0.3
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=1.0",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=1.0/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 1.0
+   },
+   "sweep": {
+    "optimizer.lr": 1.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=1.0",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=1.0/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 1.0
+   },
+   "sweep": {
+    "optimizer.lr": 1.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_unit/lr=1.0",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin_unit/lr=1.0/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.theta_scale": "unit",
+    "optimizer.lr": 1.0
+   },
+   "sweep": {
+    "optimizer.lr": 1.0
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/cbp",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/cbp/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "continual_backprop",
+    "method.replacement_rate": 0.0001
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/cbp",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/cbp/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "continual_backprop",
+    "method.replacement_rate": 0.0001
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin/cbp",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/sin/cbp/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "method.name": "continual_backprop",
+    "method.replacement_rate": 0.0001
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_std/lr=0.0003",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_std/lr=0.0003/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_std/lr=0.0003",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_std/lr=0.0003/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_std/lr=0.0003",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_std/lr=0.0003/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_std/lr=0.001",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_std/lr=0.001/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_std/lr=0.001",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_std/lr=0.001/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_std/lr=0.001",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_std/lr=0.001/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_sin/lr=0.0003",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_sin/lr=0.0003/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_sin/lr=0.0003",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_sin/lr=0.0003/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_sin/lr=0.0003",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_sin/lr=0.0003/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_sin/lr=0.001",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_sin/lr=0.001/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_sin/lr=0.001",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_sin/lr=0.001/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_sin/lr=0.001",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_sin/lr=0.001/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_tanh/lr=0.0003",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_tanh/lr=0.0003/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_tanh/lr=0.0003",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_tanh/lr=0.0003/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_tanh/lr=0.0003",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_tanh/lr=0.0003/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.0003
+   },
+   "sweep": {
+    "optimizer.lr": 0.0003
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_tanh/lr=0.001",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_tanh/lr=0.001/seed0",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_tanh/lr=0.001",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_tanh/lr=0.001/seed1",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "adam_tanh/lr=0.001",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_ablation/adam_tanh/lr=0.001/seed2",
+   "overrides": {
+    "stream.n_tasks": 200,
+    "stream.samples_per_task": 5000,
+    "metrics.every_n_tasks": 5,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 100,
+    "fresh_reference.every_n_tasks": 25,
+    "optimizer.name": "adam",
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.001
+   },
+   "sweep": {
+    "optimizer.lr": 0.001
+   },
+   "stream_seed_offset": 0
+  }
+ ]
+}

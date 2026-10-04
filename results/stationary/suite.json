@@ -1,0 +1,1634 @@
+{
+ "suite": {
+  "name": "stationary",
+  "base_config": "/home/user/tez/configs/stationary_mnist.yaml",
+  "workers": 4,
+  "seeds": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "runs": [
+   {
+    "label": "mnist/standard",
+    "overrides": {},
+    "sweep": {
+     "optimizer.lr": [
+      0.01,
+      0.03,
+      0.1
+     ]
+    }
+   },
+   {
+    "label": "mnist/sin",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin"
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.01,
+      0.03,
+      0.1
+     ]
+    }
+   },
+   {
+    "label": "mnist/tanh",
+    "overrides": {
+     "model.reparam.hidden": "tanh",
+     "model.reparam.output": "tanh"
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.01,
+      0.03,
+      0.1
+     ]
+    }
+   },
+   {
+    "label": "cifar100/standard",
+    "overrides": {
+     "stream.dataset": "cifar100",
+     "stream.normalize": "standard",
+     "model.hidden_sizes": [
+      256,
+      256
+     ],
+     "train.epochs": 20
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.01,
+      0.03,
+      0.1
+     ]
+    }
+   },
+   {
+    "label": "cifar100/sin",
+    "overrides": {
+     "stream.dataset": "cifar100",
+     "stream.normalize": "standard",
+     "model.hidden_sizes": [
+      256,
+      256
+     ],
+     "train.epochs": 20,
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin"
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.01,
+      0.03,
+      0.1
+     ]
+    }
+   },
+   {
+    "label": "cifar100/tanh",
+    "overrides": {
+     "stream.dataset": "cifar100",
+     "stream.normalize": "standard",
+     "model.hidden_sizes": [
+      256,
+      256
+     ],
+     "train.epochs": 20,
+     "model.reparam.hidden": "tanh",
+     "model.reparam.output": "tanh"
+    },
+    "sweep": {
+     "optimizer.lr": [
+      0.01,
+      0.03,
+      0.1
+     ]
+    }
+   }
+  ]
+ },
+ "suite_path": "/home/user/tez/suites/stationary.yaml",
+ "jobs": [
+  {
+   "label": "mnist/standard/lr=0.01",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.01/seed0",
+   "overrides": {
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.01",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.01/seed1",
+   "overrides": {
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.01",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.01/seed2",
+   "overrides": {
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.01",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.01/seed3",
+   "overrides": {
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.01",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.01/seed4",
+   "overrides": {
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.03",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.03/seed0",
+   "overrides": {
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.03",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.03/seed1",
+   "overrides": {
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.03",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.03/seed2",
+   "overrides": {
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.03",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.03/seed3",
+   "overrides": {
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.03",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.03/seed4",
+   "overrides": {
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.1",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.1/seed0",
+   "overrides": {
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.1",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.1/seed1",
+   "overrides": {
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.1",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.1/seed2",
+   "overrides": {
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.1",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.1/seed3",
+   "overrides": {
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/standard/lr=0.1",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/standard/lr=0.1/seed4",
+   "overrides": {
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.01",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.01/seed0",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.01",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.01/seed1",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.01",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.01/seed2",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.01",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.01/seed3",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.01",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.01/seed4",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.03",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.03/seed0",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.03",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.03/seed1",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.03",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.03/seed2",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.03",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.03/seed3",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.03",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.03/seed4",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.1",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.1/seed0",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.1",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.1/seed1",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.1",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.1/seed2",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.1",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.1/seed3",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/sin/lr=0.1",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/sin/lr=0.1/seed4",
+   "overrides": {
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.01",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.01/seed0",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.01",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.01/seed1",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.01",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.01/seed2",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.01",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.01/seed3",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.01",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.01/seed4",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.03",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.03/seed0",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.03",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.03/seed1",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.03",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.03/seed2",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.03",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.03/seed3",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.03",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.03/seed4",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.1",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.1/seed0",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.1",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.1/seed1",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.1",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.1/seed2",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.1",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.1/seed3",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "mnist/tanh/lr=0.1",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/mnist/tanh/lr=0.1/seed4",
+   "overrides": {
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.01",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.01/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.01",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.01/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.01",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.01/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.01",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.01/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.01",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.01/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.03",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.03/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.03",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.03/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.03",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.03/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.03",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.03/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.03",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.03/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.1",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.1/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.1",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.1/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.1",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.1/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.1",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.1/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/standard/lr=0.1",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/standard/lr=0.1/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.01",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.01/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.01",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.01/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.01",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.01/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.01",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.01/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.01",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.01/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.03",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.03/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.03",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.03/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.03",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.03/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.03",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.03/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.03",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.03/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.1",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.1/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.1",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.1/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.1",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.1/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.1",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.1/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/sin/lr=0.1",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/sin/lr=0.1/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.01",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.01/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.01",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.01/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.01",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.01/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.01",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.01/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.01",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.01/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.01
+   },
+   "sweep": {
+    "optimizer.lr": 0.01
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.03",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.03/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.03",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.03/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.03",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.03/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.03",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.03/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.03",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.03/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.03
+   },
+   "sweep": {
+    "optimizer.lr": 0.03
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.1",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.1/seed0",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.1",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.1/seed1",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.1",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.1/seed2",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.1",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.1/seed3",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "cifar100/tanh/lr=0.1",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/stationary/cifar100/tanh/lr=0.1/seed4",
+   "overrides": {
+    "stream.dataset": "cifar100",
+    "stream.normalize": "standard",
+    "model.hidden_sizes": [
+     256,
+     256
+    ],
+    "train.epochs": 20,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh",
+    "optimizer.lr": 0.1
+   },
+   "sweep": {
+    "optimizer.lr": 0.1
+   },
+   "stream_seed_offset": 0
+  }
+ ]
+}
