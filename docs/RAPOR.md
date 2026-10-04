@@ -220,7 +220,49 @@ metninde raporlanacaktır: Chen ve Zhang'ın klasik MLP'de bildirdiği performan
 _(doldurulacak)_
 
 ## 9. Mekanizma analizi (İP-3): Jacobian, etkin adım, Fisher koordinatları
-_(doldurulacak)_
+PMNIST ana paketindeki standart/sinüs/tanh çalışmalarından (10 tohum) ilk 20 ve son 20 görevin ortalamaları
+(`reports/pmnist_mechanism_core.png`; ölçütler görev sonunda 1.000 örneklik sonda üzerinde, adım ölçütleri her
+100 adımda bir örneklenerek hesaplanmıştır):
+
+| Ölçüt | Standart (erken → son) | Sinüs (erken → son) | Tanh (erken → son) |
+|---|---|---|---|
+| Ortalama \|W\|/A | — | 0.36 → 0.59 | 0.36 → 0.55 |
+| Ortalama cos²(·) (normalize Jacobian²) | 1 | 0.82 → 0.56 | 0.71 → 0.47 |
+| Doygun parametre oranı (\|cos\| < 0.1) | — | 0.000 → 0.043 | 0.000 → 0.003 |
+| ‖∇_Θ L‖ / ‖∇_W L‖ | 1 | 0.87 → 0.61 | 0.80 → 0.58 |
+| ‖∇_W L‖ (örnek başına) | 5.5 → 6.1 | 5.9 → 8.2 | 6.4 → 8.3 |
+| Tr F_W (örnek Fisher) | 161 → 134 | 184 → 258 | 187 → 246 |
+| Tr F_Θ | 161 → 134 | 141 → 97 | 121 → 83 |
+| Adım ‖ΔW‖ | 0.028 → 0.028 | 0.024 → 0.020 | 0.022 → 0.018 |
+| Ölü birim oranı | 0.01 → 0.18 | 0.01 → 0.14 | 0.02 → 0.12 |
+| Etkin kerte (merkezlenmiş, son gizli katman) | 45 → 26 | 43 → 28 | 41 → 32 |
+
+Üç bulgu H3'ü doğrudan destekler:
+
+1. **Jacobian kaynaklı adım küçülmesi gerçekleşmektedir.** Ağırlıklar sınıra yaklaştıkça (|W|/A 0.36 → 0.59)
+   cos² çarpanı 0.82'den 0.56'ya düşmekte, aynı gradyan için efektif adım ‖ΔW‖ standart ağın 0.028'ine karşı
+   0.020'ye gerilemektedir. Yani sınırlı modellerin "yavaşlaması" yalnızca ağırlıkların sınırda sıkışmasından
+   değil, sınıra yaklaşan her parametrede sürekli azalan bir etkin öğrenme oranından kaynaklanır.
+   Tam doygunluk (|cos Θ| < 0.1) ana ayarda (γ = 1.5, lr = 0.003) parametrelerin yalnızca %4'ünde görülür;
+   yüksek öğrenme oranlarında ise (geliştirme akışları, lr ≥ 0.03) %80'in üzerine çıkar ve sinüs modeli
+   tamamen donar (§5, `reports/pmnist_dev_hparams.md`).
+2. **Fonksiyon uzayında duyarlılık korunmaktadır.** Efektif ağırlık koordinatlarında ölçülen gradyan normu ve
+   Fisher izi sınırlı modellerde standart ağdan *yüksektir* (8.2 vs 6.1; 258 vs 134) ve eğitim boyunca artar;
+   standart ağda ise Fisher izi azalır. Sınırlı modeller yeni görev sinyaline duyarlılığını (kayıp yüzeyinin
+   eğriliğini) kaybetmemekte, fakat bu sinyali Jacobian nedeniyle daha küçük adımlara dönüştürmektedir. Bu,
+   kırpma ile projeksiyonun (Weight Clipping) aynı sınır altında neden çok daha iyi sonuç verdiğini açıklar:
+   projeksiyon gradyanı ölçeklemez.
+3. **Koordinat bağımlılığı uyarısı doğrulanmıştır.** Aynı modelde Tr F_Θ (97) ile Tr F_W (258) birbirinden
+   2.7 kat farklıdır ve zıt yönde değişir (Θ koordinatında azalır, W koordinatında artar); ‖∇_Θ L‖/‖∇_W L‖
+   oranı 0.87'den 0.61'e düşer. Yeniden parametrize edilmiş ağlarda Chen ve Zhang (2026) tarzı Fisher/gradyan
+   ölçümlerinin ancak ortak efektif-ağırlık koordinatlarında karşılaştırılabileceği (Martens, 2020) deneysel
+   olarak gösterilmiştir; Θ koordinatında ölçüm yapan bir analiz "plastisite kaybı" ile "Jacobian sönümünü"
+   birbirine karıştırır.
+
+Ölü birim ve kerte ölçütleri de sınırlı modellerde daha iyidir (ölü birim 0.12–0.14 vs 0.18; kerte 28–32 vs 26),
+fakat yayımlanmış yöntemlere göre (ölü birim ≈ 0, kerte 42–53) iyileşme küçüktür: ağırlık büyüklüğünü
+sınırlamak tek başına ReLU birimlerinin ölmesini engellememektedir (Lyle vd., 2025 ile uyumlu: birden fazla
+kısmen bağımsız mekanizma).
 
 ## 10. Durağan öğrenme kontrolü
 _(doldurulacak)_
