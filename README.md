@@ -27,6 +27,28 @@ Continual Backprop (Dohare vd., 2024), Normalize-and-Project (Lyle vd., 2024), L
 ölçek-düzeltmeli sinüs güncellemesi.
 
 Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ayrıntıları: [`docs/PROTOKOL.md`](docs/PROTOKOL.md).
+Üretilen tablolar ve şekiller: [`reports/`](reports/INDEX.md). Ham çalışma kayıtları (görev başına ölçütler): `results/`.
+
+## Proje aşamasının başlıca bulguları (küçültülmüş CPU protokolleri)
+
+| Online Permuted MNIST, 200 görev, SGD | Normalize AUC | Son 20 görev doğruluğu | Plastisite koruma oranı |
+|---|---|---|---|
+| Standart MLP (10 tohum) | 0.774 ± 0.001 | 0.743 ± 0.003 | 0.906 ± 0.004 |
+| **A·sin(Θ)** (10 tohum) | 0.785 ± 0.001 | 0.760 ± 0.004 | 0.926 ± 0.004 |
+| A·tanh(Θ) (10 tohum) | 0.785 ± 0.001 | 0.761 ± 0.002 | 0.931 ± 0.004 |
+| Weight Clipping κ=1 (5 tohum) | 0.836 ± 0.001 | 0.839 ± 0.002 | 1.017 ± 0.004 |
+| Continual Backprop (5 tohum) | 0.821 ± 0.001 | 0.821 ± 0.005 | 1.003 ± 0.008 |
+
+* **H1**: sınırlı yeniden parametrizasyon plastisite kaybını anlamlı fakat küçük ölçüde azaltır (ΔAUC +0.011
+  [+0.010, +0.012], eşleştirilmiş permütasyon p = 0.002); Adam ile etki çok büyür (ΔAUC +0.03 … +0.09).
+* **H2**: sinüs ve tanh SGD altında ayırt edilemez → etki sınırlılıktan kaynaklanır; Adam altında sinüs tanh'ı geçer.
+* **H3**: sınıra yaklaşan parametrelerde cos²Θ kaynaklı adım küçülmesi ölçülmüştür; bunu gideren ölçek-düzeltmeli
+  güncelleme plastisiteyi *bozar* (parametreler sınıra yığılıp donar) — sönüm koruyucu bir bileşendir. Sert
+  projeksiyonlu Weight Clipping aynı sınırla çok daha iyidir.
+* Etkinin ana taşıyıcısı çıkış katmanının sınırlanmasıdır; yanlılıkların sınırlanması önemsizdir.
+* CIFAR-100 ikili akışında ağırlıklar büyümediğinden sınırlı modellerin etkisi yoktur; yalnızca ölü birimleri
+  hedefleyen yöntemler (CBP, L2 Init, NaP) iyileşme sağlar.
+* Durağan kontrol: üç model i.i.d. koşullarda aynı test doğruluğuna ulaşır.
 
 ## Kurulum
 
