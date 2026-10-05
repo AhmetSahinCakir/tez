@@ -533,3 +533,24 @@ eşleyen bir "yumuşak/sert projeksiyon" deney dizisi (A·tanh(Θ) ile kırpma a
 sınırlılığı ölü birim yeniden başlatma ile birleştiren varyant (sinüs + CBP bu aşamada en iyi sonuçlardan
 birini vermiştir), (c) çıkış katmanı sınırlamasının tek başına incelenmesi (etkinin ana taşıyıcısı), (d)
 Fisher/gradyan ölçümlerinin tez metninde yalnızca efektif ağırlık koordinatlarında raporlanması.
+
+## 13. Sönümsüz sınırlı haritalar: üçgen dalga ve Jacobian tabanı (mekanizma analizinin uygulaması)
+§6.3, §8 ve §9'daki bulgular yöntemin rakiplerin gerisinde kalmasının tek bir nedenini işaret etmişti: pürüzsüz
+sınırlı haritaların türevi sınırda sıfırlanır (parametre donar) ve bunu çarpımsal olarak gidermek (ölçek
+düzeltme) parametreleri sınıra yığar. Bu bölüm, aynı yapısal yeniden parametrizasyon çerçevesinde kalan ve
+güncellemesi sınırda sönmeyen iki haritayı sınar (`plasticity/models/reparam.py`, `docs/PROTOKOL.md`):
+
+* **Üçgen dalga** W = A·tri(Θ), tri(x) = (2/π)·arcsin(sin(πx/2)): sınırlı ([−A, A]), periyodik (periyot 4),
+  |dW/dΘ| = 1 her yerde. Sınırın içinde katman standart katmanla *birebir aynıdır* (tri(x) = x, |x| ≤ 1); sınıra
+  ulaşan parametre donmak yerine **yansır**. Kırpma "projeksiyon" ise bu "yansıma"dır: ikisi de gradyanı
+  ölçeklemez, ikisi de |W| ≤ A'yı garanti eder; fark yalnızca sınırda hangi geometrik işlemin uygulandığıdır.
+* **Jacobian tabanlı sinüs/tanh** (`jacobian_floor` = ε): ileri geçiş değişmez, geri geçişte f′ yerine
+  sign(f′)·max(|f′|, ε) kullanılır (düz-geçişli kestirim). ε = 0 bugünkü yöntem, ε = 1 ile sinüs tepeyi aşıp geri
+  dönebilen pürüzsüz bir yansıma haritası olur; ara değerler §8'deki ölçek düzeltmesinin patlamayan hâlidir.
+
+Hiperparametre araması aynı geliştirme akışlarında, aynı bütçe kuralıyla yapılmıştır (lr ∈ {0.003, 0.01} ×
+γ ∈ {1.0, 1.5}; `reports/pmnist_dev_hparams.md`). Geliştirme akışında üçgen dalga (γ = 1.0, lr = 0.003) normalize
+AUC 0.835 / son pencere 0.837 / koruma 1.018 ile Weight Clipping'in (0.834 / 0.837 / 1.021) birebir seviyesine
+gelmiştir (pürüzsüz sinüs: 0.801 / 0.789 / 0.963).
+
+_(final akış sonuçları — 10 tohum, eşleştirilmiş karşılaştırmalar — aşağıya eklenecek)_

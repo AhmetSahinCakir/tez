@@ -10,6 +10,8 @@ ilgili kod ve yapılandırma anahtarı verilmiştir.
 | Standart | W = Θ | Θ | `model.reparam: {hidden: standard, output: standard}` |
 | Sinüs (önerilen) | W = A·sin(Θ) | Θ | `model.reparam: {hidden: sin, output: sin}` |
 | Tanh (kontrol, H2) | W = A·tanh(Θ) | Θ | `model.reparam: {hidden: tanh, output: tanh}` |
+| Üçgen dalga (sönümsüz, yansımalı) | W = A·tri(Θ), tri(x) = (2/π)·arcsin(sin(πx/2)) | Θ | `model.reparam: {hidden: tri, output: tri}` |
+| Jacobian tabanlı sinüs/tanh | ileri geçiş aynı; geri geçişte f′ yerine sign(f′)·max(\|f′\|, ε) | Θ | `model.jacobian_floor: ε` (ε = 1: yansıma) |
 
 * **Genlik**: A_l = γ·b_l; b_l katmanın Kaiming-uniform başlatma sınırı (He vd., 2015; `init: kaiming_uniform`,
   ReLU kazancı ile b_l = √(6/fan_in)). Varsayılan γ = 1.5 (`model.gamma`); genlik taraması ikincil deneydir.
@@ -17,6 +19,11 @@ ilgili kod ve yapılandırma anahtarı verilmiştir.
   Üç model aynı efektif W₀ ile başlar (`tests/test_reparam.py` bunu doğrular).
 * **Tam-kompakt yapılandırma** (`model.compact_bias: true`): yanlılıklar da b = A_b·sin(θ_b) biçimindedir
   (A_b = γ/√fan_in). `compact_bias: false` yalnızca ağırlık matrislerini sınırlar (bileşen deneyi).
+* **Sönümsüz haritalar** (proje aşamasındaki mekanizma analizinden sonra eklenmiştir): üçgen dalga haritası
+  sınırın içinde standart katmanla birebir aynıdır (tri(x) = x, |x| ≤ 1), sınıra ulaşan parametre donmak yerine
+  yansır (|dW/dΘ| her yerde sabit); `jacobian_floor` ise sinüs/tanh için ileri geçişi değiştirmeden geri geçişte
+  türevin büyüklüğünü ε tabanına sabitler (ε = 1 ile sinüs pürüzsüz bir yansıma haritası olur). γ = 1 bu
+  haritalarla kullanılabilir (κ = 1 kırpmayla aynı sınır). Raporlanan Jacobian ölçütleri gerçek türevi kullanır.
 * **Serbest parametre ölçeği** (`model.theta_scale`): `amplitude` (ana deneyler) serbest parametreyi Φ = A·Θ olarak
   tanımlar (W = A·sin(Φ/A)); bu, Θ üzerinde katman başına η/A_l² öğrenme oranına denktir ve başlangıçta her
   katmanın etkin adımını standart modelle eşitler. `unit` ise W = A·sin(Θ) biçimini olduğu gibi kullanır
