@@ -7,6 +7,7 @@ sınırlı ve periyodik bir dönüşüm üzerinden tanımlar:
 ```
 W_l = A_l · sin(Θ_l)          (önerilen; |W_l| ≤ A_l, Θ'da periyodik)
 W_l = A_l · tanh(Θ_l)         (kontrol; sınırlı fakat periyodik olmayan)
+W_l = A_l · tri(Θ_l)          (sönümsüz/yansımalı varyant; §13 — kırpmayla eşdeğer)
 W_l = Θ_l                     (standart)
 ```
 
@@ -36,6 +37,7 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 | Standart MLP (10 tohum) | 0.774 ± 0.001 | 0.743 ± 0.003 | 0.906 ± 0.004 |
 | **A·sin(Θ)** (10 tohum) | 0.785 ± 0.001 | 0.760 ± 0.004 | 0.926 ± 0.004 |
 | A·tanh(Θ) (10 tohum) | 0.785 ± 0.001 | 0.761 ± 0.002 | 0.931 ± 0.004 |
+| **Üçgen dalga A·tri(Θ)** (10 tohum, §13) | **0.836 ± 0.002** | **0.839 ± 0.002** | **1.017 ± 0.003** |
 | Weight Clipping κ=1 (5 tohum) | 0.836 ± 0.001 | 0.839 ± 0.002 | 1.017 ± 0.004 |
 | Continual Backprop (5 tohum) | 0.821 ± 0.001 | 0.821 ± 0.005 | 1.003 ± 0.008 |
 
@@ -45,6 +47,8 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 * **H3**: sınıra yaklaşan parametrelerde cos²Θ kaynaklı adım küçülmesi ölçülmüştür; bunu gideren ölçek-düzeltmeli
   güncelleme plastisiteyi *bozar* (parametreler sınıra yığılıp donar) — sönüm koruyucu bir bileşendir. Sert
   projeksiyonlu Weight Clipping aynı sınırla çok daha iyidir.
+* **Sönümsüz harita (§13):** türevi sınırda sıfırlanmayan periyodik üçgen dalga haritası plastisiteyi tamamen korur ve
+  Weight Clipping ile ayırt edilemez (eşleştirilmiş fark +0.000 [−0.002, +0.002]); periyodiklik burada belirleyicidir.
 * Etkinin ana taşıyıcısı çıkış katmanının sınırlanmasıdır; yanlılıkların sınırlanması önemsizdir.
 * CIFAR-100 ikili akışında ağırlıklar büyümediğinden sınırlı modellerin etkisi yoktur; yalnızca ölü birimleri
   hedefleyen yöntemler (CBP, L2 Init, NaP) iyileşme sağlar.

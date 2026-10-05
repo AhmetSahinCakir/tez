@@ -64,12 +64,16 @@
 - `pmnist_mechanism_core.png`
 - `pmnist_mechanism_methods.pdf`
 - `pmnist_mechanism_methods.png`
+- `pmnist_mechanism_nondamped.pdf`
+- `pmnist_mechanism_nondamped.png`
 - `pmnist_performance_ablation.pdf`
 - `pmnist_performance_ablation.png`
 - `pmnist_performance_core.pdf`
 - `pmnist_performance_core.png`
 - `pmnist_performance_methods.pdf`
 - `pmnist_performance_methods.png`
+- `pmnist_performance_nondamped.pdf`
+- `pmnist_performance_nondamped.png`
 - `pmnist_performance_secondary.pdf`
 - `pmnist_performance_secondary.png`
 - `pmnist_scale_corrected.pdf`

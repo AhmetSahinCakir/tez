@@ -33,9 +33,15 @@
 * **Yayımlanmış yöntemler** (eşit arama bütçesiyle): Weight Clipping, NaP, L2 Init, Continual Backprop,
   Shrink & Perturb ve Parseval PMNIST'te plastisiteyi tamamen korurken önerilen yöntemin önündedir; CIFAR-100'de
   yalnızca ölü birimleri hedefleyen yöntemler (CBP, L2 Init, NaP) iyileşme sağlar.
-* Sonuç olarak tez, öneri formunda öngörülen "mekanizma ayrıştırması" senaryosunu gerçekleştirmiştir: önerilen
-  parametrizasyon yeni bir en-iyi yöntem değildir, ancak sınırlılık–periyodiklik–eğitilebilirlik ödünleşimini
-  nicel ve yeniden üretilebilir biçimde ortaya koymaktadır (ayrıntılar §6–§11).
+* **Sönümsüz haritalar (§13, mekanizma analizinin uygulaması):** türevi sınırda sıfırlanmayan, periyodik bir
+  harita — üçgen dalga W = A·tri(Θ) — aynı çerçevede kalarak plastisiteyi tamamen korur ve en iyi yayımlanmış
+  yöntem Weight Clipping ile istatistiksel olarak ayırt edilemez (AUC 0.836 vs 0.836, koruma 1.017 vs 1.017;
+  standart ağa göre +0.062 [+0.060, +0.063], 10 tohum). Periyodiklik, sönüm kaldırıldığında etkinin ana
+  bileşeni olur (tanh eşleniği 0.799).
+* Sonuç olarak tez, öneri formunda öngörülen "mekanizma ayrıştırması" senaryosunu gerçekleştirmiş ve bu
+  ayrıştırmadan rakiplerle eşdeğer bir yöntem türetmiştir: pürüzsüz sinüs parametrizasyonu tek başına yeterli
+  değildir, ancak sınırlılık–periyodiklik–eğitilebilirlik ödünleşimi nicel olarak çözüldüğünde (§13) yapısal
+  yeniden parametrizasyon kırpmayla aynı korumayı sağlar (ayrıntılar §6–§13).
 
 ## 2. Deney altyapısı (İP-1, İP-2)
 Altyapı Python 3.11 / PyTorch ile yapılandırma dosyası tabanlı olarak geliştirilmiştir (bkz. `README.md`,
@@ -569,4 +575,39 @@ proje aşamasının başındaki cevabı (§6.2: "periyodikliğin katkısı yok")
 Jacobian sönümü kaldırıldığında — yani parametre sınırı aşabildiğinde — işe yarar ve o zaman yansıma
 mekanizmasını sağlar. En iyi sınır genişliği her iki harita için de γ = 1.0'dır (κ = 1 kırpmayla aynı).
 
-_(final akış sonuçları — 10 tohum, eşleştirilmiş karşılaştırmalar — aşağıya eklenecek)_
+### 13.1 Final akışlar (PMNIST ana paketiyle aynı tohumlar; `reports/pmnist_summary_main.md`, `reports/pmnist_vs_baseline.md`, `reports/pmnist_performance_nondamped.png`, `reports/pmnist_mechanism_nondamped.png`)
+
+| Harita | n | AUC | Son pencere | Koruma | Taze model farkı | Ölü birim | Ort. \|w\| | Etkin kerte |
+|---|---:|---|---|---|---|---|---|---|
+| **Üçgen dalga (γ = 1, lr = 0.003)** | 10 | **0.836 ± 0.002** | **0.839 ± 0.002** | **1.017 ± 0.003** | −0.080 ± 0.007 | 0.139 | 0.064 | 41.8 |
+| Sinüs + tam yansıma (γ = 1, lr = 0.01) | 10 | 0.826 ± 0.001 | 0.825 ± 0.003 | 0.995 ± 0.004 | −0.026 ± 0.006 | 0.213 | 0.076 | 45.3 |
+| Tanh + Jacobian tabanı (γ = 1, lr = 0.01) | 5 | 0.799 ± 0.002 | 0.780 ± 0.006 | 0.939 ± 0.006 | +0.014 ± 0.016 | 0.123 | 0.095 | 37.0 |
+| Sinüs + kısmi taban (ε = 0.3) | 5 | 0.787 | 0.766 | 0.934 | +0.003 | 0.115 | 0.097 | 30.7 |
+| Weight Clipping (κ = 1) | 5 | 0.836 ± 0.001 | 0.839 ± 0.002 | 1.017 ± 0.004 | −0.077 ± 0.012 | 0.145 | 0.064 | 42.9 |
+| Pürüzsüz sinüs (§6) | 10 | 0.785 ± 0.001 | 0.760 ± 0.004 | 0.926 ± 0.004 | −0.008 ± 0.009 | 0.141 | 0.098 | 28.1 |
+| Standart (§6) | 10 | 0.774 ± 0.001 | 0.743 ± 0.003 | 0.906 ± 0.004 | +0.021 ± 0.008 | 0.177 | 0.109 | 25.5 |
+
+* **Üçgen dalga Weight Clipping ile ayırt edilemez.** Aynı 5 tohumda eşleştirilmiş fark: AUC +0.000
+  [−0.002, +0.002] (t-testi p = 0.70), son pencere +0.001 [−0.002, +0.003] (p = 0.60), koruma +0.001
+  [−0.002, +0.004] (p = 0.48), taze model farkı +0.002 [−0.002, +0.006] (p = 0.41); ölü birim oranı, ağırlık
+  büyüklüğü (0.064 = 0.064) ve kerte (41.8 vs 42.9) de örtüşür. Standart ağa göre: AUC **+0.062 [+0.060, +0.063]**,
+  son pencere **+0.096 [+0.093, +0.099]**, koruma **+0.111 [+0.108, +0.114]** (n = 10; permütasyon p = 0.002,
+  Holm p = 0.031; t-testi p < 1e-11). Yani yapısal yeniden parametrizasyon, sınırda *yansıma* kullandığında
+  plastisiteyi tamamen korur ve en iyi yayımlanmış projeksiyon yöntemiyle eşdeğerdir; pürüzsüz sinüsün 0.785'i
+  0.836'ya çıkmıştır (ΔAUC +0.051 [+0.049, +0.052], p < 1e-12).
+* **Yansımalı sinüs** kırpmanın 0.011 [0.010, 0.011] altında kalır (son pencere −0.014, koruma −0.020; n = 5,
+  t-testi p ≤ 0.002): sinüs tepesinin pürüzsüzlüğü, sınıra yakın parametrelerin geri dönüşünü üçgen dalgaya göre
+  yavaşlatır (ileri geçiş hâlâ düz; geri geçiş tabanlıdır) ve ölü birim oranı yüksektir (0.213).
+* **Periyodiklik, sönüm kaldırıldığında belirleyicidir.** Aynı Jacobian tabanıyla periyodik olmayan tanh
+  (0.799, koruma 0.939) yansımalı sinüsün (0.826, 0.995) ve üçgen dalganın (0.836, 1.017) çok gerisinde kalır:
+  sınırı aşan parametre tanh'ta ölü bölgede beklerken periyodik haritalarda yansır. Kısmi taban (ε = 0.3) ise
+  pürüzsüz sinüse göre yalnızca +0.002 kazandırır. Böylece H2'nin nihai cevabı iki parçalıdır: pürüzsüz
+  haritalarda periyodikliğin katkısı yoktur (§6.2), sönümsüz haritalarda ise periyodiklik (yansıma) etkinin
+  ana bileşenidir.
+* **Mekanistik bütünlük.** Sonuç §8–§9'daki ayrıştırmayı kapatır: sınırlılık (|W| ≤ A), sönümsüz güncelleme
+  (|∂W/∂Θ| = 1) ve periyodiklik (yansıma) birlikte kırpmanın "projeksiyon" davranışının yeniden
+  parametrizasyonla elde edilmiş karşılığını verir; §8'deki ölçek-düzeltme başarısızlığı, sönümü kaldırmanın
+  tek başına yetmediğini (periyodik geri dönüş olmadan parametrelerin sınıra yığıldığını) göstermişti.
+
+Bu bölümün sonuçları öneri formundaki H1–H3'ün ötesine geçen, proje aşamasında doğan bir katkıdır ve makalenin
+ana iddiasını oluşturur: *"yumuşak sınır neden kaybeder, yansımalı sınır neden kırpmaya eşittir"*.
