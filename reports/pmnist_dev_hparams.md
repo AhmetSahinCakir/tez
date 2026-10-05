@@ -60,6 +60,12 @@ Metric: `auc_norm` (higher is better), mean ± std over seeds.
 | sin_act | sin_act/lr=0.01 | 0.7676 ± 0.0000 | 1 | 0 |  |
 | sin_act | sin_act/lr=0.03 | 0.1107 ± 0.0000 | 1 | 0 |  |
 | sin_act | sin_act/lr=0.1 | 0.1003 ± 0.0000 | 1 | 0 |  |
+| sin_floor | sin_floor/lr=0.003/gamma=1.5 | 0.8034 ± 0.0000 | 1 | 0 | * |
+| sin_floor | sin_floor/lr=0.01/gamma=1.5 | 0.7967 ± 0.0000 | 1 | 0 |  |
+| sin_refl | sin_refl/lr=0.01/gamma=1.0 | 0.8289 ± 0.0000 | 1 | 0 | * |
+| sin_refl | sin_refl/lr=0.003/gamma=1.0 | 0.8286 ± 0.0000 | 1 | 0 |  |
+| sin_refl | sin_refl/lr=0.01/gamma=1.5 | 0.8129 ± 0.0000 | 1 | 0 |  |
+| sin_refl | sin_refl/lr=0.003/gamma=1.5 | 0.8115 ± 0.0000 | 1 | 0 |  |
 | smooth_leaky | smooth_leaky/lr=0.03 | 0.8110 ± 0.0000 | 1 | 0 | * |
 | smooth_leaky | smooth_leaky/lr=0.01 | 0.8054 ± 0.0000 | 1 | 0 |  |
 | smooth_leaky | smooth_leaky/lr=0.003 | 0.7702 ± 0.0000 | 1 | 0 |  |
@@ -74,6 +80,14 @@ Metric: `auc_norm` (higher is better), mean ± std over seeds.
 | tanh | tanh/lr=0.03 | 0.7685 ± 0.0000 | 1 | 0 |  |
 | tanh | tanh/lr=0.01/gamma=5.0 | 0.7625 ± 0.0000 | 1 | 0 |  |
 | tanh | tanh/lr=0.1 | 0.7422 ± 0.0000 | 1 | 0 |  |
+| tanh_refl | tanh_refl/lr=0.01/gamma=1.0 | 0.8110 ± 0.0000 | 1 | 0 | * |
+| tanh_refl | tanh_refl/lr=0.003/gamma=1.5 | 0.8071 ± 0.0000 | 1 | 0 |  |
+| tanh_refl | tanh_refl/lr=0.003/gamma=1.0 | 0.8066 ± 0.0000 | 1 | 0 |  |
+| tanh_refl | tanh_refl/lr=0.01/gamma=1.5 | 0.7984 ± 0.0000 | 1 | 0 |  |
+| tri | tri/lr=0.003/gamma=1.0 | 0.8353 ± 0.0000 | 1 | 0 | * |
+| tri | tri/lr=0.003/gamma=1.5 | 0.8216 ± 0.0000 | 1 | 0 |  |
+| tri | tri/lr=0.01/gamma=1.5 | 0.7998 ± 0.0000 | 1 | 0 |  |
+| tri | tri/lr=0.01/gamma=1.0 | 0.7768 ± 0.0000 | 1 | 0 |  |
 | upgd | upgd/lr=0.01/sigma=0.0001 | 0.8112 ± 0.0000 | 1 | 0 | * |
 | upgd | upgd/lr=0.003/sigma=0.001 | 0.8105 ± 0.0000 | 1 | 0 |  |
 | upgd | upgd/lr=0.003/sigma=0.0001 | 0.8100 ± 0.0000 | 1 | 0 |  |

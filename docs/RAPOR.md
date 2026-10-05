@@ -549,8 +549,24 @@ güncellemesi sınırda sönmeyen iki haritayı sınar (`plasticity/models/repar
   dönebilen pürüzsüz bir yansıma haritası olur; ara değerler §8'deki ölçek düzeltmesinin patlamayan hâlidir.
 
 Hiperparametre araması aynı geliştirme akışlarında, aynı bütçe kuralıyla yapılmıştır (lr ∈ {0.003, 0.01} ×
-γ ∈ {1.0, 1.5}; `reports/pmnist_dev_hparams.md`). Geliştirme akışında üçgen dalga (γ = 1.0, lr = 0.003) normalize
-AUC 0.835 / son pencere 0.837 / koruma 1.018 ile Weight Clipping'in (0.834 / 0.837 / 1.021) birebir seviyesine
-gelmiştir (pürüzsüz sinüs: 0.801 / 0.789 / 0.963).
+γ ∈ {1.0, 1.5}; `reports/pmnist_dev_hparams.md`). Geliştirme akışı (100 görev, tek tohum) sonuçları, her
+varyantın en iyi ayarıyla:
+
+| Harita | En iyi ayar | AUC | Son pencere | Koruma | Ölü birim |
+|---|---|---|---|---|---|
+| Üçgen dalga (yansıma, periyodik) | γ = 1.0, lr = 0.003 | **0.835** | 0.837 | 1.018 | 0.103 |
+| Sinüs + tam yansıma (ε = 1, periyodik) | γ = 1.0, lr = 0.01 | **0.829** | 0.829 | 1.001 | 0.193 |
+| Tanh + Jacobian tabanı (ε = 1, periyodik değil) | γ = 1.0, lr = 0.01 | 0.811 | 0.802 | 0.965 | 0.135 |
+| Sinüs + kısmi taban (ε = 0.3) | γ = 1.5, lr = 0.003 | 0.803 | 0.788 | 0.961 | 0.065 |
+| Pürüzsüz sinüs (önceki ana yöntem) | γ = 1.5, lr = 0.003 | 0.801 | 0.789 | 0.963 | 0.078 |
+| Weight Clipping (rakip referans) | κ = 1, lr = 0.003 | 0.834 | 0.837 | 1.021 | — |
+| Standart | lr = 0.003 | 0.795 | 0.776 | 0.946 | 0.092 |
+
+İki periyodik, sönümsüz harita (üçgen dalga ve tam yansımalı sinüs) Weight Clipping'in seviyesine gelmiştir;
+aynı tabana sahip fakat periyodik olmayan tanh gelmemiştir (sınırı aşan parametre geri dönene kadar efektif
+ağırlık sınırda "takılı" kalır: ölü bölge). Kısmi taban (ε = 0.3) yalnızca küçük bir kazanç sağlar. Bu, H2'ye
+proje aşamasının başındaki cevabı (§6.2: "periyodikliğin katkısı yok") *koşullu* hâle getirir: periyodiklik, ancak
+Jacobian sönümü kaldırıldığında — yani parametre sınırı aşabildiğinde — işe yarar ve o zaman yansıma
+mekanizmasını sağlar. En iyi sınır genişliği her iki harita için de γ = 1.0'dır (κ = 1 kırpmayla aynı).
 
 _(final akış sonuçları — 10 tohum, eşleştirilmiş karşılaştırmalar — aşağıya eklenecek)_
