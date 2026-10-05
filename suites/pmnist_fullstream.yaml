@@ -21,3 +21,4 @@ runs:
   - {label: sin, overrides: {model.reparam.hidden: sin, model.reparam.output: sin}}
   - {label: tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}}
   - {label: weight_clipping, overrides: {method.name: weight_clipping}}
+  - {label: tri, overrides: {model.reparam.hidden: tri, model.reparam.output: tri}}

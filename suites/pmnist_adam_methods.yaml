@@ -22,3 +22,4 @@ runs:
   - {label: adam_nap, overrides: {optimizer.name: adam, optimizer.lr: 0.001, method.name: nap, model.layer_norm: true, model.ln_affine: false}}
   - {label: adam_sin_cbp, overrides: {optimizer.name: adam, optimizer.lr: 0.001, model.reparam.hidden: sin, model.reparam.output: sin, method.name: continual_backprop, method.replacement_rate: 0.0001}}
   - {label: sin/output_only_cbp, overrides: {model.reparam.hidden: standard, model.reparam.output: sin, method.name: continual_backprop, method.replacement_rate: 0.0001}}
+  - {label: adam_tri, overrides: {optimizer.name: adam, optimizer.lr: 0.001, model.reparam.hidden: tri, model.reparam.output: tri}}

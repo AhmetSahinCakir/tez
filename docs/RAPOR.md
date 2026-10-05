@@ -582,7 +582,7 @@ mekanizmasını sağlar. En iyi sınır genişliği her iki harita için de γ =
 | **Üçgen dalga (γ = 1, lr = 0.003)** | 10 | **0.836 ± 0.002** | **0.839 ± 0.002** | **1.017 ± 0.003** | −0.080 ± 0.007 | 0.139 | 0.064 | 41.8 |
 | Sinüs + tam yansıma (γ = 1, lr = 0.01) | 10 | 0.826 ± 0.001 | 0.825 ± 0.003 | 0.995 ± 0.004 | −0.026 ± 0.006 | 0.213 | 0.076 | 45.3 |
 | Tanh + Jacobian tabanı (γ = 1, lr = 0.01) | 5 | 0.799 ± 0.002 | 0.780 ± 0.006 | 0.939 ± 0.006 | +0.014 ± 0.016 | 0.123 | 0.095 | 37.0 |
-| Sinüs + kısmi taban (ε = 0.3) | 5 | 0.787 | 0.766 | 0.934 | +0.003 | 0.115 | 0.097 | 30.7 |
+| Sinüs + kısmi taban (ε = 0.3) | 5 | 0.786 ± 0.002 | 0.764 ± 0.004 | 0.932 ± 0.004 | +0.011 ± 0.015 | 0.123 | 0.097 | 30.3 |
 | Weight Clipping (κ = 1) | 5 | 0.836 ± 0.001 | 0.839 ± 0.002 | 1.017 ± 0.004 | −0.077 ± 0.012 | 0.145 | 0.064 | 42.9 |
 | Pürüzsüz sinüs (§6) | 10 | 0.785 ± 0.001 | 0.760 ± 0.004 | 0.926 ± 0.004 | −0.008 ± 0.009 | 0.141 | 0.098 | 28.1 |
 | Standart (§6) | 10 | 0.774 ± 0.001 | 0.743 ± 0.003 | 0.906 ± 0.004 | +0.021 ± 0.008 | 0.177 | 0.109 | 25.5 |
@@ -601,7 +601,7 @@ mekanizmasını sağlar. En iyi sınır genişliği her iki harita için de γ =
 * **Periyodiklik, sönüm kaldırıldığında belirleyicidir.** Aynı Jacobian tabanıyla periyodik olmayan tanh
   (0.799, koruma 0.939) yansımalı sinüsün (0.826, 0.995) ve üçgen dalganın (0.836, 1.017) çok gerisinde kalır:
   sınırı aşan parametre tanh'ta ölü bölgede beklerken periyodik haritalarda yansır. Kısmi taban (ε = 0.3) ise
-  pürüzsüz sinüse göre yalnızca +0.002 kazandırır. Böylece H2'nin nihai cevabı iki parçalıdır: pürüzsüz
+  pürüzsüz sinüse göre yalnızca +0.001 kazandırır. Böylece H2'nin nihai cevabı iki parçalıdır: pürüzsüz
   haritalarda periyodikliğin katkısı yoktur (§6.2), sönümsüz haritalarda ise periyodiklik (yansıma) etkinin
   ana bileşenidir.
 * **Mekanistik bütünlük.** Sonuç §8–§9'daki ayrıştırmayı kapatır: sınırlılık (|W| ≤ A), sönümsüz güncelleme

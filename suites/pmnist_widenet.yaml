@@ -20,3 +20,4 @@ runs:
   - {label: baseline, overrides: {method.name: baseline}}
   - {label: sin, overrides: {model.reparam.hidden: sin, model.reparam.output: sin}}
   - {label: tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}}
+  - {label: tri, overrides: {model.reparam.hidden: tri, model.reparam.output: tri}}
