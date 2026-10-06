@@ -19,3 +19,5 @@ dist/
 .DS_Store
 *.swp
 results/**/running.lock
+results/**/checkpoint.pt
+results/**/checkpoint.pt.tmp

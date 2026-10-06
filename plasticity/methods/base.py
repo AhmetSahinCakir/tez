@@ -73,6 +73,79 @@ class Method:
     def after_step(self, step: int, features: Optional[List[torch.Tensor]] = None) -> None:
         pass
 
+    # --- checkpointing -------------------------------------------------------------------------
+    # Attributes that are references into the model / optimiser / config (restored elsewhere), not state.
+    _STATE_SKIP = frozenset({"model", "cfg", "optimizer_cfg", "optimizer", "generator", "lr", "layers", "params",
+                             "param_names", "layer_names"})
+
+    def _model_storages(self) -> set:
+        out = set()
+        for t in list(self.model.parameters()) + list(self.model.buffers()):
+            try:
+                out.add(t.untyped_storage().data_ptr())
+            except Exception:  # pragma: no cover - older torch
+                out.add(t.storage().data_ptr())
+        return out
+
+    def _is_own_tensor(self, t: torch.Tensor, model_storages: set) -> bool:
+        if isinstance(t, nn.Parameter):
+            return False
+        try:
+            ptr = t.untyped_storage().data_ptr()
+        except Exception:  # pragma: no cover
+            ptr = t.storage().data_ptr()
+        return ptr not in model_storages
+
+    def state_dict(self) -> Dict[str, Any]:
+        """Mutable state of the method (traces, counters, RNG) for run checkpoints.
+
+        Generic: every instance attribute that is a scalar, a tensor owned by the method (not a model
+        parameter / buffer or a view of one), a list of such tensors, or a list of scalars, plus the state of
+        ``self.generator``.  Static attributes (bounds, anchors, config echoes) are included too; restoring
+        them is harmless because they are recomputed identically at construction.
+        """
+        ms = self._model_storages()
+        out: Dict[str, Any] = {}
+        if self.generator is not None:
+            out["__generator__"] = self.generator.get_state()
+        for k, v in vars(self).items():
+            if k in self._STATE_SKIP:
+                continue
+            if v is None or isinstance(v, (bool, int, float, str)):
+                out[k] = v
+            elif torch.is_tensor(v):
+                if self._is_own_tensor(v, ms):
+                    out[k] = v.detach().clone()
+            elif isinstance(v, list) and v:
+                if all(torch.is_tensor(x) for x in v):
+                    if all(self._is_own_tensor(x, ms) for x in v):
+                        out[k] = [x.detach().clone() for x in v]
+                elif all(isinstance(x, (bool, int, float, str)) for x in v):
+                    out[k] = list(v)
+        return out
+
+    def load_state_dict(self, state: Dict[str, Any]) -> None:
+        """Inverse of :meth:`state_dict` (tensors are copied in place so that views stay valid)."""
+        state = dict(state)
+        gen = state.pop("__generator__", None)
+        if gen is not None and self.generator is not None:
+            self.generator.set_state(gen)
+        for k, v in state.items():
+            cur = getattr(self, k, None)
+            if torch.is_tensor(v):
+                if torch.is_tensor(cur) and cur.shape == v.shape:
+                    cur.copy_(v)
+                else:
+                    setattr(self, k, v.clone())
+            elif isinstance(v, list) and v and all(torch.is_tensor(x) for x in v):
+                if isinstance(cur, list) and len(cur) == len(v) and all(torch.is_tensor(c) and c.shape == x.shape for c, x in zip(cur, v)):
+                    for c, x in zip(cur, v):
+                        c.copy_(x)
+                else:
+                    setattr(self, k, [x.clone() for x in v])
+            else:
+                setattr(self, k, list(v) if isinstance(v, list) else v)
+
     # --- reporting ---------------------------------------------------------------------------------
     def state_summary(self) -> Dict[str, Any]:
         """Scalar diagnostics appended to each task's log row (e.g. number of units replaced)."""

@@ -43,5 +43,8 @@ metrics:
 fresh_reference:
   every_n_tasks: 0           # 0 = off
 
+checkpoint:
+  every_n_tasks: 10          # resumable runs: full state saved to checkpoint.pt every k tasks (0 = off); removed at the end
+
 summary:
   window: 0.1                # fraction of tasks for early/final windows (or an int)

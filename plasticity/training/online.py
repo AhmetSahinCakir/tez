@@ -6,10 +6,20 @@
 * ``stationary``                   -> :func:`run_stationary` (i.i.d. epochs, one log row per epoch)
 
 Each run writes ``config.json``, ``tasks.jsonl`` (per-task rows) and ``summary.json``.
+
+Checkpointing (``cfg['checkpoint']['every_n_tasks']``, continual protocols only): every *k* tasks the full
+state (model, optimiser, method traces, every RNG, elapsed time) is written atomically to ``checkpoint.pt``;
+a run restarted in the same directory with the same config resumes at the next task and reproduces the
+uninterrupted trajectory exactly (``tasks.jsonl`` is truncated to the checkpointed rows first).  The file is
+removed when the run completes.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import math
+import os
+import random
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -22,7 +32,11 @@ from ..data import StationaryDataset, Task, build_stream
 from ..methods import build_method
 from ..metrics import compute_mechanism_metrics, summarize_run
 from ..models import MLP, build_model
-from ..utils import append_jsonl, dump_json, set_seed
+from ..utils import append_jsonl, dump_json, read_jsonl, set_seed
+
+CHECKPOINT_NAME = "checkpoint.pt"
+# config keys that do not affect the trajectory (a checkpoint stays valid when they change)
+_VOLATILE_KEYS = ("log_every", "checkpoint", "threads", "save_model")
 
 
 # ----------------------------------------------------------------------------------------------
@@ -34,6 +48,26 @@ def _model_generator(seed: int) -> torch.Generator:
 
 def _method_generator(seed: int) -> torch.Generator:
     return torch.Generator().manual_seed(int(seed) * 104729 + 23)
+
+
+def config_fingerprint(cfg: Dict[str, Any]) -> str:
+    """Hash of the config without the volatile keys; a checkpoint is only resumed under the same fingerprint."""
+    c = {k: v for k, v in cfg.items() if k not in _VOLATILE_KEYS}
+    return hashlib.sha1(json.dumps(c, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def save_checkpoint(path: Path, payload: Dict[str, Any]) -> None:
+    """Atomic write (tmp + rename) so that a kill during the save never leaves a corrupt checkpoint."""
+    tmp = path.with_name(path.name + ".tmp")
+    torch.save(payload, tmp)
+    os.replace(tmp, path)
+
+
+def load_checkpoint(path: Path) -> Optional[Dict[str, Any]]:
+    try:
+        return torch.load(path, map_location="cpu", weights_only=False)
+    except Exception:  # corrupt / incompatible file: start from scratch
+        return None
 
 
 @torch.no_grad()
@@ -168,14 +202,41 @@ def run_stream(cfg: Dict[str, Any], out_dir: Path) -> Dict[str, Any]:
 
     rows: List[Dict[str, Any]] = []
     log_path = out_dir / "tasks.jsonl"
-    if log_path.exists():
-        log_path.unlink()
     global_step = 0
-    t0 = time.time()
     n_tasks = len(stream)
     task_rng = np.random.default_rng(stream_seed + 1234)
-    for task in stream:
-        t = task.index
+    # ---- checkpoint / resume (task boundary; exact: model, optimiser, method traces and every RNG) -------
+    ck_cfg = cfg.get("checkpoint", {}) or {}
+    ck_every = int(ck_cfg.get("every_n_tasks", 0) or 0)
+    ck_path = out_dir / CHECKPOINT_NAME
+    fingerprint = config_fingerprint(cfg)
+    start_task, elapsed0 = 0, 0.0
+    ck = load_checkpoint(ck_path) if (ck_every > 0 and ck_path.exists() and log_path.exists()) else None
+    if ck is not None and ck.get("fingerprint") == fingerprint and ck.get("n_tasks") == n_tasks and ck["task"] + 1 < n_tasks:
+        old_rows = [r for r in read_jsonl(log_path) if int(r["task"]) <= int(ck["task"])]
+        if len(old_rows) == int(ck["task"]) + 1 and [int(r["task"]) for r in old_rows] == list(range(len(old_rows))):
+            model.load_state_dict(ck["model"])
+            optimizer.load_state_dict(ck["optimizer"])
+            method.load_state_dict(ck["method"])
+            rng = ck["rng"]
+            torch.set_rng_state(rng["torch"])
+            np.random.set_state(rng["numpy"])
+            random.setstate(rng["python"])
+            fisher_gen.set_state(rng["fisher"])
+            task_rng.bit_generator.state = rng["task_rng"]
+            rows = old_rows
+            global_step = int(ck["global_step"])
+            elapsed0 = float(ck.get("elapsed", 0.0))
+            start_task = int(ck["task"]) + 1
+            log_path.unlink()  # rewrite the log without rows past the checkpoint (if any)
+            for r in rows:
+                append_jsonl(r, log_path)
+            print(f"[{out_dir.name}] resumed from checkpoint at task {start_task}/{n_tasks}", flush=True)
+    if start_task == 0 and log_path.exists():
+        log_path.unlink()
+    t0 = time.time() - elapsed0
+    for t in range(start_task, n_tasks):
+        task = stream.task(t)
         method.on_task_start(t)
         step_stats.reset()
         tt = time.time()
@@ -202,10 +263,20 @@ def run_stream(cfg: Dict[str, Any], out_dir: Path) -> Dict[str, Any]:
             perf = row.get(stream.metric)
             print(f"[{out_dir.name}] task {t+1}/{n_tasks}  {stream.metric}={perf:.4f}  "
                   f"elapsed={time.time()-t0:.0f}s", flush=True)
+        if ck_every > 0 and (t + 1) % ck_every == 0 and t < n_tasks - 1:
+            save_checkpoint(ck_path, {
+                "task": t, "global_step": global_step, "elapsed": time.time() - t0, "fingerprint": fingerprint,
+                "n_tasks": n_tasks, "model": model.state_dict(), "optimizer": optimizer.state_dict(),
+                "method": method.state_dict(),
+                "rng": {"torch": torch.get_rng_state(), "numpy": np.random.get_state(), "python": random.getstate(),
+                        "fisher": fisher_gen.get_state(), "task_rng": task_rng.bit_generator.state},
+            })
     summary = summarize_run(rows, metric=stream.metric, window=cfg.get("summary", {}).get("window"))
     summary.update({"seed": seed, "stream_seed": stream_seed, "wall_time": time.time() - t0, "global_steps": global_step,
                     "method": cfg.get("method", {}).get("name", "baseline"), "stream": stream.name})
     dump_json(summary, out_dir / "summary.json")
+    if ck_path.exists():
+        ck_path.unlink()
     if cfg.get("save_model", False):
         torch.save(model.state_dict(), out_dir / "model_final.pt")
     return summary
