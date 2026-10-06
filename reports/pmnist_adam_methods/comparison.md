@@ -1,0 +1,48 @@
+## Referans: adam_sin_cbp
+
+_eşleştirilmiş fark (yöntem − referans), %95 bootstrap GA, işaret-çevirme permütasyon testi, Holm düzeltmesi; * p<0.05, ** p<0.01, *** p<0.001 (Holm)_
+
+| Ölçüt                              | Yöntem                  | Referans     | Eşleşme sayısı | Ortalama (yöntem) | Ortalama (referans) | Fark (yöntem − referans) [%95 GA] | p (permütasyon) | p (Holm) | Cohen d_z |
+|------------------------------------|-------------------------|--------------|---------------:|-------------------|---------------------|-----------------------------------|-----------------|----------|-----------|
+| Normalize AUC                      | sin/output_only_cbp     | adam_sin_cbp |              3 | 0.824             | 0.840               | -0.015 [-0.017, -0.014]           | 0.2500          | 1.0000   | -10.19    |
+| Normalize AUC                      | adam_continual_backprop | adam_sin_cbp |              3 | 0.822             | 0.840               | -0.017 [-0.018, -0.016]           | 0.2500          | 1.0000   | -13.98    |
+| Normalize AUC                      | adam_l2_init            | adam_sin_cbp |              3 | 0.809             | 0.840               | -0.031 [-0.033, -0.030]           | 0.2500          | 1.0000   | -17.55    |
+| Normalize AUC                      | adam_nap                | adam_sin_cbp |              3 | 0.845             | 0.840               | 0.005 [0.004, 0.006]              | 0.2500          | 1.0000   | 6.28      |
+| Normalize AUC                      | adam_tri                | adam_sin_cbp |              3 | 0.787             | 0.840               | -0.052 [-0.056, -0.050]           | 0.2500          | 1.0000   | -15.90    |
+| Normalize AUC                      | adam_weight_clipping    | adam_sin_cbp |              3 | 0.794             | 0.840               | -0.045 [-0.049, -0.043]           | 0.2500          | 1.0000   | -13.94    |
+| Son pencere ort.                   | sin/output_only_cbp     | adam_sin_cbp |              3 | 0.826             | 0.842               | -0.016 [-0.019, -0.014]           | 0.2500          | 1.0000   | -4.86     |
+| Son pencere ort.                   | adam_continual_backprop | adam_sin_cbp |              3 | 0.824             | 0.842               | -0.018 [-0.018, -0.017]           | 0.2500          | 1.0000   | -23.39    |
+| Son pencere ort.                   | adam_l2_init            | adam_sin_cbp |              3 | 0.809             | 0.842               | -0.033 [-0.035, -0.031]           | 0.2500          | 1.0000   | -13.64    |
+| Son pencere ort.                   | adam_nap                | adam_sin_cbp |              3 | 0.846             | 0.842               | 0.005 [0.003, 0.007]              | 0.2500          | 1.0000   | 2.32      |
+| Son pencere ort.                   | adam_tri                | adam_sin_cbp |              3 | 0.771             | 0.842               | -0.070 [-0.085, -0.043]           | 0.2500          | 1.0000   | -2.98     |
+| Son pencere ort.                   | adam_weight_clipping    | adam_sin_cbp |              3 | 0.793             | 0.842               | -0.048 [-0.056, -0.042]           | 0.2500          | 1.0000   | -6.93     |
+| Koruma oranı                       | sin/output_only_cbp     | adam_sin_cbp |              3 | 1.006             | 1.009               | -0.002 [-0.008, 0.002]            | 0.7500          | 1.0000   | -0.45     |
+| Koruma oranı                       | adam_continual_backprop | adam_sin_cbp |              3 | 1.000             | 1.009               | -0.009 [-0.009, -0.008]           | 0.2500          | 1.0000   | -15.05    |
+| Koruma oranı                       | adam_l2_init            | adam_sin_cbp |              3 | 1.002             | 1.009               | -0.007 [-0.009, -0.004]           | 0.2500          | 1.0000   | -2.32     |
+| Koruma oranı                       | adam_nap                | adam_sin_cbp |              3 | 1.005             | 1.009               | -0.003 [-0.006, -0.000]           | 0.2500          | 1.0000   | -1.07     |
+| Koruma oranı                       | adam_tri                | adam_sin_cbp |              3 | 0.961             | 1.009               | -0.048 [-0.074, -0.011]           | 0.2500          | 1.0000   | -1.45     |
+| Koruma oranı                       | adam_weight_clipping    | adam_sin_cbp |              3 | 0.981             | 1.009               | -0.028 [-0.038, -0.016]           | 0.2500          | 1.0000   | -2.56     |
+| Taze model farkı (son)             | sin/output_only_cbp     | adam_sin_cbp |              3 | -0.056            | -0.019              | -0.037 [-0.042, -0.031]           | 0.2500          | 1.0000   | -6.82     |
+| Taze model farkı (son)             | adam_continual_backprop | adam_sin_cbp |              3 | 0.001             | -0.019              | 0.019 [0.014, 0.025]              | 0.2500          | 1.0000   | 3.32      |
+| Taze model farkı (son)             | adam_l2_init            | adam_sin_cbp |              3 | -0.019            | -0.019              | -0.000 [-0.006, 0.008]            | 1.0000          | 1.0000   | -0.01     |
+| Taze model farkı (son)             | adam_nap                | adam_sin_cbp |              3 | -0.022            | -0.019              | -0.003 [-0.009, 0.004]            | 0.5000          | 1.0000   | -0.51     |
+| Taze model farkı (son)             | adam_tri                | adam_sin_cbp |              3 | 0.071             | -0.019              | 0.090 [0.049, 0.128]              | 0.2500          | 1.0000   | 2.26      |
+| Taze model farkı (son)             | adam_weight_clipping    | adam_sin_cbp |              3 | 0.050             | -0.019              | 0.069 [0.024, 0.152]              | 0.2500          | 1.0000   | 0.96      |
+| Son: Ölü birim oranı               | sin/output_only_cbp     | adam_sin_cbp |              3 | 0.000             | 0.023               | -0.023 [-0.024, -0.020]           | 0.2500          | 1.0000   | -9.81     |
+| Son: Ölü birim oranı               | adam_continual_backprop | adam_sin_cbp |              3 | 0.036             | 0.023               | 0.013 [0.005, 0.018]              | 0.2500          | 1.0000   | 1.79      |
+| Son: Ölü birim oranı               | adam_l2_init            | adam_sin_cbp |              3 | 0.012             | 0.023               | -0.011 [-0.013, -0.007]           | 0.2500          | 1.0000   | -3.38     |
+| Son: Ölü birim oranı               | adam_nap                | adam_sin_cbp |              3 | 0.020             | 0.023               | -0.003 [-0.006, -0.001]           | 0.2500          | 1.0000   | -1.39     |
+| Son: Ölü birim oranı               | adam_tri                | adam_sin_cbp |              3 | 0.340             | 0.023               | 0.317 [0.301, 0.333]              | 0.2500          | 1.0000   | 19.78     |
+| Son: Ölü birim oranı               | adam_weight_clipping    | adam_sin_cbp |              3 | 0.345             | 0.023               | 0.322 [0.313, 0.327]              | 0.2500          | 1.0000   | 43.29     |
+| Son: Etkin rank (son gizli katman) | sin/output_only_cbp     | adam_sin_cbp |              3 | 32.548            | 35.027              | -2.479 [-5.746, 0.003]            | 0.5000          | 1.0000   | -0.84     |
+| Son: Etkin rank (son gizli katman) | adam_continual_backprop | adam_sin_cbp |              3 | 36.773            | 35.027              | 1.746 [-0.352, 2.868]             | 0.5000          | 1.0000   | 0.96      |
+| Son: Etkin rank (son gizli katman) | adam_l2_init            | adam_sin_cbp |              3 | 34.257            | 35.027              | -0.770 [-2.591, 1.270]            | 0.7500          | 1.0000   | -0.40     |
+| Son: Etkin rank (son gizli katman) | adam_nap                | adam_sin_cbp |              3 | 13.080            | 35.027              | -21.947 [-23.338, -20.902]        | 0.2500          | 1.0000   | -17.50    |
+| Son: Etkin rank (son gizli katman) | adam_tri                | adam_sin_cbp |              3 | 25.133            | 35.027              | -9.895 [-11.499, -8.591]          | 0.2500          | 1.0000   | -6.70     |
+| Son: Etkin rank (son gizli katman) | adam_weight_clipping    | adam_sin_cbp |              3 | 26.519            | 35.027              | -8.508 [-10.377, -6.687]          | 0.2500          | 1.0000   | -4.61     |
+| Son: Ortalama \|w\|                | sin/output_only_cbp     | adam_sin_cbp |              3 | 0.052             | 0.079               | -0.027 [-0.027, -0.027]           | 0.2500          | 1.0000   | -176.75   |
+| Son: Ortalama \|w\|                | adam_continual_backprop | adam_sin_cbp |              3 | 0.096             | 0.079               | 0.017 [0.016, 0.019]              | 0.2500          | 1.0000   | 11.83     |
+| Son: Ortalama \|w\|                | adam_l2_init            | adam_sin_cbp |              3 | 0.062             | 0.079               | -0.017 [-0.017, -0.016]           | 0.2500          | 1.0000   | -43.25    |
+| Son: Ortalama \|w\|                | adam_nap                | adam_sin_cbp |              3 | 0.070             | 0.079               | -0.009 [-0.010, -0.008]           | 0.2500          | 1.0000   | -11.91    |
+| Son: Ortalama \|w\|                | adam_tri                | adam_sin_cbp |              3 | 0.066             | 0.079               | -0.013 [-0.013, -0.012]           | 0.2500          | 1.0000   | -29.25    |
+| Son: Ortalama \|w\|                | adam_weight_clipping    | adam_sin_cbp |              3 | 0.071             | 0.079               | -0.008 [-0.009, -0.008]           | 0.2500          | 1.0000   | -31.86    |

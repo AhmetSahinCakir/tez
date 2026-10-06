@@ -44,6 +44,7 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 * **H1**: sınırlı yeniden parametrizasyon plastisite kaybını anlamlı fakat küçük ölçüde azaltır (ΔAUC +0.011
   [+0.010, +0.012], eşleştirilmiş permütasyon p = 0.002); Adam ile etki çok büyür (ΔAUC +0.03 … +0.09).
 * **H2**: sinüs ve tanh SGD altında ayırt edilemez → etki sınırlılıktan kaynaklanır; Adam altında sinüs tanh'ı geçer.
+* **Rejim bağımlılığı (§14.1)**: Adam (lr 10⁻³) altında sıralama tersine döner — yumuşak sinüs sınırı (0.824) sert sınırları (kırpma 0.794, üçgen dalga 0.787) geçer; sinüs + Continual Backprop 0.840, NaP 0.845 (3 tohum, SGD'de seçilen hiperparametrelerle aktarım testi).
 * **H3**: sınıra yaklaşan parametrelerde cos²Θ kaynaklı adım küçülmesi ölçülmüştür; bunu gideren ölçek-düzeltmeli
   güncelleme plastisiteyi *bozar* (parametreler sınıra yığılıp donar) — sönüm koruyucu bir bileşendir. Sert
   projeksiyonlu Weight Clipping aynı sınırla çok daha iyidir.

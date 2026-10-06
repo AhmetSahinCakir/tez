@@ -611,3 +611,74 @@ mekanizmasını sağlar. En iyi sınır genişliği her iki harita için de γ =
 
 Bu bölümün sonuçları öneri formundaki H1–H3'ün ötesine geçen, proje aşamasında doğan bir katkıdır ve makalenin
 ana iddiasını oluşturur: *"yumuşak sınır neden kaybeder, yansımalı sınır neden kırpmaya eşittir"*.
+
+
+## 14. Ölçek büyütme ve Adam rejimi karşılaştırması (proje sonrası ek paketler)
+
+Bu bölüm, §12'de açık bırakılan iki soruyu kapatmak için çalıştırılan ek paketleri raporlar: (i) yayımlanmış
+yöntemler Adam altında nasıl davranır (önerilen sinüs modelinin en güçlü olduğu rejim, §11); (ii) bulgular
+kanonik akış uzunluğuna (800 görev × 60.000 örnek) ve kanonik ağ genişliğine (3×2000) taşınıyor mu? Üç paket
+zincir hâlinde koşar (`scripts/run_scaleup_chain.sh`); koşular her 10 görevde kontrol noktası yazar ve kesintide
+kaldığı yerden birebir devam eder (`plasticity/training/online.py`, `tests/test_checkpoint.py`). §14.2 ve §14.3
+paketler bittikçe doldurulur.
+
+### 14.1 Adam rejiminde yayımlanmış yöntemler (`suites/pmnist_adam_methods.yaml`; `reports/pmnist_adam_methods/`)
+
+**Kurulum.** Adam, lr = 10⁻³ (standart ağın çöktüğü, sinüs ağının plastisitesini koruduğu ayar, §11); 200 görev
+× 5.000 örnek; §8'deki `adam_*` koşularıyla aynı 3 akış/tohum. Yayımlanmış yöntemlerin hiperparametreleri **SGD
+altında seçilen** değerlerdir (κ = 1, λ = 0,01, ρ = 10⁻⁴, NaP varsayılanı; üçgen dalga γ = 1); Adam için yeniden
+arama yapılmamıştır. Dolayısıyla bu bir *aktarım* testidir: "SGD'de iyi çalışan ayar Adam'a taşınınca ne olur?"
+Son satır (`sin/output_only_cbp`) SGD'dedir: yalnızca çıkış katmanı sınırlı + Continual Backprop.
+
+| Yöntem (Adam, lr 10⁻³) | n | AUC | Erken | Son pencere | Koruma | Taze fark | Ölü birim | Ort. \|w\| | Etkin kerte | saat/koşu |
+|---|---:|---|---|---|---|---|---|---|---|---:|
+| **NaP** | 3 | **0.845 ± 0.001** | 0.841 ± 0.004 | **0.846 ± 0.005** | 1.005 ± 0.009 | −0.022 ± 0.012 | 0.020 | 0.070 | 29.8 | 0.9 |
+| **Sinüs + Continual Backprop** | 3 | 0.840 ± 0.002 | 0.834 ± 0.003 | 0.842 ± 0.006 | **1.009 ± 0.007** | −0.019 ± 0.008 | 0.023 | 0.079 | 38.7 | 1.7 |
+| Sinüs (tek başına, §11) | 3 | 0.824 ± 0.004 | 0.829 ± 0.009 | 0.826 ± 0.010 | 0.997 ± 0.022 | −0.002 ± 0.035 | 0.354 | 0.120 | 28.0 | — |
+| Continual Backprop | 3 | 0.822 ± 0.002 | 0.824 ± 0.002 | 0.824 ± 0.005 | 1.000 ± 0.006 | +0.001 ± 0.014 | 0.036 | 0.096 | 41.0 | 1.1 |
+| Tanh (tek başına, §11) | 3 | 0.812 ± 0.002 | 0.829 ± 0.007 | 0.808 ± 0.008 | 0.974 ± 0.008 | +0.028 ± 0.022 | 0.260 | 0.140 | 27.1 | — |
+| L2 Init | 3 | 0.809 ± 0.002 | 0.807 ± 0.007 | 0.809 ± 0.002 | 1.002 ± 0.011 | −0.019 ± 0.023 | 0.012 | 0.062 | 40.9 | 0.5 |
+| Weight Clipping (κ = 1) | 3 | 0.794 ± 0.009 | 0.809 ± 0.006 | 0.793 ± 0.021 | 0.981 ± 0.030 | +0.050 ± 0.171 | 0.345 | 0.071 | 29.4 | 1.2 |
+| Üçgen dalga (γ = 1) | 3 | 0.787 ± 0.006 | 0.803 ± 0.017 | 0.771 ± 0.058 | 0.961 ± 0.086 | +0.071 ± 0.095 | 0.340 | 0.066 | 27.9 | 2.2 |
+| Standart (§11) | 3 | 0.737 ± 0.021 | 0.807 ± 0.006 | 0.707 ± 0.020 | 0.877 ± 0.032 | +0.127 ± 0.052 | 0.678 | 0.356 | 6.4 | — |
+| *SGD:* Sinüs yalnız çıkışta + CBP | 3 | 0.824 ± 0.004 | 0.820 ± 0.006 | 0.826 ± 0.003 | 1.006 ± 0.011 | −0.056 ± 0.006 | 0.000 | 0.052 | 39.6 | 0.6 |
+
+_ortalama ± %95 GA (t-dağılımı, 3 tohum); ölü birim / |w| / kerte sütunları son pencere ortalamalarıdır.
+Eşleştirilmiş farklar aynı 3 tohum üzerinden, [%95 GA] ve eşleştirilmiş t-testi ile verilmiştir (n = 3 olduğundan
+permütasyon testinin en küçük p'si 0,25'tir; §6'daki gibi iki test birlikte okunmalıdır)._
+
+* **Adam altında her yöntem standart ağı büyük farkla geçer** (AUC farkı standart ağa göre: NaP +0.108
+  [+0.087, +0.128], CBP +0.085 [+0.065, +0.106], L2 Init +0.071 [+0.048, +0.095], kırpma +0.057 [+0.045, +0.070],
+  üçgen dalga +0.050 [+0.023, +0.077]; t-testi p ≤ 0.016). Standart ağın Adam'daki çöküşü (ölü birim 0.68,
+  |w| 0.36, kerte 6.4) plastisite kaybının en şiddetli hâlidir ve her müdahale bunu önemli ölçüde onarır.
+* **Sinüs ve Continual Backprop birbirini tamamlar.** Sinüs + CBP (0.840), tek başına CBP'yi +0.017 [+0.014,
+  +0.020] (p = 0.002) ve tek başına sinüsü +0.016 [+0.013, +0.018] (p = 0.002) geçer. CBP ölü birimleri
+  yeniden başlatırken (0.354 → 0.023) sınırlı harita ağırlık büyümesini engeller (|w| 0.120 → 0.079); iki mekanizma
+  farklı belirtileri hedefler. NaP (0.845) bu birleşimin de +0.005 [+0.003, +0.007] (p = 0.008) önündedir;
+  Adam rejiminin en iyi yöntemi NaP'tir.
+* **Sert sınır Adam altında kaybeder; yumuşak sınır kazanır — SGD'nin tam tersi.** SGD'de kırpma ve üçgen dalga
+  pürüzsüz sinüsü 0.05 geçerken (§13), Adam'da sıralama tersine döner: sinüs (0.824) kırpmayı +0.030 [+0.024,
+  +0.035] (p = 0.002) ve üçgen dalgayı +0.037 [+0.026, +0.047] (p = 0.004) geçer; son pencerede farklar +0.033 ve
+  +0.055'tir, sert sınırlı iki yöntem yüksek tohum-varyansı ve dalgalı eğriler gösterir
+  (`reports/pmnist_adam_methods/performance.png`). Ölü birim oranı üçünde de ≈ 0.34–0.35 olduğundan fark ölü
+  birimlerden değil, sınırdaki dinamikten kaynaklanır: Adam'ın normalize adımları κ = 1 / γ = 1 sınırına dayanan
+  parametreleri her adımda sınıra iter (|w| 0.07'de sıkışır); projeksiyon/yansıma bu adımları geri çevirirken
+  sinüsün cos²Θ sönümü sınıra yaklaşan parametrelerin etkin adımını küçülterek örtük bir *güven bölgesi* gibi
+  davranır. Yani §13'te "zayıflık" olarak teşhis edilen Jacobian sönümü, Adam gibi adım büyüklüğünü normalize
+  eden eniyileyicilerde avantaja dönüşür. Bu rejim bağımlılığı tezin ve makalenin temel sonuçlarından biridir:
+  *SGD'de yansımalı sınır, Adam'da yumuşak sınır.*
+* **Uyarı.** Kırpma ve üçgen dalganın sınır genişliği (κ = 1, γ = 1) SGD'de seçilmiştir; Adam'da daha geniş bir
+  sınır (κ ≈ 1.5–2) farkın bir kısmını kapatabilir. Aktarım testi olarak sonuç geçerlidir; Adam'a özgü bir
+  hiperparametre araması sonraki adımdır (§12).
+* **Yalnızca çıkış katmanını sınırlamak + CBP (SGD)**: 0.824 ± 0.004; SGD'deki tek başına CBP'yi (0.821 ± 0.001,
+  §6) ancak sınırda geçer, Adam'daki sinüs + CBP'nin 0.015 [0.012, 0.019] gerisindedir. §8'deki "etki çıkış
+  katmanından gelir" bulgusu CBP ile birleşince ek bir kazanç sağlamaz.
+
+### 14.2 Tam akış uzunluğu: 800 görev × 60.000 örnek, 3×100 ağ (`suites/pmnist_fullstream.yaml`)
+
+_Koşuyor (standart, sinüs, tanh, Weight Clipping, üçgen dalga × 3 tohum; koşu başına 7–17 saat). Sonuçlar
+paket bitince eklenecek._
+
+### 14.3 Kanonik ağ genişliği: 3×2000, 200 görev × 5.000 örnek (`suites/pmnist_widenet.yaml`)
+
+_Sırada (standart, sinüs, tanh, üçgen dalga × 3 tohum). Sonuçlar paket bitince eklenecek._
