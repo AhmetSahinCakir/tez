@@ -488,3 +488,39 @@ def test_select_hparams_label_key_resolution(tmp_path):
     sel, details, _, problems = select_mod.select_hparams(tmp_path / "rt")
     assert sel == {"sp": {"optimizer.lr": 0.01, "method.shrink": 1e-05}} and problems == []
     assert details["sp"]["variant"] == "sp/lr=0.01/shrink=1e-05"
+
+
+def test_lock_from_a_previous_boot_or_a_reused_pid_is_stale(tmp_path):
+    """After a container replacement pids restart from 1: a lock whose pid is alive again but that was written
+    under another boot id, or whose pid now belongs to an unrelated process, must count as stale."""
+    import os, subprocess, sys as _sys
+    run_dir = tmp_path / "r0"
+    run_dir.mkdir()
+    lock = run_dir / run_suite_mod.LOCK_NAME
+    host = __import__("socket").gethostname()
+    boot = run_suite_mod._boot_id()
+    if not boot:
+        pytest.skip("no /proc boot id on this platform")
+    # 1) alive pid (this pytest process) but written under a different boot -> stale
+    lock.write_text(f"pid={os.getpid()}\nhost={host}\nrole=child\nboot=not-this-boot\n")
+    assert not run_suite_mod._lock_alive(lock, run_suite_mod._read_lock(lock))
+    # 2) same boot, alive pid, but the process is not the run of this directory (pytest) -> stale
+    lock.write_text(f"pid={os.getpid()}\nhost={host}\nrole=child\nboot={boot}\n")
+    assert not run_suite_mod._lock_alive(lock, run_suite_mod._read_lock(lock))
+    # 3) a legacy lock without boot id keeps the old semantics (pid alive -> live)
+    lock.write_text(f"pid={os.getpid()}\nhost={host}\nrole=child\n")
+    assert run_suite_mod._lock_alive(lock, run_suite_mod._read_lock(lock))
+    # 4) a genuine child: alive process whose command line names the run directory -> live; dead -> stale
+    proc = subprocess.Popen([_sys.executable, "-c", "import time; time.sleep(60)", "--out", str(run_dir)])
+    try:
+        lock.write_text(run_suite_mod._lock_text(proc.pid, "child"))
+        info = run_suite_mod._read_lock(lock)
+        assert info["boot"] == boot
+        assert run_suite_mod._lock_alive(lock, info)
+    finally:
+        proc.kill()
+        proc.wait()
+    assert not run_suite_mod._lock_alive(lock, run_suite_mod._read_lock(lock))
+    # 5) the runner's own (short-lived) lock is judged by pid + boot only
+    lock.write_text(run_suite_mod._lock_text(os.getpid(), "runner"))
+    assert run_suite_mod._lock_alive(lock, run_suite_mod._read_lock(lock))

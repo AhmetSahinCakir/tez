@@ -374,8 +374,27 @@ def _pid_alive(pid: int) -> bool:
     return True
 
 
+def _boot_id() -> str:
+    """Kernel boot id (Linux); changes when the container / machine is replaced, so that a lock written
+    before the replacement can never be mistaken for a live one even if its pid was reused."""
+    try:
+        return Path("/proc/sys/kernel/random/boot_id").read_text(encoding="utf-8").strip()
+    except OSError:
+        return ""
+
+
+def _proc_cmdline(pid: int) -> Optional[str]:
+    try:
+        raw = Path(f"/proc/{pid}/cmdline").read_bytes()
+    except OSError:
+        return None
+    return raw.replace(b"\0", b" ").decode("utf-8", "replace") if raw else None
+
+
 def _lock_text(pid: int, role: str) -> str:
-    return f"pid={pid}\nhost={socket.gethostname()}\nrole={role}\nstarted={time.strftime('%Y-%m-%dT%H:%M:%S')}\n"
+    boot = _boot_id()
+    return (f"pid={pid}\nhost={socket.gethostname()}\nrole={role}\nstarted={time.strftime('%Y-%m-%dT%H:%M:%S')}\n"
+            + (f"boot={boot}\n" if boot else ""))
 
 
 def _read_lock(path: Path) -> Dict[str, str]:
@@ -392,7 +411,12 @@ def _read_lock(path: Path) -> Dict[str, str]:
 
 
 def _lock_alive(path: Path, info: Dict[str, str]) -> bool:
-    """Is the process named by a lock file still alive?  Locks of other hosts cannot be checked -> alive."""
+    """Is the process named by a lock file still alive?  Locks of other hosts cannot be checked -> alive.
+
+    A pid alone is not proof of life: after a container replacement pids restart from 1 and a stale lock's
+    pid is soon reused by an unrelated process.  Locks therefore carry the kernel boot id (a different boot
+    id means the owner is gone), and for a child lock the live process must also be the run of this very
+    directory (its command line names the run directory)."""
     if not info.get("pid"):  # being written right now (or unreadable): trust it while it is fresh
         try:
             return time.time() - path.stat().st_mtime < LOCK_FRESH_SECONDS
@@ -401,9 +425,21 @@ def _lock_alive(path: Path, info: Dict[str, str]) -> bool:
     if info.get("host") and info["host"] != socket.gethostname():
         return True
     try:
-        return _pid_alive(int(info["pid"]))
+        pid = int(info["pid"])
     except ValueError:
         return False
+    if not _pid_alive(pid):
+        return False
+    boot = info.get("boot")
+    if boot:
+        current = _boot_id()
+        if current and current != boot:
+            return False  # written before a reboot / container replacement: the pid has been reused
+        if info.get("role") == "child":
+            cmd = _proc_cmdline(pid)
+            if cmd is not None and str(path.parent) not in cmd and str(path.parent.resolve()) not in cmd:
+                return False  # the pid is alive but belongs to a different process now
+    return True
 
 
 def _acquire_lock(out_dir: Path) -> Optional[Dict[str, str]]:
