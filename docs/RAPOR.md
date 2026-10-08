@@ -676,8 +676,44 @@ permütasyon testinin en küçük p'si 0,25'tir; §6'daki gibi iki test birlikte
 
 ### 14.2 Tam akış uzunluğu: 800 görev × 60.000 örnek, 3×100 ağ (`suites/pmnist_fullstream.yaml`)
 
-_Koşuyor (standart, sinüs, tanh, Weight Clipping, üçgen dalga × 3 tohum; koşu başına 7–17 saat). Sonuçlar
-paket bitince eklenecek._
+_Paket koşuyor (standart, sinüs, tanh, Weight Clipping, üçgen dalga × 3 tohum; koşu başına 12–23 saat).
+Aşağıdaki ÖN SONUÇ biten ilk koşulara dayanır (standart 3 tohum, sinüs 1 tohum) ve paket bitince
+eşleştirilmiş farklar, güven aralıkları ve şekillerle değiştirilecektir._
+
+**Ön sonuç: uzun ufukta pürüzsüz sinüs sınırı standart ağın gerisine düşer.** Kısa protokolde (200 görev ×
+5.000 örnek, 10⁶ güncelleme) sinüs standart ağı küçük bir farkla geçerken (§6: 0.785 vs 0.774), kanonik uzunluktaki
+akışta (4,8 × 10⁷ güncelleme) sıralama tersine döner:
+
+| Model (800 görev) | n | AUC | Erken pencere | Son pencere | Koruma oranı | Taze model farkı |
+|---|---:|---|---|---|---|---|
+| Standart | 3 | 0.857 ± 0.001 | 0.905 ± 0.001 | 0.835 ± 0.007 | 0.923 ± 0.008 | +0.086 ± 0.030 |
+| Sinüs (γ = 1.5, lr = 0.01) | 1 | 0.816 | 0.909 | 0.718 | 0.789 | +0.207 |
+
+100 görevlik bloklar hâlinde çevrimiçi doğruluk (tohum 0): standart 0.901 → 0.873 → 0.864 → 0.853 → 0.852 →
+0.841 → 0.839 → 0.833; sinüs 0.905 → 0.872 → 0.845 → 0.827 → 0.810 → 0.790 → 0.761 → 0.722. İlk 200 görevde iki
+model örtüşür, sonra sinüs her blokta biraz daha geriler.
+
+Mekanizma ölçütleri H3'ün öngördüğü *donmayı* doğrudan gösterir (tohum 0, görev 0 → 200 → 400 → 600 → 799):
+
+* Doyma oranı (|cos Θ| < 0,1): tüm ağ 0.00 → 0.50 → 0.65 → 0.73 → **0.78**; giriş katmanı 0.00 → 0.59 → 0.76 →
+  0.85 → **0.92**; çıkış katmanı 0.00 → 0.53 → 0.57 → 0.58 → 0.59.
+* Ortalama Jacobian karesi cos²Θ (etkin adım çarpanı): 0.83 → 0.23 → 0.17 → 0.14 → **0.12**; |W|/A ortalaması
+  0.35 → 0.83 → 0.87 → 0.90 → 0.91.
+* Adım başına etkin ağırlık güncellemesi ‖ΔW‖: standart 0.014 → 0.019 → 0.020 → 0.016 → 0.019; sinüs 0.013 →
+  0.009 → 0.008 → 0.006 → 0.007 (yaklaşık üçte bire düşer). Θ-uzayındaki gradyan normu da 4.6'dan 2.9'a iner.
+* Ölü birim oranı sinüste 0.45'te sabitlenirken standart ağda 0.56'ya çıkar; etkin kerte (son gizli katman)
+  her ikisinde de düşer (standart 54.8 → 15.0, sinüs 51.1 → 13.5). Yani sinüs ağı ölü birim açısından *daha iyi*
+  durumdayken performansı daha kötüdür: kayıp, birimlerin ölmesinden değil, sınıra yığılan parametrelerin
+  (|W| → A) cos²Θ ile sönümlenerek hareket edemez hâle gelmesinden kaynaklanır.
+
+Bu, §9 ve §13'te teşhis edilen "yumuşak sınır donar" mekanizmasının uzun ufuktaki tam hâlidir: 10⁶ güncellemede
+doyma kısmî kalır ve sınırlılığın küçük faydası görünürken, 5 × 10⁷ güncellemede parametrelerin büyük çoğunluğu
+sınıra ulaşır ve ağın etkin öğrenme hızı çöker. Dolayısıyla tezin pürüzsüz haritası (H1) kanonik ölçekte
+*plastisite kaybını önlemek bir yana ağırlaştırır*; tezin ana iddiası bu ölçekte yalnızca sönümsüz (yansımalı)
+haritalar için savunulabilir. Belirleyici test, aynı akıştaki Weight Clipping ve üçgen dalga koşularıdır
+(sırada); üçgen dalganın uzun ufukta da kırpmayı izlemesi beklenir (|∂W/∂Θ| = 1, doyma yok). Not: sinüsün γ ve
+lr değerleri 200 görevlik geliştirme akışlarında seçilmiştir; daha geniş bir genlik (γ ≥ 2) doymayı
+geciktirebilir ama mekanizmayı ortadan kaldırmaz.
 
 ### 14.3 Kanonik ağ genişliği: 3×2000, 200 görev × 5.000 örnek (`suites/pmnist_widenet.yaml`)
 
