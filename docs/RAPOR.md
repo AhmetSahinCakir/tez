@@ -677,8 +677,8 @@ permütasyon testinin en küçük p'si 0,25'tir; §6'daki gibi iki test birlikte
 ### 14.2 Tam akış uzunluğu: 800 görev × 60.000 örnek, 3×100 ağ (`suites/pmnist_fullstream.yaml`)
 
 _Paket koşuyor (standart, sinüs, tanh, Weight Clipping, üçgen dalga × 3 tohum; koşu başına 12–23 saat).
-Aşağıdaki ÖN SONUÇ biten ilk koşulara dayanır (standart 3 tohum, sinüs 1 tohum) ve paket bitince
-eşleştirilmiş farklar, güven aralıkları ve şekillerle değiştirilecektir._
+Aşağıdaki ÖN SONUÇ biten koşulara dayanır (standart ve sinüs 3'er tohum; tanh, kırpma ve üçgen dalga sırada) ve
+paket bitince tam tablo ve şekillerle değiştirilecektir._
 
 **Ön sonuç: uzun ufukta pürüzsüz sinüs sınırı standart ağın gerisine düşer.** Kısa protokolde (200 görev ×
 5.000 örnek, 10⁶ güncelleme) sinüs standart ağı küçük bir farkla geçerken (§6: 0.785 vs 0.774), kanonik uzunluktaki
@@ -687,7 +687,12 @@ akışta (4,8 × 10⁷ güncelleme) sıralama tersine döner:
 | Model (800 görev) | n | AUC | Erken pencere | Son pencere | Koruma oranı | Taze model farkı |
 |---|---:|---|---|---|---|---|
 | Standart | 3 | 0.857 ± 0.001 | 0.905 ± 0.001 | 0.835 ± 0.007 | 0.923 ± 0.008 | +0.086 ± 0.030 |
-| Sinüs (γ = 1.5, lr = 0.01) | 1 | 0.816 | 0.909 | 0.718 | 0.789 | +0.207 |
+| Sinüs (γ = 1.5, lr = 0.01) | 3 | 0.818 ± 0.009 | 0.909 ± 0.001 | 0.716 ± 0.048 | 0.788 ± 0.052 | +0.214 ± 0.067 |
+
+Eşleştirilmiş fark (sinüs − standart, aynı 3 akış): AUC **-0.040 [-0.048, -0.031]** (t-testi
+p = 0.002), son pencere -0.119 [-0.169, -0.069] (p = 0.009), koruma oranı
+-0.135 [-0.188, -0.082] (p = 0.008); erken pencerede sinüs hâlâ önde (+0.004
+[+0.002, +0.006]). Üç tohumun üçünde de aynı tablo görülür.
 
 100 görevlik bloklar hâlinde çevrimiçi doğruluk (tohum 0): standart 0.901 → 0.873 → 0.864 → 0.853 → 0.852 →
 0.841 → 0.839 → 0.833; sinüs 0.905 → 0.872 → 0.845 → 0.827 → 0.810 → 0.790 → 0.761 → 0.722. İlk 200 görevde iki
