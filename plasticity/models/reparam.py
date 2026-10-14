@@ -103,9 +103,11 @@ class _BoundedMap(torch.autograd.Function):
             d = 1.0 - f * f
         else:  # triangle wave (period 4): f(x) = 1 - |((x + 1) mod 4) - 2|  ==  (2/pi) asin(sin(pi x / 2)),
             # f'(x) = +1 on the rising flank ((x + 1) mod 4 < 2) and -1 on the falling flank; trig-free form
-            y = torch.remainder(ang + 1.0, 4.0)
-            f = 1.0 - (y - 2.0).abs()
-            d = torch.where(y < 2.0, torch.ones_like(ang), -torch.ones_like(ang))
+            # (7 elementwise ops instead of 9: no ones_like temporaries; same values bit for bit, see
+            # tests/test_reparam_nondamped.py::test_tri_closed_form_matches_reference_bitwise)
+            z = torch.remainder(ang + 1.0, 4.0) - 2.0
+            f = 1.0 - z.abs()
+            d = torch.where(z < 0.0, 1.0, -1.0)
         ctx.save_for_backward(ang, f, d, amplitude)
         ctx.scaled = scaled
         ctx.floor = float(floor)
@@ -249,8 +251,7 @@ class ReparamLinear(nn.Module):
         if mode == "tanh":
             return 1.0 - torch.tanh(ang) ** 2
         if mode == "tri":
-            y = torch.remainder(ang + 1.0, 4.0)
-            return torch.where(y < 2.0, torch.ones_like(ang), -torch.ones_like(ang))
+            return torch.where(torch.remainder(ang + 1.0, 4.0) < 2.0, 1.0, -1.0)
         raise ValueError(mode)
 
     # --- effective quantities ----------------------------------------------------------------------

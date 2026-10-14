@@ -77,3 +77,27 @@ def test_tri_matched_init_and_training():
         method.after_step(step, feats)
     for lin in m1.linear_layers:
         assert float(lin.effective_weight().detach().abs().max()) <= float(lin.amplitude) + 1e-6
+
+
+def test_tri_closed_form_matches_reference_bitwise():
+    """The trimmed triangle-wave forward (7 ops) must equal the reference formulation bit for bit, including
+    exactly at the flank boundaries ``(ang + 1) mod 4 == 2`` (falling flank, d = -1) and ``== 0``."""
+    from plasticity.models.reparam import ReparamLinear, _BoundedMap
+
+    gen = torch.Generator().manual_seed(0)
+    ang = torch.cat([torch.randn(20000, generator=gen) * 5.0,
+                     torch.tensor([1.0, -3.0, 5.0, 9.0, -7.0, 3.0, -1.0, 7.0, 0.5, 2.5, -2.5])])
+    for scaled, amp in ((False, 1.0), (True, 0.37)):
+        theta = (ang * amp if scaled else ang).clone().requires_grad_(True)
+        a = torch.tensor(amp)
+        ang_eff = (theta / a if scaled else theta).detach()  # exactly what the map sees ((ang*amp)/amp != ang)
+        y = torch.remainder(ang_eff + 1.0, 4.0)
+        f_ref = 1.0 - (y - 2.0).abs()
+        d_ref = torch.where(y < 2.0, torch.ones_like(ang), -torch.ones_like(ang))
+        w = _BoundedMap.apply(theta, a, "tri", scaled, 0.0)
+        assert torch.equal(w, a * f_ref)
+        grad = torch.randn(ang.shape, generator=gen)
+        w.backward(grad)
+        assert torch.equal(theta.grad, grad * d_ref if scaled else grad * (a * d_ref))
+        nj = ReparamLinear.normalized_jacobian_map(theta.detach(), "tri", a, "amplitude" if scaled else "unit")
+        assert torch.equal(nj, d_ref)
