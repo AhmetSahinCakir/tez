@@ -21,3 +21,6 @@ dist/
 results/**/running.lock
 results/**/checkpoint.pt
 results/**/checkpoint.pt.tmp
+results/.disk_id
+results/**/checkpoint.sync.pt.tmp
+results/autocommit.log

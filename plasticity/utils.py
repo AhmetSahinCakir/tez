@@ -108,8 +108,19 @@ def append_jsonl(obj: Any, path: str | os.PathLike) -> None:
 
 
 def read_jsonl(path: str | os.PathLike) -> list:
+    """Read a JSON-lines file.  A malformed *last* line (a record cut short when the process was killed
+    mid-write) is dropped so that a run can still resume from its checkpoint; corruption anywhere else raises."""
     with open(path, "r", encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
+        lines = [line for line in f if line.strip()]
+    out = []
+    for i, line in enumerate(lines):
+        try:
+            out.append(json.loads(line))
+        except json.JSONDecodeError:
+            if i == len(lines) - 1:
+                break
+            raise
+    return out
 
 
 def flatten_dict(d: Mapping[str, Any], prefix: str = "", sep: str = ".") -> Dict[str, Any]:

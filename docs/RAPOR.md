@@ -677,8 +677,8 @@ permütasyon testinin en küçük p'si 0,25'tir; §6'daki gibi iki test birlikte
 ### 14.2 Tam akış uzunluğu: 800 görev × 60.000 örnek, 3×100 ağ (`suites/pmnist_fullstream.yaml`)
 
 _Paket koşuyor (standart, sinüs, tanh, Weight Clipping, üçgen dalga × 3 tohum; koşu başına 12–23 saat).
-Aşağıdaki ÖN SONUÇ biten koşulara dayanır (standart ve sinüs 3'er tohum; tanh, kırpma ve üçgen dalga sırada) ve
-paket bitince tam tablo ve şekillerle değiştirilecektir._
+Aşağıdaki ÖN SONUÇ biten koşulara dayanır (standart ve sinüs 3'er tohum; tanh ve kırpma 2'şer tohum; üçüncü
+tohumlar ile üçgen dalganın üç tohumu koşuyor) ve paket bitince tam tablo ve şekillerle değiştirilecektir._
 
 **Ön sonuç: uzun ufukta pürüzsüz sinüs sınırı standart ağın gerisine düşer.** Kısa protokolde (200 görev ×
 5.000 örnek, 10⁶ güncelleme) sinüs standart ağı küçük bir farkla geçerken (§6: 0.785 vs 0.774), kanonik uzunluktaki
@@ -688,11 +688,25 @@ akışta (4,8 × 10⁷ güncelleme) sıralama tersine döner:
 |---|---:|---|---|---|---|---|
 | Standart | 3 | 0.857 ± 0.001 | 0.905 ± 0.001 | 0.835 ± 0.007 | 0.923 ± 0.008 | +0.086 ± 0.030 |
 | Sinüs (γ = 1.5, lr = 0.01) | 3 | 0.818 ± 0.009 | 0.909 ± 0.001 | 0.716 ± 0.048 | 0.788 ± 0.052 | +0.214 ± 0.067 |
+| tanh (γ = 1.5, lr = 0.003) | 2 | 0.858 ± 0.001 | 0.911 ± 0.000 | 0.828 ± 0.004 | 0.909 ± 0.004 | +0.083 ± 0.002 |
+| Weight Clipping (κ = 1, lr = 0.003) | 2 | 0.938 ± 0.000 | 0.934 ± 0.001 | 0.939 ± 0.001 | 1.005 ± 0.000 | −0.019 ± 0.003 |
 
 Eşleştirilmiş fark (sinüs − standart, aynı 3 akış): AUC **-0.040 [-0.048, -0.031]** (t-testi
 p = 0.002), son pencere -0.119 [-0.169, -0.069] (p = 0.009), koruma oranı
 -0.135 [-0.188, -0.082] (p = 0.008); erken pencerede sinüs hâlâ önde (+0.004
 [+0.002, +0.006]). Üç tohumun üçünde de aynı tablo görülür.
+
+**tanh ve Weight Clipping (2'şer tohum, ön).** tanh ağı standart ağla *aynı* eğriyi izler: eşleştirilmiş fark
+(tanh − standart; tohum 0 / tohum 1) AUC +0.002 / −0.001, erken pencere +0.006 / +0.006, son pencere −0.001 / −0.012,
+koruma oranı −0.008 / −0.019. 800 görev sonunda doyma payı 0.45 (sinüste 0.78), cos²Θ 0.135, |W|/A 0.84: monoton
+tanh haritası da sınıra yığılır ama sinüs kadar hızlı donmaz ve kaybı standart ağın kaybıyla örtüşür. Weight
+Clipping ise uzun ufukta plastisiteyi *tamamen* korur: 100 görevlik bloklarda doğruluk 0.936 → 0.938 → 0.939 →
+0.940 → 0.939 → 0.939 → 0.940 → 0.940 (iki tohumda da düz), koruma oranı 1.005, taze model farkı −0.019 (sürekli
+öğrenen ağ taze ağdan *daha iyi*), ölü birim payı 0.17 (standart 0.53), etkin kerte 54.5 (standart 15.6, tanh 9.7,
+sinüs 6.5), |w| ortalaması 0.071 (standart 0.231). Eşleştirilmiş fark (kırpma − standart) AUC +0.082 / +0.081,
+son pencere +0.108 / +0.101, koruma oranı +0.086 / +0.081. Yani 200 görevlik protokoldeki sıralama (§6 ve §13:
+kırpma ≈ üçgen dalga > sinüs > standart) uzun ufukta kırpma için *büyüyerek* korunur, pürüzsüz sınırlar içinse
+kaybolur (tanh) ya da tersine döner (sinüs).
 
 100 görevlik bloklar hâlinde çevrimiçi doğruluk (tohum 0): standart 0.901 → 0.873 → 0.864 → 0.853 → 0.852 →
 0.841 → 0.839 → 0.833; sinüs 0.905 → 0.872 → 0.845 → 0.827 → 0.810 → 0.790 → 0.761 → 0.722. İlk 200 görevde iki
@@ -715,8 +729,8 @@ Bu, §9 ve §13'te teşhis edilen "yumuşak sınır donar" mekanizmasının uzun
 doyma kısmî kalır ve sınırlılığın küçük faydası görünürken, 5 × 10⁷ güncellemede parametrelerin büyük çoğunluğu
 sınıra ulaşır ve ağın etkin öğrenme hızı çöker. Dolayısıyla tezin pürüzsüz haritası (H1) kanonik ölçekte
 *plastisite kaybını önlemek bir yana ağırlaştırır*; tezin ana iddiası bu ölçekte yalnızca sönümsüz (yansımalı)
-haritalar için savunulabilir. Belirleyici test, aynı akıştaki Weight Clipping ve üçgen dalga koşularıdır
-(sırada); üçgen dalganın uzun ufukta da kırpmayı izlemesi beklenir (|∂W/∂Θ| = 1, doyma yok). Not: sinüsün γ ve
+haritalar için savunulabilir. Kırpma bu ölçekte tam koruma sağlar (yukarıda); belirleyici kalan test aynı akıştaki üçgen dalga
+koşularıdır (koşuyor); üçgen dalganın uzun ufukta da kırpmayı izlemesi beklenir (|∂W/∂Θ| = 1, doyma yok). Not: sinüsün γ ve
 lr değerleri 200 görevlik geliştirme akışlarında seçilmiştir; daha geniş bir genlik (γ ≥ 2) doymayı
 geciktirebilir ama mekanizmayı ortadan kaldırmaz.
 

@@ -75,10 +75,12 @@ python -m plasticity.run --config configs/cifar_pilot.yaml --out results/dev/cbp
 
 Her çalışma `config.json`, görev başına bir satır içeren `tasks.jsonl` (performans + mekanizma ölçütleri) ve
 `summary.json` (normalize AUC, erken/son pencere ortalaması, plastisite koruma oranı, taze-model farkı, ...) üretir.
-Akış koşuları her `checkpoint.every_n_tasks` görevde (varsayılan 10) tam durumu (model, optimize edici, yöntem
+Akış koşuları her `checkpoint.every_n_tasks` görevde (varsayılan 1) tam durumu (model, optimize edici, yöntem
 izleri, tüm RNG'ler) `checkpoint.pt` dosyasına atomik olarak yazar; aynı dizinde ve aynı yapılandırmayla yeniden
 başlatılan bir koşu kaldığı görevden *birebir aynı* yörüngeyle devam eder (`tests/test_checkpoint.py`), dosya koşu
-bitince silinir.
+bitince silinir. Uzun zincirin bulut konteynerinde kesintisiz yürütülmesi (otomatik yeniden başlatma, saatlik
+`checkpoint.sync.pt` kopyaları, başka bir konteynerin devralması, durum için `scripts/suite_status.py`)
+`docs/RUNBOOK.md`'de anlatılır.
 
 ## Deney paketleri (yöntem × tohum ızgaraları)
 

@@ -687,6 +687,10 @@ def run_suite(suite_path: str | os.PathLike, workers: Optional[int] = None, dry_
     n_done = n_failed = 0
     executor = ThreadPoolExecutor(max_workers=max(1, n_workers), thread_name_prefix="run_suite")
     futures = {}
+    def _on_sigterm(signum, frame):  # a nohup'd runner ignores SIGINT; treat SIGTERM as the same clean interrupt
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGTERM, _on_sigterm)
     try:
         for job in launched:
             futures[executor.submit(_run_job, job, env, retries, ctx, force)] = job
