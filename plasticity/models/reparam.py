@@ -103,11 +103,15 @@ class _BoundedMap(torch.autograd.Function):
             d = 1.0 - f * f
         else:  # triangle wave (period 4): f(x) = 1 - |((x + 1) mod 4) - 2|  ==  (2/pi) asin(sin(pi x / 2)),
             # f'(x) = +1 on the rising flank ((x + 1) mod 4 < 2) and -1 on the falling flank; trig-free form
-            # (7 elementwise ops instead of 9: no ones_like temporaries; same values bit for bit, see
-            # tests/test_reparam_nondamped.py::test_tri_closed_form_matches_reference_bitwise)
-            z = torch.remainder(ang + 1.0, 4.0) - 2.0
-            f = 1.0 - z.abs()
-            d = torch.where(z < 0.0, 1.0, -1.0)
+            # Written with floor/abs/multiply only: torch.remainder, the comparison and torch.where cost
+            # 10-30x a plain elementwise op on CPU and dominated the batch-size-1 step.  Bit-identical to
+            # remainder(ang + 1, 4) and where(y < 2, 1, -1) for every finite float (x*0.25, floor and 4*k
+            # are exact; the one rounding of u - 4k equals remainder's), see
+            # tests/test_reparam_nondamped.py::test_tri_closed_form_matches_reference_bitwise.
+            u = ang + 1.0
+            y = u - 4.0 * torch.floor(u * 0.25)          # (ang + 1) mod 4 in [0, 4)
+            f = 1.0 - (y - 2.0).abs()
+            d = 1.0 - 2.0 * torch.floor(y * 0.5)         # +1 for y < 2 (rising flank), -1 otherwise
         ctx.save_for_backward(ang, f, d, amplitude)
         ctx.scaled = scaled
         ctx.floor = float(floor)
@@ -251,7 +255,8 @@ class ReparamLinear(nn.Module):
         if mode == "tanh":
             return 1.0 - torch.tanh(ang) ** 2
         if mode == "tri":
-            return torch.where(torch.remainder(ang + 1.0, 4.0) < 2.0, 1.0, -1.0)
+            u = ang + 1.0
+            return 1.0 - 2.0 * torch.floor((u - 4.0 * torch.floor(u * 0.25)) * 0.5)
         raise ValueError(mode)
 
     # --- effective quantities ----------------------------------------------------------------------
