@@ -41,8 +41,20 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 | Weight Clipping κ=1 (5 tohum) | 0.836 ± 0.001 | 0.839 ± 0.002 | 1.017 ± 0.004 |
 | Continual Backprop (5 tohum) | 0.821 ± 0.001 | 0.821 ± 0.005 | 1.003 ± 0.008 |
 
+| Online Permuted MNIST, **800 görev × 60.000 örnek** (kanonik uzunluk, SGD, 3 tohum; §14.2) | Normalize AUC | Son pencere doğruluğu | Plastisite koruma oranı |
+|---|---|---|---|
+| Standart MLP | 0.857 ± 0.001 | 0.835 ± 0.007 | 0.923 ± 0.008 |
+| A·sin(Θ) | 0.818 ± 0.009 | 0.716 ± 0.048 | 0.788 ± 0.052 |
+| A·tanh(Θ) | 0.858 ± 0.002 | 0.828 ± 0.007 | 0.908 ± 0.007 |
+| **Üçgen dalga A·tri(Θ)** | **0.939 ± 0.000** | **0.939 ± 0.002** | **1.005 ± 0.003** |
+| Weight Clipping κ=1 | 0.939 ± 0.001 | 0.940 ± 0.003 | 1.005 ± 0.000 |
+
 * **H1**: sınırlı yeniden parametrizasyon plastisite kaybını anlamlı fakat küçük ölçüde azaltır (ΔAUC +0.011
   [+0.010, +0.012], eşleştirilmiş permütasyon p = 0.002); Adam ile etki çok büyür (ΔAUC +0.03 … +0.09).
+  Kanonik uzunlukta (800 görev × 60.000 örnek, §14.2) ise pürüzsüz sinüs sınırı standart ağın *gerisine* düşer
+  (ΔAUC −0.040 [−0.043, −0.036], p = 0.002; doyma payı 0.80, cos²Θ 0.11), tanh standart ağla örtüşür; yansımalı
+  üçgen dalga plastisiteyi tamamen korur (koruma oranı 1.005, eğim 0) ve Weight Clipping ile her ölçütte 0.001'in
+  altında farkla aynıdır.
 * **H2**: sinüs ve tanh SGD altında ayırt edilemez → etki sınırlılıktan kaynaklanır; Adam altında sinüs tanh'ı geçer.
 * **Rejim bağımlılığı (§14.1)**: Adam (lr 10⁻³) altında sıralama tersine döner — yumuşak sinüs sınırı (0.824) sert sınırları (kırpma 0.794, üçgen dalga 0.787) geçer; sinüs + Continual Backprop 0.840, NaP 0.845 (3 tohum, SGD'de seçilen hiperparametrelerle aktarım testi).
 * **H3**: sınıra yaklaşan parametrelerde cos²Θ kaynaklı adım küçülmesi ölçülmüştür; bunu gideren ölçek-düzeltmeli
