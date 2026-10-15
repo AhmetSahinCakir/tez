@@ -172,41 +172,52 @@ def gradient_fisher_statistics(model: MLP, x_probe: torch.Tensor, y_probe: torch
     * ``fisher_erank_theta|w``     effective rank of the n×n Gram matrix of those gradients
                                    (= spectrum of the sampled Fisher restricted to the probe)
     * ``jac_fro_ratio``            ‖∇_Θ‖ / ‖∇_W‖ (pooled), the Jacobian scaling of the gradient
+
+    Memory: only ONE ``(n, n_params)`` buffer of per-sample gradients is alive at a time (the Monte-Carlo
+    gradients of one coordinate system); the true-label pass keeps nothing but scalars.  For the 3×2000
+    network (12 M parameters, n = 16) this bounds the peak at ~0.8 GB instead of the ~4 GB that stacking
+    four gradient lists needed, which was enough to get runs OOM-killed when several ran concurrently.
+    The sampled labels ŷ are drawn once per probe sample, in order, so the generator stream is unchanged.
     """
     n = min(int(n_samples), int(x_probe.shape[0]))
     was_training = model.training
     model.eval()
     model.set_capture_effective(True)
-    grads_true = {"theta": [], "w": []}
-    grads_fish = {"theta": [], "w": []}
+    # pass 1: true-label gradient norms in both coordinate systems (one backward per sample) and the
+    # Monte-Carlo labels ŷ ~ p(·|x) for pass 2
+    norm_sum = {"theta": 0.0, "w": 0.0}
+    y_sampled = []
     for i in range(n):
         x = x_probe[i : i + 1]
-        # true-label gradient
         model.zero_grad(set_to_none=True)
         logits = model(x)
         F.cross_entropy(logits, y_probe[i : i + 1]).backward()
-        grads_true["theta"].append(_flat_grads(model, "theta"))
-        grads_true["w"].append(_flat_grads(model, "w"))
-        # sampled-label gradient (Fisher)
-        model.zero_grad(set_to_none=True)
-        logits = model(x)
+        for coords in ("theta", "w"):
+            norm_sum[coords] += float(_flat_grads(model, coords).norm())
         with torch.no_grad():
-            probs = torch.softmax(logits, dim=-1)
-            y_s = torch.multinomial(probs, 1, generator=generator).squeeze(1)
-        F.cross_entropy(logits, y_s).backward()
-        grads_fish["theta"].append(_flat_grads(model, "theta"))
-        grads_fish["w"].append(_flat_grads(model, "w"))
-    model.zero_grad(set_to_none=True)
-    model.set_capture_effective(False)
-    model.train(was_training)
-
+            probs = torch.softmax(logits.detach(), dim=-1)
+            y_sampled.append(torch.multinomial(probs, 1, generator=generator).squeeze(1))
+    # pass 2: sampled-label (Fisher) gradients, one coordinate system at a time
     out: Dict[str, float] = {}
     for coords in ("theta", "w"):
-        Gt = torch.stack(grads_true[coords])
-        Gf = torch.stack(grads_fish[coords])
-        out[f"grad_norm_{coords}"] = _f(Gt.norm(dim=1).mean())
-        out[f"fisher_trace_{coords}"] = _f((Gf * Gf).sum(dim=1).mean())
-        gram = Gf @ Gf.T / n
+        G: Optional[torch.Tensor] = None
+        for i in range(n):
+            model.zero_grad(set_to_none=True)
+            logits = model(x_probe[i : i + 1])
+            F.cross_entropy(logits, y_sampled[i]).backward()
+            g = _flat_grads(model, coords)
+            if G is None:
+                G = torch.empty((n, g.numel()), dtype=g.dtype, device=g.device)
+            G[i] = g
+            del g
+        out[f"grad_norm_{coords}"] = norm_sum[coords] / n if n else float("nan")
+        if G is None:
+            out[f"fisher_trace_{coords}"] = float("nan")
+            out[f"fisher_erank_{coords}"] = float("nan")
+            continue
+        out[f"fisher_trace_{coords}"] = _f((torch.linalg.vector_norm(G, dim=1) ** 2).mean())
+        gram = G @ G.T / n
+        del G
         if not bool(torch.isfinite(gram).all()):
             out[f"fisher_erank_{coords}"] = float("nan")
             continue
@@ -217,6 +228,9 @@ def gradient_fisher_statistics(model: MLP, x_probe: torch.Tensor, y_probe: torch
             out[f"fisher_erank_{coords}"] = float(torch.exp(-(p * torch.log(p)).sum()))
         else:
             out[f"fisher_erank_{coords}"] = 0.0
+    model.zero_grad(set_to_none=True)
+    model.set_capture_effective(False)
+    model.train(was_training)
     gw = out["grad_norm_w"]
     out["jac_fro_ratio"] = out["grad_norm_theta"] / gw if gw > 0 else float("nan")
     return out

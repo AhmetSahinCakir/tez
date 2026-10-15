@@ -15,7 +15,7 @@ while true; do
   if grep -q "FOLLOW-ON FINISHED" "$LOG" 2>/dev/null; then echo "follow-on finished"; exit 0; fi
   if ! ps -eo args | grep -v grep | grep -q "run_scaleup_chain.sh\|run_after_scaleup.sh"; then echo "no chain process running"; exit 0; fi
   for f in results/suite_*.log; do
-    if grep -q "failed (exit code\|Traceback" "$f" 2>/dev/null; then echo "failure in $f: $(grep -m1 'failed (exit code\|Traceback' "$f")"; exit 0; fi
+    if grep -q ": failed (\|Traceback" "$f" 2>/dev/null; then echo "failure in $f: $(grep -m1 ': failed (\|Traceback' "$f")"; exit 0; fi
   done
   sleep 120
 done
