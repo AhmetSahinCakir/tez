@@ -1,0 +1,13 @@
+label,seed,status,wall_time,elapsed,attempts,returncode,run_dir
+baseline,0,failed,,112.2,1,-9,baseline/seed0
+baseline,1,interrupted,,6970.9,1,-15,baseline/seed1
+baseline,2,interrupted,,6970.9,1,-15,baseline/seed2
+sin,0,interrupted,,6970.9,1,-15,sin/seed0
+sin,1,interrupted,,6858.7,1,-15,sin/seed1
+sin,2,interrupted,,,,,sin/seed2
+tanh,0,interrupted,,,,,tanh/seed0
+tanh,1,interrupted,,,,,tanh/seed1
+tanh,2,interrupted,,,,,tanh/seed2
+tri,0,interrupted,,,,,tri/seed0
+tri,1,interrupted,,,,,tri/seed1
+tri,2,interrupted,,,,,tri/seed2
