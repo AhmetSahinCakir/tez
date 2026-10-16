@@ -7,3 +7,4 @@
 {"task": 6, "time": 612.3129644393921, "online_accuracy": 0.8552, "online_loss": 0.460821240234375, "n_train": 5000, "step_grad_norm_theta": 14.121256724822832, "step_dw_norm": 0.042089545745204765, "step_dtheta_norm": 0.04236377017678214}
 {"task": 7, "time": 604.7841987609863, "online_accuracy": 0.8522, "online_loss": 0.47643125, "n_train": 5000, "step_grad_norm_theta": 13.77146816545537, "step_dw_norm": 0.04107201493639011, "step_dtheta_norm": 0.0413144048855556}
 {"task": 8, "time": 613.6470484733582, "online_accuracy": 0.8474, "online_loss": 0.47727392578125, "n_train": 5000, "step_grad_norm_theta": 8.008423079470724, "step_dw_norm": 0.023896684636385987, "step_dtheta_norm": 0.02402527207744417}
+{"task": 9, "time": 729.4761514663696, "online_accuracy": 0.8512, "online_loss": 0.465905126953125, "n_train": 5000, "step_grad_norm_theta": 9.419155578365505, "step_dw_norm": 0.028026249555822245, "step_dtheta_norm": 0.02825746725291418}
