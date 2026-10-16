@@ -2,3 +2,4 @@
 {"task": 1, "time": 417.449654340744, "online_accuracy": 0.8448, "online_loss": 0.5085365234375, "n_train": 5000, "step_grad_norm_theta": 7.083383852286214, "step_dw_norm": 0.018772940855353956, "step_dtheta_norm": 0.02125016263090339}
 {"task": 2, "time": 415.2390151023865, "online_accuracy": 0.8504, "online_loss": 0.47774716796875, "n_train": 5000, "step_grad_norm_theta": 10.636543399137476, "step_dw_norm": 0.028113263544420376, "step_dtheta_norm": 0.03190963119943385}
 {"task": 3, "time": 410.63000416755676, "online_accuracy": 0.8512, "online_loss": 0.481083837890625, "n_train": 5000, "step_grad_norm_theta": 5.961642306011013, "step_dw_norm": 0.01578481450735623, "step_dtheta_norm": 0.01788492785632036}
+{"task": 4, "time": 430.4644570350647, "online_accuracy": 0.8492, "online_loss": 0.475411376953125, "n_train": 5000, "step_grad_norm_theta": 9.615149321349904, "step_dw_norm": 0.025546082904952517, "step_dtheta_norm": 0.028845450520122377}
