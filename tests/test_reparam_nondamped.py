@@ -101,3 +101,31 @@ def test_tri_closed_form_matches_reference_bitwise():
         assert torch.equal(theta.grad, grad * d_ref if scaled else grad * (a * d_ref))
         nj = ReparamLinear.normalized_jacobian_map(theta.detach(), "tri", a, "amplitude" if scaled else "unit")
         assert torch.equal(nj, d_ref)
+
+
+def test_tri_fused_kernel_matches_eager_bitwise():
+    """The single-pass C++ kernel (plasticity.models.tri_fused) must reproduce the eager triangle-wave map and
+    its gradient bit for bit; the eager path is forced by raising the size threshold."""
+    from plasticity.models import tri_fused
+    from plasticity.models.reparam import _BoundedMap
+
+    if tri_fused.get_extension() is None:
+        pytest.skip("fused kernel not available on this machine (no C++ toolchain)")
+    gen = torch.Generator().manual_seed(5)
+    theta = torch.cat([torch.randn(300000, generator=gen) * s for s in (0.3, 3.0, 300.0)]
+                      + [torch.tensor([-0.0, 0.0, 1.0, -1.0, 3.0, -3.0, 5.0, 1e-30, -1e-30, 2.9999998, 3.0000002])])
+    grad = torch.randn(theta.shape, generator=gen)
+    saved = tri_fused.MIN_NUMEL
+    try:
+        for scaled, amp in ((False, 1.0), (True, 0.37)):
+            a = torch.tensor(amp)
+            outs = []
+            for min_numel in (0, 10 ** 12):  # fused, then eager
+                tri_fused.MIN_NUMEL = min_numel
+                th = theta.clone().requires_grad_(True)
+                w = _BoundedMap.apply(th, a, "tri", scaled, 0.0)
+                w.backward(grad)
+                outs.append((w.detach(), th.grad.clone()))
+            assert torch.equal(outs[0][0], outs[1][0]) and torch.equal(outs[0][1], outs[1][1])
+    finally:
+        tri_fused.MIN_NUMEL = saved

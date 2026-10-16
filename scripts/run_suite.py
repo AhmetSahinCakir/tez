@@ -525,6 +525,11 @@ def _child_env(threads: int) -> Dict[str, str]:
     env["PYTHONUNBUFFERED"] = "1"
     for var in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
         env[var] = str(int(threads))
+    # glibc serves allocations above 32 MB with mmap and returns them on free, so every elementwise op on a
+    # wide network's 48 MB weight matrices page-faults a fresh mapping (measured: 2-3x the arithmetic).
+    # Heap-only allocation with trimming disabled reuses the freed chunks; results are unaffected (allocator
+    # only).  A GLIBC_TUNABLES already set by the caller wins.
+    env.setdefault("GLIBC_TUNABLES", "glibc.malloc.mmap_max=0:glibc.malloc.trim_threshold=4294967295")
     return env
 
 

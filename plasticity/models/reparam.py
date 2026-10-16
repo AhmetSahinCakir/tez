@@ -61,6 +61,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from . import tri_fused
+
 REPARAM_MODES = ("standard", "sin", "tanh", "tri")
 INIT_SCHEMES = ("kaiming_uniform", "torch_default", "kaiming_normal")
 
@@ -94,6 +96,16 @@ class _BoundedMap(torch.autograd.Function):
 
     @staticmethod
     def forward(ctx, theta: torch.Tensor, amplitude: torch.Tensor, mode: str, scaled: bool, floor: float):
+        if mode == "tri":
+            fused = tri_fused.tri_forward(theta, amplitude, scaled)  # one pass; bit-identical to the eager map
+            if fused is not None:
+                f, d = fused
+                # ``ang`` is only needed for the amplitude gradient, which almost never exists: skip the pass
+                ang = (theta / amplitude if scaled else theta) if amplitude.requires_grad else None
+                ctx.save_for_backward(ang, f, d, amplitude)
+                ctx.scaled = scaled
+                ctx.floor = float(floor)
+                return amplitude * f
         ang = theta / amplitude if scaled else theta
         if mode == "sin":
             f = torch.sin(ang)
