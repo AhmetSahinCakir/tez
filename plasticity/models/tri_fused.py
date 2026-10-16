@@ -4,7 +4,8 @@ The eager formulation in :mod:`plasticity.models.reparam` is a chain of elementw
 network every op is a full pass over 48 MB and the map alone costs ~160 ms per online step (bandwidth
 bound).  This kernel reads Θ once and writes f(ang) and f'(ang) once, using exactly the same float32
 operations in the same order (division by A, +1, ×0.25, floor, ×4, −, −2, |·|, 1−, ×0.5, floor, ×2, 1−),
-compiled with ``-ffp-contract=off`` so no fused multiply-add changes a rounding.  The results are therefore
+compiled with ``-ffp-contract=off`` so no fused multiply-add changes a rounding (``-fno-math-errno``, ``-fno-trapping-math``
+and ``__restrict__`` only let the compiler vectorise the loop and inline ``floor`` as a rounding instruction; floor, abs, add, mul and div stay exact IEEE ops).  The results are therefore
 bit-identical to the eager path (tests/test_reparam_nondamped.py checks this on millions of values).
 
 Built lazily with ``torch.utils.cpp_extension.load_inline`` (needs a C++ compiler and ninja; ~20 s once,
@@ -38,9 +39,9 @@ std::vector<torch::Tensor> tri_forward(torch::Tensor theta, double amplitude, bo
     auto f = torch::empty_like(th);
     auto d = torch::empty_like(th);
     const float a = static_cast<float>(amplitude);
-    const float* x = th.data_ptr<float>();
-    float* pf = f.data_ptr<float>();
-    float* pd = d.data_ptr<float>();
+    const float* __restrict__ x = th.data_ptr<float>();
+    float* __restrict__ pf = f.data_ptr<float>();
+    float* __restrict__ pd = d.data_ptr<float>();
     const int64_t n = th.numel();
     at::parallel_for(0, n, 65536, [&](int64_t begin, int64_t end) {
         for (int64_t i = begin; i < end; ++i) {
@@ -71,10 +72,10 @@ def get_extension():
         from torch.utils.cpp_extension import load_inline
 
         _ext = load_inline(
-            name="plasticity_tri_fused_v1",
+            name="plasticity_tri_fused_v4",
             cpp_sources=[_SRC],
             functions=["tri_forward"],
-            extra_cflags=["-O3", "-ffp-contract=off", "-fno-fast-math"],
+            extra_cflags=["-O3", "-march=native", "-fno-math-errno", "-fno-trapping-math", "-ffp-contract=off", "-fno-fast-math"],
             verbose=False,
         )
     except Exception as exc:  # pragma: no cover - depends on the machine's toolchain
