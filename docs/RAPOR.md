@@ -512,6 +512,10 @@ plastisite kaybı sürmektedir — ölü birimlerin ortadan kalkması tek başı
 yavaşlayan kaybının standart ağa göre farkının büyüyüp büyümediği, (ii) geniş ağlarda (2000 birim) ölü birim
 ve sınır doygunluğu dinamiklerinin değişip değişmediği sınanmalıdır. Küçültülmüş protokolde 10 tohumla güven
 aralıkları çok dardır; etki büyüklükleri küçük (ΔAUC ≈ 0.01) olsa da yönleri kesindir.
+_Güncelleme (§14, proje sonrası):_ (i) kanonik uzunluk 3×100 ağla koşuldu (§14.2: sinüsün farkı tersine döner,
+üçgen dalga ≡ Weight Clipping) ve (ii) kanonik genişlik 200 görevlik protokolle koşuldu (§14.3: geniş ağ bu
+ufukta plastisite kaybetmez, sınırlı haritalar fayda sağlamaz). Eksik kalan tek ölçek, geniş ağ × kanonik
+uzunluk (3×2000, 800 × 60.000) kombinasyonudur: bu makinede koşu başına 200–1.000 saat gerektirir ve GPU ister.
 
 **CIFAR-100 protokolü.** Chen ve Zhang (2026)'ın klasik MLP'de bildirdiği performans düzeyindeki plastisite
 kaybı, mini-batch/çok dönemli rejimde bu altyapıda yeniden üretilememiş; çevrimiçi varyantta zayıf biçimde
