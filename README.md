@@ -49,12 +49,21 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 | **Üçgen dalga A·tri(Θ)** | **0.939 ± 0.000** | **0.939 ± 0.002** | **1.005 ± 0.003** |
 | Weight Clipping κ=1 | 0.939 ± 0.001 | 0.940 ± 0.003 | 1.005 ± 0.000 |
 
+| Online Permuted MNIST, **3×2000 ağ** (kanonik genişlik), 200 görev × 5.000 örnek, SGD, 3 tohum; §14.3 | Normalize AUC | Son pencere doğruluğu | Plastisite koruma oranı |
+|---|---|---|---|
+| Standart MLP | **0.866 ± 0.000** | 0.863 ± 0.001 | 1.003 ± 0.004 |
+| A·sin(Θ) | 0.865 ± 0.000 | 0.864 ± 0.003 | 1.008 ± 0.002 |
+| A·tanh(Θ) | 0.863 ± 0.001 | 0.864 ± 0.000 | 1.012 ± 0.003 |
+| Üçgen dalga A·tri(Θ) | 0.860 ± 0.000 | 0.862 ± 0.002 | 1.013 ± 0.003 |
+
 * **H1**: sınırlı yeniden parametrizasyon plastisite kaybını anlamlı fakat küçük ölçüde azaltır (ΔAUC +0.011
   [+0.010, +0.012], eşleştirilmiş permütasyon p = 0.002); Adam ile etki çok büyür (ΔAUC +0.03 … +0.09).
   Kanonik uzunlukta (800 görev × 60.000 örnek, §14.2) ise pürüzsüz sinüs sınırı standart ağın *gerisine* düşer
   (ΔAUC −0.040 [−0.043, −0.036], p = 0.002; doyma payı 0.80, cos²Θ 0.11), tanh standart ağla örtüşür; yansımalı
   üçgen dalga plastisiteyi tamamen korur (koruma oranı 1.005, eğim 0) ve Weight Clipping ile her ölçütte 0.001'in
-  altında farkla aynıdır.
+  altında farkla aynıdır. Kanonik genişlikte (3×2000, 200 görev, §14.3) standart ağ bu ufukta plastisite
+  kaybetmez ve sınırlı haritalar fayda sağlamaz (ΔAUC −0.002 … −0.006, son pencerede fark ≤ 0.002): yöntemin
+  faydası standart ağın kaybettiği rejime bağlıdır.
 * **H2**: sinüs ve tanh SGD altında ayırt edilemez → etki sınırlılıktan kaynaklanır; Adam altında sinüs tanh'ı geçer.
 * **Rejim bağımlılığı (§14.1)**: Adam (lr 10⁻³) altında sıralama tersine döner — yumuşak sinüs sınırı (0.824) sert sınırları (kırpma 0.794, üçgen dalga 0.787) geçer; sinüs + Continual Backprop 0.840, NaP 0.845 (3 tohum, SGD'de seçilen hiperparametrelerle aktarım testi).
 * **H3**: sınıra yaklaşan parametrelerde cos²Θ kaynaklı adım küçülmesi ölçülmüştür; bunu gideren ölçek-düzeltmeli

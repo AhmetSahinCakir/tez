@@ -804,9 +804,101 @@ kerte), `summary.pdf` (özet ölçütler), `fresh_gap.pdf` (taze model farkı). 
 parçacığı): koşu başına standart ≈ 12 saat, kırpma ≈ 13 saat, tanh ≈ 20 saat, sinüs ≈ 19–23 saat, üçgen dalga
 ≈ 27 saat (görev başına 164 s; haritanın yalnızca floor/abs ile yeniden yazımından sonra 122 s).
 
-### 14.3 Kanonik ağ genişliği: 3×2000, 200 görev × 5.000 örnek (`suites/pmnist_widenet.yaml`)
+### 14.3 Kanonik ağ genişliği: 3×2000, 200 görev × 5.000 örnek (`suites/pmnist_widenet.yaml`; `reports/pmnist_widenet/`)
 
-_Sırada (standart, sinüs, tanh, üçgen dalga × 3 tohum). Sonuçlar paket bitince eklenecek._
+Dohare ve ark. (2024)'ün kanonik ağ genişliği (784-2000-2000-2000-10, 12 M parametre) §6'nın kısa protokolüyle
+(200 görev × 5.000 örnek, 10⁶ güncelleme, batch 1, SGD lr = 0.003) ve §6/§13'te seçilen hiperparametrelerle
+(sinüs/tanh γ = 1.5, üçgen dalga γ = 1) koşuldu: standart, sinüs, tanh, üçgen dalga × 3 tohum, aynı akış
+tohumlarıyla eşleştirilmiş. Soru, §6'daki farkların (sinüs +0.011, üçgen dalga +0.062) geniş ağda daralıp
+daralmadığıdır.
+
+**Ana sonuç.** Geniş ağ bu ufukta *hiç* plastisite kaybetmez (standart ağın koruma oranı 1.003, eğim −0.001 /
+100 görev) ve sınırlı haritaların hiçbiri standart ağdan iyi değildir: üçü de ilk görevlerde küçük bir açık
+verir (−0.003 … −0.009), son 50 görevde standart ağla örtüşür (|fark| ≤ 0.002). Sınır bu rejimde hiç devreye
+girmez (|W|/A ≈ 0.35, doyma payı ≤ %0.1), dolayısıyla §6'daki farklar genişlikle birlikte kaybolur.
+
+| Model (3×2000, 200 görev) | n | Normalize AUC | Erken pencere | Son pencere | Koruma oranı | Taze model farkı | Ölü birim (son) | Etkin kerte (son) |
+|---|---:|---|---|---|---|---|---|---|
+| Standart | 3 | **0.866 ± 0.000** | 0.860 ± 0.003 | 0.863 ± 0.001 | 1.003 ± 0.004 | −0.028 ± 0.013 | 0.045 ± 0.007 | 352 ± 24 |
+| Sinüs (γ = 1.5) | 3 | 0.865 ± 0.000 | 0.857 ± 0.002 | 0.864 ± 0.003 | 1.008 ± 0.002 | −0.029 ± 0.013 | 0.027 ± 0.001 | 329 ± 11 |
+| tanh (γ = 1.5) | 3 | 0.863 ± 0.001 | 0.854 ± 0.003 | 0.864 ± 0.000 | 1.012 ± 0.003 | −0.035 ± 0.020 | 0.020 ± 0.003 | 348 ± 13 |
+| Üçgen dalga (γ = 1) | 3 | 0.860 ± 0.000 | 0.851 ± 0.003 | 0.862 ± 0.002 | 1.013 ± 0.003 | −0.030 ± 0.013 | 0.039 ± 0.003 | 301 ± 8 |
+
+_ortalama ± %95 GA (t-dağılımı, 3 tohum); `reports/pmnist_widenet/summary.md`. Etkin kerte son gizli katman
+(2000 birim) üzerinden hesaplanır. Tüm modeller 200. görevde taze ağdan iyidir (taze model farkı negatif)._
+
+**Eşleştirilmiş farklar** (aynı akış, 3 çift; ortalama [%95 bootstrap GA], eşleştirilmiş t-testi;
+`scripts/scaleup_tables.py results/pmnist_widenet --pairs sin:baseline,tanh:baseline,tri:baseline,tri:sin`):
+
+| Fark | Normalize AUC | Erken pencere | Son pencere | Koruma oranı | Ölü birim | Etkin kerte |
+|---|---|---|---|---|---|---|
+| Sinüs − standart | −0.002 [−0.002, −0.001], p = 0.007 | −0.003, p = 0.006 | +0.001 [−0.001, +0.002], p = 0.65 | +0.004 [+0.002, +0.007], p = 0.09 | −0.019, p = 0.006 | −23 [−37, −10], p = 0.10 |
+| tanh − standart | −0.004 [−0.004, −0.004], p = 0.001 | −0.007, p = 0.006 | +0.001 [+0.000, +0.001], p = 0.12 | +0.008 [+0.007, +0.009], p = 0.009 | −0.026, p = 0.004 | −4 [−18, +6], p = 0.61 |
+| Üçgen dalga − standart | −0.006 [−0.006, −0.006], p < 0.001 | −0.009, p < 0.001 | −0.001 [−0.002, −0.000], p = 0.20 | +0.009 [+0.008, +0.010], p = 0.005 | −0.006, p = 0.12 | −51 [−63, −41], p = 0.015 |
+| Üçgen dalga − sinüs | −0.005 [−0.005, −0.004], p = 0.001 | −0.006, p = 0.002 | −0.002 [−0.003, −0.001], p = 0.11 | +0.005 [+0.003, +0.006], p = 0.03 | +0.013, p = 0.004 | −28 [−32, −26], p = 0.004 |
+
+Üç tohumda da işaretler aynıdır; AUC farkları küçük (≤ 0.006) ama tutarlı olduğu için t-testinde anlamlı
+çıkar, işaret-çevirme permütasyon testi n = 3 ile anlamlılığa ulaşamaz (p ≥ 0.25). Koruma oranındaki küçük
+"iyileşme" gerçek bir plastisite farkı değil, sınırlı modellerin daha düşük bir erken pencereden başlayıp aynı
+son pencereye ulaşmasının aritmetik sonucudur (koruma oranı = son / erken).
+
+**Eğri şekli** (çevrimiçi doğruluk, 50 görevlik blok ortalamaları, 3 tohum; `reports/pmnist_widenet/performance.pdf`):
+
+* Standart: 0.865 → 0.870 → 0.867 → 0.864 (ilk 50 görevde artış, sonra ≤ 0.006 gerileme).
+* Sinüs: 0.861 → 0.867 → 0.866 → 0.864; tanh: 0.858 → 0.864 → 0.865 → 0.864; üçgen dalga: 0.855 → 0.861 →
+  0.863 → 0.862. Üç sınırlı model de ilk blokta standart ağın 0.004–0.010 gerisindedir, son blokta fark
+  0.000–0.002'ye iner; tohumlar arası sapma her blokta ≤ 0.001.
+
+Hiçbir modelde §6'daki (3×100 ağ, aynı protokol) 0.80 → 0.74 düşüşü görülmez: genişlik 20 kat artınca aynı
+10⁶ güncelleme ağırlıkları başlangıç ölçeğinden uzaklaştıramaz (ortalama |w| 0.030 → 0.032, §6'da 0.064 → 0.109,
+§14.2'de 0.064 → 0.232). Plastisite kaybı bu ufukta küçük ağın olgusudur; Dohare ve ark.'ın geniş ağdaki
+kaybı 48 kat daha uzun akışta (800 × 60.000) ortaya çıkar ve bu makinede koşu başına 200–1.000 saat gerektirdiği
+için ölçülmemiştir.
+
+**Mekanizma** (görev 0 → 50 → 100 → 150 → 199, 3 tohum ortalaması; `reports/pmnist_widenet/mechanism.pdf`):
+
+* Sınır devre dışıdır: |W|/A sinüs ve tanh'ta 0.33 → 0.35 (gizli katmanlar 0.34–0.37, çıkış katmanı 0.81 / 0.76),
+  üçgen dalgada 0.50 (gizli 0.50, çıkış 0.73). Doyma payı sinüste en fazla %0.1, tanh ve üçgen dalgada 0.
+  Etkin adım çarpanı neredeyse sabittir: cos²Θ 0.85 → 0.83, (1 − tanh²)² 0.74 → 0.72 — §14.2'deki 0.83 → 0.11
+  çöküşünün izi yoktur. Sınırlı modellerin erken açığı bu sabit sönümün (ve üçgen dalgada çıkış katmanının
+  κ = 1 sınırına dayanmasının) ilk görevlerdeki öğrenmeyi yavaşlatmasıyla uyumludur.
+* Ölü birim payı küçüktür ve yavaş büyür: standart 0.00 → 0.05, sinüs → 0.03, tanh → 0.02, üçgen dalga → 0.04.
+  Katman dağılımı §14.2'deki deseni yineler: üçgen dalgada ölü birimler ilk katmandadır (L0 0.12, L1 0.00,
+  L2 0.01), standart ağda L0 0.10 / L1 0.01 / L2 0.03, sinüs ve tanh'ta L0 0.07 / 0.04.
+* Etkin kerte (son gizli katman, 2000 birim): standart 481 → 350, sinüs 459 → 330, tanh 447 → 351, üçgen dalga
+  459 → 299. Kerte her modelde düşer ama birim sayısının %15–18'inin altına inmez; §6'da aynı ölçüt 100 birimde
+  46 → 25'e iner. Üçgen dalganın daha düşük kertesi performansa yansımaz (son pencere farkı −0.001, p = 0.20).
+* Adım normu ‖ΔW‖ dört modelde de sabittir (0.03–0.05); ortalama |w| standart/sinüs/tanh'ta 0.030 → 0.032,
+  üçgen dalgada 0.030'da sabit.
+
+**Küçük ağla karşılaştırma** (§6/§13: 3×100 ağ, aynı 200 × 5.000 protokolü, 10 tohum):
+
+| Fark (model − standart), AUC | 3×100 (§6/§13) | 3×2000 (bu bölüm) |
+|---|---|---|
+| Sinüs | +0.011 (0.785 vs 0.774) | −0.002 (0.865 vs 0.866) |
+| tanh | +0.011 (0.785 vs 0.774) | −0.004 (0.863 vs 0.866) |
+| Üçgen dalga | +0.062 (0.836 vs 0.774) | −0.006 (0.860 vs 0.866) |
+| Koruma oranı: standart / sinüs / üçgen | 0.906 / 0.926 / 1.017 | 1.003 / 1.008 / 1.013 |
+
+**Sonuç ve tez için anlamı.**
+
+1. Sınırlı yeniden parametrizasyonun (yansımalı dahil) faydası, standart ağın plastisite kaybettiği rejime
+   bağlıdır: ağırlıklar başlangıç ölçeğinde kaldığında sınır devreye girmez ve yöntemin ödeyeceği tek bedel
+   kalır (sabit sönüm, erken görevlerde −0.003 … −0.009; 5–6 kat hesap maliyeti).
+2. Bu, tezin iddiasını daraltır ama çelişmez: §14.2 ile birlikte okununca resim "sınır × ufuk" etkileşimidir.
+   Küçük ağ uzun akışta kaybeder ve yansımalı sınır kaybı tamamen önler (+0.082); geniş ağ kısa akışta
+   kaybetmez ve sınır nötr-ile-hafif-olumsuzdur (−0.006). Makalede geniş ağ sonucu, yöntemin "zararsız ama
+   gereksiz" olduğu rejimin sınırını çizen bir negatif bulgu olarak sunulmalıdır.
+3. §14.2 ve §14.4'teki gözlem burada da geçerlidir: sert sınırlı haritada ölü birimler ilk katmanda toplanır
+   (L0 0.12, derin katmanlar ≈ 0) — zararsız ama tutarlı bir imza.
+4. Eksik olan ölçek, geniş ağ × kanonik uzunluktur (Dohare ve ark.'ın asıl protokolü); bu tezin CPU bütçesinin
+   dışındadır ve §12'deki sınırlılıklar listesine eklenmiştir.
+
+Şekiller: `reports/pmnist_widenet/performance.pdf`, `mechanism.pdf`, `summary.pdf`, `fresh_gap.pdf`. Koşu
+maliyeti (tek iş parçacığı; son koşu 4 iş parçacığı): standart 3,8 saat (62 s/görev), sinüs 19,8 saat (382 s),
+tanh 21 saat (316 s), üçgen dalga 17 saat (273 s; 4 iş parçacığıyla 209 s). 3×2000 ağda yeniden parametrizasyonun
+maliyeti 5–6 kattır çünkü batch 1'de adım süresi bellek bant genişliğiyle sınırlıdır ve harita her adımda
+12 M parametre üzerinden iki ek geçiş ister (bkz. `plasticity/models/tri_fused.py`).
 
 ### 14.4 Ara değerlendirme: şaşırtıcı gözlemler ve açık sorular (21 Ekim 2026)
 
@@ -837,7 +929,8 @@ hiçbiri ek koşu gerektirmeden ölçülmüştür.
    tanımlanmalı, hangi ölçüt bileşiminin son doğruluğu öngördüğü mevcut `summary.json` dosyaları üzerinde
    regresyonla sınanmalıdır (hesap gerektirmez).
 5. **Genişlik:** 3×2000 ağda 200 × 5.000 protokolünde hiçbir model plastisite kaybetmez (standart ağ koruma oranı
-   1.002–1.005); sınırlı haritalar ne yardım eder ne zarar verir (§14.3 bitince kesinleşecek).
+   1.003); sınırlı haritalar yardım etmez, erken görevlerde −0.003 … −0.009 açık verip son görevlerde standart ağla
+   örtüşür (§14.3). Fayda, standart ağın kaybettiği rejime bağlıdır.
 
 Bu gözlemler tezin ana iddiasını değiştirmez; tezden bağımsız olası çalışma yönleri olarak (i) sert sınır altında
 ilk katman ölümünün girdi ortalaması ve adım/sınır oranıyla açıklanması, (ii) eniyileyicinin sınırlı haritanın
