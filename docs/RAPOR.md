@@ -660,8 +660,16 @@ permütasyon testinin en küçük p'si 0,25'tir; §6'daki gibi iki test birlikte
   pürüzsüz sinüsü 0.05 geçerken (§13), Adam'da sıralama tersine döner: sinüs (0.824) kırpmayı +0.030 [+0.024,
   +0.035] (p = 0.002) ve üçgen dalgayı +0.037 [+0.026, +0.047] (p = 0.004) geçer; son pencerede farklar +0.033 ve
   +0.055'tir, sert sınırlı iki yöntem yüksek tohum-varyansı ve dalgalı eğriler gösterir
-  (`reports/pmnist_adam_methods/performance.png`). Ölü birim oranı üçünde de ≈ 0.34–0.35 olduğundan fark ölü
-  birimlerden değil, sınırdaki dinamikten kaynaklanır: Adam'ın normalize adımları κ = 1 / γ = 1 sınırına dayanan
+  (`reports/pmnist_adam_methods/performance.png`). Toplam ölü birim oranı üçünde de ≈ 0.34–0.35'tir; ancak
+  katman bazında dağılım çok farklıdır (son görev, 3 tohum ortalaması, `dead_frac/L0,L1,L2`): üçgen dalga
+  0.95 / 0.04 / 0.07, kırpma 0.92 / 0.05 / 0.08, sinüs 0.58 / 0.08 / 0.39. Sert sınırlı iki yöntem ilk gizli
+  katmanının neredeyse tamamını kaybeder (10. görevde zaten ≈ %81) ve ağ 5–8 canlı girdi özelliğiyle çalışır;
+  aynı yoğunlaşma SGD'de de vardır (800 görevde L0 ölü oranı üçgen dalga 0.56, kırpma 0.52, derin katmanlar 0.00;
+  §14.2). Girdileri sıfır ortalamalı CIFAR akışında hiçbir yöntemde ilk katman ölümü görülmez; PMNIST girdileri
+  [0, 1] aralığında ve ilk katman yanlılığı sınırlı olduğundan, ağırlıkları çoğunlukla negatife sürüklenen bir
+  giriş birimi *her* girdi için sıfır çıktı verir, gradyan almaz ve bir daha dirilmez (soğurucu durum).
+  Dolayısıyla Adam'daki tersine dönüşün bir bileşeni ilk katman ölümüdür; bunun yanında sınırdaki dinamik de
+  rol oynar: Adam'ın normalize adımları κ = 1 / γ = 1 sınırına dayanan
   parametreleri her adımda sınıra iter (|w| 0.07'de sıkışır); projeksiyon/yansıma bu adımları geri çevirirken
   sinüsün cos²Θ sönümü sınıra yaklaşan parametrelerin etkin adımını küçülterek örtük bir *güven bölgesi* gibi
   davranır. Yani §13'te "zayıflık" olarak teşhis edilen Jacobian sönümü, Adam gibi adım büyüklüğünü normalize
@@ -689,7 +697,7 @@ ile ayırt edilemez; pürüzsüz sinüs sınırı ise standart ağın gerisine d
 | Model (800 görev) | n | Normalize AUC | Erken pencere | Son pencere | Koruma oranı | Taze model farkı | Ölü birim (son) | Etkin kerte (son) |
 |---|---:|---|---|---|---|---|---|---|
 | Standart | 3 | 0.857 ± 0.001 | 0.905 ± 0.001 | 0.835 ± 0.007 | 0.923 ± 0.008 | +0.086 ± 0.031 | 0.525 ± 0.081 | 15.6 ± 1.1 |
-| Sinüs (γ = 1.5, lr = 0.01) | 3 | 0.818 ± 0.009 | 0.909 ± 0.001 | 0.716 ± 0.048 | 0.788 ± 0.052 | +0.214 ± 0.067 | 0.432 ± 0.068 | 6.5 ± 2.5 |
+| Sinüs (γ = 1.5, lr = 0.003) | 3 | 0.818 ± 0.009 | 0.909 ± 0.001 | 0.716 ± 0.048 | 0.788 ± 0.052 | +0.214 ± 0.067 | 0.432 ± 0.068 | 6.5 ± 2.5 |
 | tanh (γ = 1.5, lr = 0.003) | 3 | 0.858 ± 0.002 | 0.911 ± 0.000 | 0.828 ± 0.007 | 0.908 ± 0.007 | +0.085 ± 0.009 | 0.437 ± 0.028 | 9.5 ± 1.5 |
 | Weight Clipping (κ = 1, lr = 0.003) | 3 | 0.939 ± 0.001 | 0.935 ± 0.003 | 0.940 ± 0.003 | 1.005 ± 0.000 | −0.019 ± 0.005 | 0.167 ± 0.061 | 54.6 ± 0.5 |
 | **Üçgen dalga (γ = 1, lr = 0.003)** | 3 | **0.939 ± 0.000** | 0.935 ± 0.003 | **0.939 ± 0.002** | **1.005 ± 0.003** | **−0.022 ± 0.007** | 0.177 ± 0.040 | 54.7 ± 1.2 |
@@ -753,7 +761,12 @@ Mekanizma resmi §9 ve §13'ün teşhisini kanonik ölçekte doğrular: pürüzs
 Jacobian ile sönümlenir ve ağ donar; sinüsün ölü birim payı standart ağdan *düşük* olduğu hâlde performansı
 daha kötüdür, yani kayıp ölü birimlerden değil donan parametrelerden gelir. Yansımalı sınır (üçgen dalga) ile
 izdüşümlü sınır (kırpma) ise aynı durağan rejime ulaşır: |w| ≈ 0.07, ölü birim ≈ 0.17–0.19, etkin kerte ≈ 55,
-adım normu sabit. İki yöntem mekanizma ölçütlerinde de ayırt edilemez.
+adım normu sabit. İki yöntem mekanizma ölçütlerinde de ayırt edilemez. Ölü birimlerin katman dağılımı dikkat
+çekicidir: sert sınırlı iki yöntemde ölü birimlerin tamamı ilk gizli katmandadır (L0 0.56 / 0.52, L1 ve L2 0.00),
+standart ağda ise üç katmana yayılır (0.45 / 0.57 / 0.52); sinüs ve tanh'ta ilk katman neredeyse canlıdır
+(0.05 / 0.16) ve ölüm derin katmanlardadır. Sert sınır altında ilk katmanın yarısını kaybetmek 800 görevde
+performansı düşürmemiştir, ancak §14.1'deki Adam rejiminde aynı mekanizmanın %92–95'e ulaşması çöküşle
+çakışır; bu konu §14.4'te açık soru olarak ele alınır.
 
 **200 görevlik protokolle karşılaştırma** (§6, §13: 200 görev × 5.000 örnek, 10⁶ güncelleme):
 
@@ -794,3 +807,40 @@ parçacığı): koşu başına standart ≈ 12 saat, kırpma ≈ 13 saat, tanh �
 ### 14.3 Kanonik ağ genişliği: 3×2000, 200 görev × 5.000 örnek (`suites/pmnist_widenet.yaml`)
 
 _Sırada (standart, sinüs, tanh, üçgen dalga × 3 tohum). Sonuçlar paket bitince eklenecek._
+
+### 14.4 Ara değerlendirme: şaşırtıcı gözlemler ve açık sorular (21 Ekim 2026)
+
+Ölçek büyütme paketleri bitmeden önce, mevcut ham yörüngelerin (`results/*/*/seed*/tasks.jsonl`) sistematik
+taramasında raporun ana anlatısına girmeyen beş gözlem öne çıktı. Hepsi mevcut verilerden doğrulanmıştır;
+hiçbiri ek koşu gerektirmeden ölçülmüştür.
+
+1. **Sert sınırda ölü birimler ilk gizli katmanda toplanır.** 800 görevde üçgen dalga ve kırpma L0'ın %56 / %52'sini
+   kaybeder, L1–L2 tamamen canlıdır; Adam'da (§14.1) L0 kaybı %95 / %92'ye çıkar ve 10. görevde zaten ≈ %81'dir.
+   Standart ağda ölüm üç katmana yayılır, sinüs/tanh'ta ilk katman canlı kalır. Girdileri sıfır ortalamalı CIFAR
+   akışında hiçbir yöntemde ilk katman ölümü yoktur. Olası mekanizma: [0, 1] aralığındaki girdiler ve sınırlı
+   yanlılık altında ağırlıkları çoğunlukla negatife sürüklenen bir giriş birimi her örnek için sıfır çıktı verir,
+   gradyan almaz ve soğurucu bir duruma düşer; yansıma/izdüşüm ağırlıkları rastgele yürüyüşe çevirdiği için bu
+   oran tek yönlü birikir. Ucuz test: aynı koşular standardize girdi ve/veya serbest yanlılıkla (3 tohum, ~1 saat/koşu).
+2. **Üçgen dalga ≡ kırpma, yörünge düzeyinde.** Görev bazında çevrimiçi doğruluk farkının ortalama mutlak değeri
+   0.002'dir (tohum gürültüsü düzeyi), katman başına |W|/A profili özdeştir (0.53 / 0.60 / 0.73 / 0.85), kırpma her
+   adımda ağırlıkların yalnızca ≈ %1'ini kırpar ve üçgen dalganın Θ'sı t^0.49 ile rastgele yürüyüş yaparken W kutu
+   içinde durağan kalır. Yorum: izdüşüm, birim eğimli yansımanın küçük adım limitidir; iki yöntem ancak adımın
+   sınıra göre büyük olduğu rejimde (büyük lr, momentum, Adam) ayrışabilir — §14.1'de Adam altında gerçekten ayrışır.
+3. **Sinüs doygunluğu tek yönlü bir cırcır gibi işler.** Üç tohumda da 41 ölçüm noktasının hiçbirinde doygunluk
+   oranı geri gelmez (0 → 0.78–0.80); tanh aynı ortalama sönüm düzeyinde %46'da kalır. Sinüsün tepe noktası
+   (Jacobian sıfırı) sonlu Θ'dadır ve stokastik olarak soğurucu davranır; tanh'ın sıfırı sonsuzdadır. H1'in ufukla
+   işaret değiştirmesi (+0.011 @ 200 görev → −0.040 @ 800 görev) bu birikimle tutarlıdır. Açık nokta: sinüs/tanh
+   γ = 1.5 ile, üçgen dalga/kırpma γ = κ = 1 ile koşulmuştur; γ = 1.0 sinüs koşusu yapılmamıştır.
+4. **Mekanizma ölçütleri performansı öngörmez.** Adam'da en iyi yöntem olan NaP en düşük etkin kerteye sahiptir;
+   sinüs standart ağdan az ölü birimle daha kötüdür; üçgen dalga/kırpma/Parseval 800. görevde kendi taze ağını
+   geçer (koruma oranı > 1, ileri aktarım). Koruma oranı ve taze model farkı için tepe referanslı bir ölçüt
+   tanımlanmalı, hangi ölçüt bileşiminin son doğruluğu öngördüğü mevcut `summary.json` dosyaları üzerinde
+   regresyonla sınanmalıdır (hesap gerektirmez).
+5. **Genişlik:** 3×2000 ağda 200 × 5.000 protokolünde hiçbir model plastisite kaybetmez (standart ağ koruma oranı
+   1.002–1.005); sınırlı haritalar ne yardım eder ne zarar verir (§14.3 bitince kesinleşecek).
+
+Bu gözlemler tezin ana iddiasını değiştirmez; tezden bağımsız olası çalışma yönleri olarak (i) sert sınır altında
+ilk katman ölümünün girdi ortalaması ve adım/sınır oranıyla açıklanması, (ii) eniyileyicinin sınırlı haritanın
+sınır koşulunu (soğurucu/yansıtıcı) belirlediği bir ayna iniş çerçevesi ve (iii) genişlik–ufuk–görev uzunluğu faz
+diyagramı not edilmiştir.
+
