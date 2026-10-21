@@ -4,6 +4,7 @@
 name: pmnist_widenet
 base_config: configs/pmnist_pilot.yaml
 workers: 4
+threads: 4   # only one run left in the grid; the lone child may use all 4 cores (fingerprint ignores threads)
 stream_seed_offset: 0
 selected_hparams: suites/selected_pmnist.yaml
 seeds: [0, 1, 2]

@@ -3,6 +3,7 @@
   "name": "pmnist_widenet",
   "base_config": "/home/user/tez/configs/pmnist_pilot.yaml",
   "workers": 4,
+  "threads": 4,
   "stream_seed_offset": 0,
   "selected_hparams": "suites/selected_pmnist.yaml",
   "seeds": [
