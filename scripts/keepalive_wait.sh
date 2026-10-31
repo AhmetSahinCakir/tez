@@ -4,7 +4,7 @@
 # the chain process is gone.  Prints a one-line reason.
 cd "$(dirname "$0")/.."
 MAX_MIN=${1:-110}
-LOG=results/scaleup_chain.log
+LOG=${KEEPALIVE_LOG:-results/scaleup_chain.log}
 start_lines=$(wc -l < "$LOG" 2>/dev/null || echo 0)
 start=$(date +%s)
 while true; do
@@ -12,8 +12,8 @@ while true; do
   if [ "$el" -ge "$MAX_MIN" ]; then echo "timeout after ${el} min"; exit 0; fi
   lines=$(wc -l < "$LOG" 2>/dev/null || echo 0)
   if [ "$lines" -ne "$start_lines" ]; then echo "chain log changed: $(tail -1 "$LOG")"; exit 0; fi
-  if grep -q "FOLLOW-ON FINISHED" "$LOG" 2>/dev/null; then echo "follow-on finished"; exit 0; fi
-  if ! ps -eo args | grep -v grep | grep -q "run_scaleup_chain.sh\|run_after_scaleup.sh"; then echo "no chain process running"; exit 0; fi
+  if grep -q "FOLLOW-ON FINISHED\|B CHAIN FINISHED" "$LOG" 2>/dev/null; then echo "follow-on finished"; exit 0; fi
+  if ! ps -eo args | grep -v grep | grep -q "${KEEPALIVE_PROC:-run_scaleup_chain.sh\|run_after_scaleup.sh}"; then echo "no chain process running"; exit 0; fi
   for f in results/suite_*.log; do
     if grep -q ": failed (\|Traceback" "$f" 2>/dev/null; then echo "failure in $f: $(grep -m1 ': failed (\|Traceback' "$f")"; exit 0; fi
   done
