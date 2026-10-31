@@ -779,6 +779,48 @@ protokolün 10 eşleştirilmiş tohumla tekrarı planlanmıştır (`docs/YAPILAC
 "ayırt edilemeyecek kadar yakın" ifadesi kullanılır.
 
 
+### 13.4 Sınır genişliğine (γ) duyarlılık (B1 paketi; `suites/pmnist_tri_gamma.yaml`, `reports/pmnist_tri_gamma/`, `reports/pmnist_tri_gamma_vs_main.png`)
+Üçgen dalga modeli, ana paket protokolünde (200 görev × 5.000, lr = 0.003, 5 tohum; γ = 1.0 koşuları
+`results/pmnist_main/tri`'den, tohum 0–4) γ ∈ {1.25, 1.5, 2.0, 3.0} ile yeniden koşulmuştur. Referanslar aynı
+tohumlardaki standart ağ ve Weight Clipping'dir. Farklar γ = 1.0'a göre eşleştirilmiştir (bootstrap %95 GA,
+eşleştirilmiş t-testi).
+
+| γ | Normalize AUC | Son pencere | Koruma oranı | Taze model farkı | Ölü birim | Kerte | Ort. \|w\| (son) | \|W\|/A (son) | Aşan oran (son) | ΔAUC vs γ = 1.0 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **1.0** | **0.837 ± 0.002** | 0.840 ± 0.002 | 1.018 ± 0.002 | −0.075 | 0.141 | 36.8 | 0.064 | 0.52 | — | — |
+| 1.25 | 0.829 ± 0.001 | 0.829 ± 0.004 | 1.007 ± 0.007 | −0.060 | 0.123 | 40.3 | 0.072 | 0.48 | 0.271 | −0.008 [−0.010, −0.006], p = 0.003 |
+| 1.5 | 0.819 ± 0.001 | 0.818 ± 0.002 | 0.995 ± 0.004 | −0.047 | 0.108 | 39.6 | 0.078 | 0.45 | 0.213 | −0.018 [−0.019, −0.016], p < 0.001 |
+| 2.0 | 0.801 ± 0.001 | 0.794 ± 0.002 | 0.968 ± 0.003 | −0.021 | 0.143 | 33.8 | 0.089 | 0.39 | 0.134 | −0.036 [−0.038, −0.035], p < 0.001 |
+| 3.0 | 0.782 ± 0.000 | 0.761 ± 0.003 | 0.929 ± 0.004 | +0.004 | 0.146 | 27.1 | 0.102 | 0.31 | 0.048 | −0.055 [−0.057, −0.053], p < 0.001 |
+| Standart | 0.774 ± 0.001 | 0.743 ± 0.004 | 0.906 ± 0.005 | +0.021 | 0.177 | 22.4 | 0.110 | — | — | (γ = 3.0 − standart: +0.007 [+0.006, +0.008]) |
+| Weight Clipping (κ = 1) | 0.836 ± 0.000 | 0.839 ± 0.002 | 1.017 ± 0.003 | −0.077 | 0.145 | 37.7 | 0.064 | — | — | (γ = 1.0 − WC: +0.0004 [−0.0017, +0.0018]) |
+
+* **Etki tekdüze ve doz-yanıt biçimindedir**: sınır genişledikçe kazanç kesintisiz azalır (AUC 0.837 → 0.829
+  → 0.819 → 0.801 → 0.782) ve γ = 3.0'da model standart ağa yaklaşır (fark yalnızca +0.007; koruma 0.929'a
+  karşı 0.906). Her adım beş tohumun beşinde aynı yöndedir (d_z 3 ile 26 arasında). Bu, danışman raporunun
+  4. deneyinde beklenen "optimal γ" eğrisinin değil, **sınır ne kadar sıkıysa o kadar iyi** eğrisinin
+  gözlendiği anlamına gelir; γ < 1 denenmemiştir (CIFAR'da γ = 1.0'ın γ = 1.5'ten iyi olduğu §7.4'te de
+  görülmüştü).
+* **Koruma ölçütü (§2)** γ ≤ 1.5 için sağlanır (koruma ≥ 0.99: γ = 1.25'te 5/5, γ = 1.5'te 5/5 tohum, en
+  düşük 0.991), γ ≥ 2.0 için sağlanmaz (0.968 ve 0.929). Yani üçgen dalga haritasının plastisiteyi koruduğu
+  γ aralığı dardır: başlangıç ölçeğinin en fazla 1.5 katı.
+* **Mekanizma: kazanç, engellenen ağırlık büyümesiyle orantılıdır.** Son ortalama |w| γ ile birlikte
+  0.064 (γ = 1.0) → 0.102 (γ = 3.0) büyür ve standart ağın 0.110'una yaklaşır; AUC bu büyüklükle neredeyse
+  doğrusal biçimde düşer. Ölü birim oranı ve kerte ise sıralamayı açıklamaz: ölü birim γ = 1.5'te en düşüktür
+  (0.108), kerte γ = 1.25–1.5'te en yüksektir (40), ama her ikisi de orta düzey performans verir. Bu, §14.4'teki
+  "ölçütler performansı öngörmüyor" gözlemini pekiştirir ve §9'daki ağırlık-büyümesi mekanizmasını doğrudan
+  destekler: sınırın işe yaraması için ağırlıkların gerçekten sınıra çarpması gerekir.
+* **Yansıma sıklığı (B3)** aynı şeyi söyler: 200 görev sonunda sınırı en az bir kez aşmış ağırlık oranı
+  γ = 1.25'te %27, 1.5'te %21, 2.0'da %13, 3.0'da %5'tir; giriş (L0) ve çıkış (L3) katmanları çok daha sık
+  yansır (γ = 1.25'te %32 ve %42; gizli katmanlar %8). Yansıma oranı ile AUC kazancı aynı sırada gider.
+  γ = 1.0 koşuları bu metrik eklenmeden önce yapıldığı için orada ölçüm yoktur; eğilim γ = 1.0'da daha yüksek
+  bir oranı ima eder. Hiçbir γ'da doygunluk yoktur (sat_frac = 0, J² = 1), yani kazanç kaybı türev
+  sönümünden değil, sınırın devreye girmemesinden kaynaklanır.
+* **Sinüs ile karşılaştırma**: aynı tohumlarda sinüs γ = 1.5 (ana paket) AUC 0.785 verirken üçgen γ = 1.5
+  0.819 verir (+0.034); sinüs γ = 1.5'te |W|/A 0.59'a ulaşıp %4.3 doygunluk ve J² = 0.56 biriktirir, üçgen
+  aynı γ'da |W|/A 0.45'te kalır. Yani eşit sınır genişliğinde sönümsüz harita hem daha iyi sonuç verir hem de
+  ağırlıkları sınıra daha az yaklaştırır (yansıma, Θ'nın sınır ötesine birikmesini engeller).
+
 ## 14. Ölçek büyütme ve Adam rejimi karşılaştırması (proje sonrası ek paketler)
 
 Bu bölüm, §12'de açık bırakılan iki soruyu kapatmak için çalıştırılan ek paketleri raporlar: (i) yayımlanmış

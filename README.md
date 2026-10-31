@@ -79,6 +79,9 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
   Üçgen dalga (γ = 1) bu akışta da Weight Clipping ile aynıdır (ΔAUC +0.0006 [−0.0007, +0.0020]) ve
   standart ağdan geri kalmaz; aynı sıkılıktaki sinüs (γ = 1.2) ise 0.035 kaybeder — sınırda sıfırlanan
   türev zarar verir, sınırın kendisi değil (`docs/RAPOR.md` §7.4).
+* Üçgen dalgada sınır genişliği γ'nın etkisi tekdüzedir: γ = 1.0 → 3.0 için AUC 0.837 → 0.782 (standart
+  0.774); koruma ölçütü yalnızca γ ≤ 1.5'te sağlanır ve kazanç, engellenen ağırlık büyümesiyle orantılıdır
+  (`docs/RAPOR.md` §13.4).
 * Durağan kontrol: üç model i.i.d. koşullarda aynı test doğruluğuna ulaşır.
 * Toplam 451 çalışma (≈ 95 CPU-saati); bütün ham kayıtlar `results/`, tablolar/şekiller `reports/` altındadır.
 
