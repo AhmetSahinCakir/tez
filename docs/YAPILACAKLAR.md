@@ -4,20 +4,19 @@ Kaynak: "Tez Çalışması Ara Değerlendirme ve Öneri Raporu" (Prof. Dr. E. U.
 Durum sütunu: ✔ hazır · ◐ kısmen var · ✗ yeni. Hesap sütunu bu depodaki ölçümlere dayanır (4 çekirdek CPU);
 12 çekirdekli dizüstünde süreler ~3 kat kısalır. Tüm koşular `scripts/run_suite.py` ile, checkpoint'ten devam eder.
 
-## A. Hesap gerektirmeyen işler (ilk hafta, deneyler koşarken)
+## A. Hesap gerektirmeyen işler — 31 Ekim 2026'da tamamlandı (commit d503451)
 
 | # | İş | Danışman maddesi | Durum | Çıktı |
 |---|---|---|---|---|
-| A1 | İddia ifadelerini düzelt: "periyodiklik belirleyici" → "sınırlılık tek başına yetmez; Jacobian sönümü…"; "tamamen korudu" → "800 görevde belirgin düşüş gözlenmedi"; "WC ile eşit" → "ayırt edilemeyecek kadar yakın" (TOST'a kadar) | 4.1, 4.3, 4.4 | ✗ | RAPOR §1, §13, §14.2, README |
-| A2 | "Plastisite korunmuş" için operasyonel ölçüt tanımla (koruma oranı ≥ 0.99, eğim/100 görev ≥ −0.002, taze model farkı artmıyor) ve tüm modellere uygula | 4.3 | ◐ (ölçütler var, eşik yok) | RAPOR §2, tablo |
-| A3 | Üçgen dalga – Weight Clipping eşdeğerlik testi: önceden belirlenmiş marj Δ = 0.005, eşleştirilmiş %95 GA, TOST (`plasticity/analysis/stats.py`'ye `tost_paired` ekle) | 4.4, deney 3 | ✗ | `scripts/equivalence.py`, RAPOR §14.2 |
-| A4 | Donma oranı × görev × katman × doğruluk şekli (sat_frac/L0..L3 ve online_accuracy aynı eksende, sin/tanh/tri) | deney 5 | ◐ (veri var: tasks.jsonl) | `reports/ozet/6_donma_orani.png` |
-| A5 | Üçgen dalga köşe noktaları: tam tanım (tri(x) = (2/π)·asin(sin(πx/2)), periyot 4, aralık [−1,1]), köşede türev kuralı (floor tabanlı: d = ±1, 0 olmaz), köşeye tam düşen parametre oranını ölç (|ang mod 2 − 1| < 1e-6) | 5.2 | ✗ | RAPOR §13 alt bölüm |
-| A6 | Özgünlük ifadesini daralt; Dai vd. 2025 (Neuroshaper, üçgen dalga koordinat haritası) atıfı | 4.2 | ✗ | RAPOR §13, literatür |
-| A7 | Teorik çerçeve bölümü: "pürüzsüz + sınırlı + periyodik ⇒ bir yerde türev sıfır" (ekstremum argümanı); ana soru: sınırlılık mı, Jacobian'ın sıfırdan uzak kalması mı | 5.1 | ✗ | RAPOR §9'a ek, tez Bölüm 3 |
-| A8 | Tohum ifadesini netleştir: "15 koşu = 5 model × 3 tohum"; 3 tohumun pilot düzeyi olduğunu belirt | 4.5 | ✗ | RAPOR §14.2 |
-| A9 | Telafili sinüs sonuçlarını danışmanın istediği biçimde öne çıkar: çarpımsal telafi (§8, §11: sınıra yığılma, çöküş) ve yansıma tipi telafi (§13, ε = 1: kırpma düzeyi) — H3'ün nedensel testi | deney 2, 6.1 | ✔ (var, görünür değil) | RAPOR §13 başına özet tablo |
-| A10 | Danışmana mesaj: madde madde cevap (hangisi hazır, hangisi planlı, süreler) | — | ✗ | mesaj metni |
+| A1 ✔ | İddia ifadelerini düzelt: "periyodiklik belirleyici" → "sınırlılık tek başına yetmez; Jacobian sönümü…"; "tamamen korudu" → "800 görevde belirgin düşüş gözlenmedi"; "WC ile eşit" → "ayırt edilemeyecek kadar yakın" (TOST'a kadar) | 4.1, 4.3, 4.4 | ✗ | RAPOR §1, §13, §14.2, README |
+| A2 ✔ | "Plastisite korunmuş" için operasyonel ölçüt tanımla (koruma oranı ≥ 0.99, eğim/100 görev ≥ −0.002, taze model farkı artmıyor) ve tüm modellere uygula | 4.3 | ◐ (ölçütler var, eşik yok) | RAPOR §2, tablo |
+| A3 ✔ | Üçgen dalga – Weight Clipping eşdeğerlik testi: önceden belirlenmiş marj Δ = 0.005, eşleştirilmiş %95 GA, TOST (`plasticity/analysis/stats.py`'ye `tost_paired` ekle) | 4.4, deney 3 | ✗ | `scripts/equivalence.py`, RAPOR §14.2 |
+| A4 ✔ | Donma oranı × görev × katman × doğruluk şekli (sat_frac/L0..L3 ve online_accuracy aynı eksende, sin/tanh/tri) | deney 5 | ◐ (veri var: tasks.jsonl) | `reports/ozet/6_donma_orani.png` |
+| A5 ✔ | Üçgen dalga köşe noktaları: tam tanım (tri(x) = (2/π)·asin(sin(πx/2)), periyot 4, aralık [−1,1]), köşede türev kuralı (floor tabanlı: d = ±1, 0 olmaz), köşeye tam düşen parametre oranını ölç (|ang mod 2 − 1| < 1e-6) | 5.2 | ✗ | RAPOR §13 alt bölüm |
+| A6 ✔ | Özgünlük ifadesini daralt; Dai vd. 2025 (Neuroshaper, üçgen dalga koordinat haritası) atıfı | 4.2 | ✗ | RAPOR §13, literatür |
+| A7 ✔ | Teorik çerçeve bölümü: "pürüzsüz + sınırlı + periyodik ⇒ bir yerde türev sıfır" (ekstremum argümanı); ana soru: sınırlılık mı, Jacobian'ın sıfırdan uzak kalması mı | 5.1 | ✗ | RAPOR §9'a ek, tez Bölüm 3 |
+| A8 ✔ | Tohum ifadesini netleştir: "15 koşu = 5 model × 3 tohum"; 3 tohumun pilot düzeyi olduğunu belirt | 4.5 | ✗ | RAPOR §14.2 |
+| A9 ✔ | Telafili sinüs sonuçlarını danışmanın istediği biçimde öne çıkar: çarpımsal telafi (§8, §11: sınıra yığılma, çöküş) ve yansıma tipi telafi (§13, ε = 1: kırpma düzeyi) — H3'ün nedensel testi | deney 2, 6.1 | ✔ (var, görünür değil) | RAPOR §13 başına özet tablo |
 
 ## B. Ucuz deneyler (dizüstünde 1–2 gün)
 
