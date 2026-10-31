@@ -1,0 +1,18 @@
+# B1 (advisor review, experiment 4): amplitude sensitivity of the triangle-wave map on the FINAL PMNIST streams.
+# gamma = 1.0 is the selected setting and already exists in results/pmnist_main/tri (seeds 0-9, same streams);
+# this suite adds gamma in {1.25, 1.5, 2.0, 3.0} with the same 5 paired seeds. lr from selected_pmnist (0.003).
+name: pmnist_tri_gamma
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+stream_seed_offset: 0
+selected_hparams: suites/selected_pmnist.yaml
+seeds: [0, 1, 2, 3, 4]
+common:
+  stream.n_tasks: 200
+  stream.samples_per_task: 5000
+  metrics.every_n_tasks: 5
+  metrics.fisher_samples: 32
+  metrics.update_tracking_every: 100
+  fresh_reference.every_n_tasks: 25
+runs:
+  - {label: tri/gamma, overrides: {model.reparam.hidden: tri, model.reparam.output: tri}, sweep: {model.gamma: [1.25, 1.5, 2.0, 3.0]}}

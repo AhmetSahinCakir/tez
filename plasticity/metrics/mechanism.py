@@ -36,6 +36,9 @@ def weight_statistics(model: MLP) -> Dict[str, float]:
       ``jac_mean``       mean |cos(angle)| (sin) / mean (1-tanh²(angle)) (tanh): normalised Jacobian
       ``jac_sq_mean``    mean cos²(angle): the state-dependent factor of the effective step (η_eff, H3)
       ``sat_frac``       fraction of weights with normalised Jacobian < 0.1 (nearly frozen at the bound)
+      ``cross_frac``     fraction of weights whose angle lies beyond the first crest/corner (|angle| > π/2 for sin,
+                         > 1 for tri): parameters that crossed the bound at least once (reflected branch); tanh
+                         never crosses (not reported)
       ``theta_abs_mean`` mean |Θ| (free parameters incl. biases)
     """
     out: Dict[str, float] = {}
@@ -60,6 +63,12 @@ def weight_statistics(model: MLP) -> Dict[str, float]:
             out[f"jac_mean/L{li}"] = _f(jac.abs().mean())
             out[f"jac_sq_mean/L{li}"] = _f((jac * jac).mean())
             out[f"sat_frac/L{li}"] = _f((jac.abs() < 0.1).float().mean())
+            crest = {"sin": math.pi / 2, "tri": 1.0}.get(lin.mode)
+            if crest is not None:
+                crossed = (lin.angle().abs() > crest).float()
+                out[f"cross_frac/L{li}"] = _f(crossed.mean())
+                rep_terms.setdefault("cross", [0.0, 0])
+                rep_terms["cross"][0] += _f(crossed.sum()); rep_terms["cross"][1] += crossed.numel()
             rep_terms["w_over_A"][0] += _f(r.sum()); rep_terms["w_over_A"][1] += r.numel()
             rep_terms["jac"][0] += _f(jac.abs().sum()); rep_terms["jac"][1] += jac.numel()
             rep_terms["jac_sq"][0] += _f((jac * jac).sum()); rep_terms["jac_sq"][1] += jac.numel()
@@ -70,7 +79,7 @@ def weight_statistics(model: MLP) -> Dict[str, float]:
     out["theta_abs_mean/all"] = th_abs / max(th_n, 1)
     for k, (s, n) in rep_terms.items():
         if n:
-            out[f"{k}_mean/all" if k != "sat" else "sat_frac/all"] = s / n
+            out[f"{k}_mean/all" if k not in ("sat", "cross") else f"{k}_frac/all"] = s / n
     return out
 
 
