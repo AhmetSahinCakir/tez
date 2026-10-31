@@ -7,7 +7,7 @@ base_config: configs/pmnist_pilot.yaml
 workers: 4
 stream_seed_offset: 0
 selected_hparams: suites/selected_pmnist.yaml
-seeds: [0, 1, 2]
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # C1 (advisor review): 10 paired seeds; runs 0-2 were the first pass
 common:
   stream.n_tasks: 800
   stream.samples_per_task: 60000
@@ -22,3 +22,8 @@ runs:
   - {label: tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}}
   - {label: weight_clipping, overrides: {method.name: weight_clipping}}
   - {label: tri, overrides: {model.reparam.hidden: tri, model.reparam.output: tri}}
+  # C2 / C3 (advisor review): LN + weight-decay baseline (10 seeds) and the reflected sine (jacobian floor
+  # eps = 1, i.e. the sine map with the saturation ratchet removed; 3 seeds).  Listed last so that the
+  # C1 grid (five models x seeds 3-9) is scheduled first.
+  - {label: ln_wd, overrides: {method.name: ln_wd, model.layer_norm: true}}
+  - {label: sin_refl, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.jacobian_floor: 1.0}, seeds: [0, 1, 2]}

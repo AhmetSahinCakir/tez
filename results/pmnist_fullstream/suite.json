@@ -8,7 +8,14 @@
   "seeds": [
    0,
    1,
-   2
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9
   ],
   "common": {
    "stream.n_tasks": 800,
@@ -52,6 +59,26 @@
      "model.reparam.hidden": "tri",
      "model.reparam.output": "tri"
     }
+   },
+   {
+    "label": "ln_wd",
+    "overrides": {
+     "method.name": "ln_wd",
+     "model.layer_norm": true
+    }
+   },
+   {
+    "label": "sin_refl",
+    "overrides": {
+     "model.reparam.hidden": "sin",
+     "model.reparam.output": "sin",
+     "model.jacobian_floor": 1.0
+    },
+    "seeds": [
+     0,
+     1,
+     2
+    ]
    }
   ]
  },
@@ -112,6 +139,132 @@
    "stream_seed_offset": 0
   },
   {
+   "label": "baseline",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/baseline/seed3",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "optimizer.lr": 0.003,
+    "method.name": "baseline"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "baseline",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/baseline/seed4",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "optimizer.lr": 0.003,
+    "method.name": "baseline"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "baseline",
+   "seed": 5,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/baseline/seed5",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "optimizer.lr": 0.003,
+    "method.name": "baseline"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "baseline",
+   "seed": 6,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/baseline/seed6",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "optimizer.lr": 0.003,
+    "method.name": "baseline"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "baseline",
+   "seed": 7,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/baseline/seed7",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "optimizer.lr": 0.003,
+    "method.name": "baseline"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "baseline",
+   "seed": 8,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/baseline/seed8",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "optimizer.lr": 0.003,
+    "method.name": "baseline"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "baseline",
+   "seed": 9,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/baseline/seed9",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "optimizer.lr": 0.003,
+    "method.name": "baseline"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
    "label": "sin",
    "seed": 0,
    "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed0",
@@ -155,6 +308,146 @@
    "label": "sin",
    "seed": 2,
    "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed2",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed3",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed4",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin",
+   "seed": 5,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed5",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin",
+   "seed": 6,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed6",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin",
+   "seed": 7,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed7",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin",
+   "seed": 8,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed8",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin",
+   "seed": 9,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin/seed9",
    "overrides": {
     "stream.n_tasks": 800,
     "stream.samples_per_task": 60000,
@@ -232,6 +525,146 @@
    "stream_seed_offset": 0
   },
   {
+   "label": "tanh",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tanh/seed3",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tanh/seed4",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh",
+   "seed": 5,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tanh/seed5",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh",
+   "seed": 6,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tanh/seed6",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh",
+   "seed": 7,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tanh/seed7",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh",
+   "seed": 8,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tanh/seed8",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tanh",
+   "seed": 9,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tanh/seed9",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.5,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tanh",
+    "model.reparam.output": "tanh"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
    "label": "weight_clipping",
    "seed": 0,
    "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed0",
@@ -273,6 +706,139 @@
    "label": "weight_clipping",
    "seed": 2,
    "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed2",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.kappa": 1.0,
+    "optimizer.lr": 0.003,
+    "method.name": "weight_clipping"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "weight_clipping",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed3",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.kappa": 1.0,
+    "optimizer.lr": 0.003,
+    "method.name": "weight_clipping"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "weight_clipping",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed4",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.kappa": 1.0,
+    "optimizer.lr": 0.003,
+    "method.name": "weight_clipping"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "weight_clipping",
+   "seed": 5,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed5",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.kappa": 1.0,
+    "optimizer.lr": 0.003,
+    "method.name": "weight_clipping"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "weight_clipping",
+   "seed": 6,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed6",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.kappa": 1.0,
+    "optimizer.lr": 0.003,
+    "method.name": "weight_clipping"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "weight_clipping",
+   "seed": 7,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed7",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.kappa": 1.0,
+    "optimizer.lr": 0.003,
+    "method.name": "weight_clipping"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "weight_clipping",
+   "seed": 8,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed8",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.kappa": 1.0,
+    "optimizer.lr": 0.003,
+    "method.name": "weight_clipping"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "weight_clipping",
+   "seed": 9,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/weight_clipping/seed9",
    "overrides": {
     "stream.n_tasks": 800,
     "stream.samples_per_task": 60000,
@@ -344,6 +910,409 @@
     "optimizer.lr": 0.003,
     "model.reparam.hidden": "tri",
     "model.reparam.output": "tri"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tri",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tri/seed3",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tri",
+    "model.reparam.output": "tri"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tri",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tri/seed4",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tri",
+    "model.reparam.output": "tri"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tri",
+   "seed": 5,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tri/seed5",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tri",
+    "model.reparam.output": "tri"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tri",
+   "seed": 6,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tri/seed6",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tri",
+    "model.reparam.output": "tri"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tri",
+   "seed": 7,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tri/seed7",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tri",
+    "model.reparam.output": "tri"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tri",
+   "seed": 8,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tri/seed8",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tri",
+    "model.reparam.output": "tri"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "tri",
+   "seed": 9,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/tri/seed9",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.003,
+    "model.reparam.hidden": "tri",
+    "model.reparam.output": "tri"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed0",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed1",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed2",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed3",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed4",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 5,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed5",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 6,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed6",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 7,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed7",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 8,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed8",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "ln_wd",
+   "seed": 9,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/ln_wd/seed9",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "method.weight_decay": 0.001,
+    "optimizer.lr": 0.003,
+    "method.name": "ln_wd",
+    "model.layer_norm": true
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_refl",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin_refl/seed0",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.01,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.jacobian_floor": 1.0
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_refl",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin_refl/seed1",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.01,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.jacobian_floor": 1.0
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "sin_refl",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/pmnist_fullstream/sin_refl/seed2",
+   "overrides": {
+    "stream.n_tasks": 800,
+    "stream.samples_per_task": 60000,
+    "metrics.every_n_tasks": 20,
+    "metrics.fisher_samples": 32,
+    "metrics.update_tracking_every": 1000,
+    "fresh_reference.every_n_tasks": 100,
+    "log_every": 20,
+    "model.gamma": 1.0,
+    "optimizer.lr": 0.01,
+    "model.reparam.hidden": "sin",
+    "model.reparam.output": "sin",
+    "model.jacobian_floor": 1.0
    },
    "sweep": {},
    "stream_seed_offset": 0

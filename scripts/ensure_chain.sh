@@ -28,7 +28,12 @@ if ! grep -q "FOLLOW-ON FINISHED" "$LOG" 2>/dev/null && ! running "scripts/run_a
   setsid nohup bash scripts/run_after_scaleup.sh > /dev/null 2>&1 < /dev/null &
   started="$started run_after_scaleup"
 fi
-if ! grep -q "FOLLOW-ON FINISHED" "$LOG" 2>/dev/null && ! running "scripts/autocommit_results.sh"; then
+CLOG=results/c_chain.log
+if ! grep -q "C CHAIN FINISHED" "$CLOG" 2>/dev/null && ! running "scripts/run_c_chain.sh"; then
+  setsid nohup bash scripts/run_c_chain.sh > /dev/null 2>&1 < /dev/null &
+  started="$started run_c_chain"
+fi
+if { ! grep -q "FOLLOW-ON FINISHED" "$LOG" 2>/dev/null || ! grep -q "C CHAIN FINISHED" "$CLOG" 2>/dev/null; } && ! running "scripts/autocommit_results.sh"; then
   setsid nohup bash scripts/autocommit_results.sh 1800 > /dev/null 2>&1 < /dev/null &
   started="$started autocommit_results"
 fi
