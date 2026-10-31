@@ -60,8 +60,8 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
   [+0.010, +0.012], eşleştirilmiş permütasyon p = 0.002); Adam ile etki çok büyür (ΔAUC +0.03 … +0.09).
   Kanonik uzunlukta (800 görev × 60.000 örnek, §14.2) ise pürüzsüz sinüs sınırı standart ağın *gerisine* düşer
   (ΔAUC −0.040 [−0.043, −0.036], p = 0.002; doyma payı 0.80, cos²Θ 0.11), tanh standart ağla örtüşür; yansımalı
-  üçgen dalga plastisiteyi tamamen korur (koruma oranı 1.005, eğim 0) ve Weight Clipping ile her ölçütte 0.001'in
-  altında farkla aynıdır. Kanonik genişlikte (3×2000, 200 görev, §14.3) standart ağ bu ufukta plastisite
+  üçgen dalgada 800 görev boyunca belirgin plastisite düşüşü gözlenmez (koruma oranı 1.005, eğim 0) ve sonuç
+  Weight Clipping'e her ölçütte 0.001'in altında farkla, Δ = 0.005 marjında TOST-eşdeğer düzeyde yakındır (3 tohum). Kanonik genişlikte (3×2000, 200 görev, §14.3) standart ağ bu ufukta plastisite
   kaybetmez ve sınırlı haritalar fayda sağlamaz (ΔAUC −0.002 … −0.006, son pencerede fark ≤ 0.002): yöntemin
   faydası standart ağın kaybettiği rejime bağlıdır.
 * **H2**: sinüs ve tanh SGD altında ayırt edilemez → etki sınırlılıktan kaynaklanır; Adam altında sinüs tanh'ı geçer.
@@ -69,8 +69,10 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 * **H3**: sınıra yaklaşan parametrelerde cos²Θ kaynaklı adım küçülmesi ölçülmüştür; bunu gideren ölçek-düzeltmeli
   güncelleme plastisiteyi *bozar* (parametreler sınıra yığılıp donar) — sönüm koruyucu bir bileşendir. Sert
   projeksiyonlu Weight Clipping aynı sınırla çok daha iyidir.
-* **Sönümsüz harita (§13):** türevi sınırda sıfırlanmayan periyodik üçgen dalga haritası plastisiteyi tamamen korur ve
-  Weight Clipping ile ayırt edilemez (eşleştirilmiş fark +0.000 [−0.002, +0.002]); periyodiklik burada belirleyicidir.
+* **Sönümsüz harita (§13):** türevi sınırda sıfırlanmayan periyodik üçgen dalga haritası RAPOR §2'deki koruma ölçütünü
+  10/10 tohumda sağlar ve Weight Clipping'e ayırt edilemeyecek kadar yakındır (eşleştirilmiş fark +0.000 [−0.002, +0.002];
+  TOST Δ = 0.005 eşdeğer). Sınırlılık tek başına yetmez: belirleyici olan Jacobian'ın sıfırdan uzak kalmasıdır;
+  sönümsüz haritalar arasında periyodik olan (yansıma) periyodik olmayandan iyidir.
 * Etkinin ana taşıyıcısı çıkış katmanının sınırlanmasıdır; yanlılıkların sınırlanması önemsizdir.
 * CIFAR-100 ikili akışında ağırlıklar büyümediğinden sınırlı modellerin etkisi yoktur; yalnızca ölü birimleri
   hedefleyen yöntemler (CBP, L2 Init, NaP) iyileşme sağlar.

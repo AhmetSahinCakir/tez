@@ -175,3 +175,19 @@ def test_summary_table_and_pairwise_matrix():
     assert np.allclose(mat.to_numpy(), mat.to_numpy().T, equal_nan=True)
     diff = S.pairwise_matrix(df, "acc", labels=["ref", "A", "B"], value="mean_diff", n_boot=500)
     assert diff.loc["A", "ref"] == pytest.approx(1.0) and diff.loc["ref", "A"] == pytest.approx(-1.0)
+
+
+def test_tost_paired_equivalence_and_margin():
+    rng = np.random.default_rng(0)
+    base = rng.normal(0.8, 0.01, 12)
+    same = base + rng.normal(0.0, 0.001, 12)       # differences ~ N(0, 0.001): equivalent at delta = 0.005
+    r = S.tost_paired(same, base, delta=0.005)
+    assert r["n"] == 12 and r["equivalent"] and r["p_tost"] < 0.05
+    assert -0.005 < r["ci_low"] < r["ci_high"] < 0.005 and r["p_tost"] == pytest.approx(max(r["p_lower"], r["p_upper"]))
+    shifted = base + 0.02 + rng.normal(0.0, 0.001, 12)  # a real 0.02 gap: not equivalent at delta = 0.005
+    r2 = S.tost_paired(shifted, base, delta=0.005)
+    assert not r2["equivalent"] and r2["p_tost"] > 0.5 and r2["ci_low"] > 0.005
+    r3 = S.tost_paired(same[:1], base[:1], delta=0.005)  # one pair: undecidable, never "equivalent"
+    assert r3["n"] == 1 and not r3["equivalent"] and np.isnan(r3["p_tost"])
+    with pytest.raises(ValueError):
+        S.tost_paired(same, base, delta=0.0)

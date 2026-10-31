@@ -233,6 +233,46 @@ def paired_difference(a: ArrayLike, b: ArrayLike, n_boot: int = DEFAULT_N_BOOT, 
     return out
 
 
+def tost_paired(a: ArrayLike, b: ArrayLike, delta: float, alpha: float = DEFAULT_ALPHA) -> Dict[str, Any]:
+    """Two one-sided t-tests (TOST) for the *equivalence* of two paired samples (Schuirmann 1987).
+
+    ``a[i]`` and ``b[i]`` come from the same seed; ``delta`` (> 0) is the pre-specified equivalence margin on
+    the mean difference ``a - b``.  Equivalence is declared at level ``alpha`` when both one-sided tests
+    reject, i.e. ``p_tost = max(p_lower, p_upper) < alpha``, which is the same as the ``(1 - 2 alpha)``
+    t-confidence interval of the mean difference lying inside ``(-delta, delta)``.  Returns ``n, mean_diff,
+    std_diff, se, ci_low, ci_high`` (the ``1 - 2 alpha`` interval), ``p_lower`` (H0: diff <= -delta),
+    ``p_upper`` (H0: diff >= delta), ``p_tost``, ``equivalent`` and ``delta``.  NaN pairs are dropped; with
+    fewer than two pairs or zero variance every p-value is NaN and ``equivalent`` is False.
+    """
+    if not delta > 0:
+        raise ValueError("delta must be positive")
+    a = _as_1d(a, "a")
+    b = _as_1d(b, "b")
+    if a.size != b.size:
+        raise ValueError(f"paired samples must have the same length, got {a.size} and {b.size}")
+    keep = ~(np.isnan(a) | np.isnan(b))
+    d = a[keep] - b[keep]
+    n = int(d.size)
+    out: Dict[str, Any] = {"n": n, "delta": float(delta), "alpha": float(alpha)}
+    if n < 2 or d.std(ddof=1) == 0:
+        out.update({"mean_diff": float(d.mean()) if n else float("nan"), "std_diff": float("nan"), "se": float("nan"),
+                    "ci_low": float("nan"), "ci_high": float("nan"), "p_lower": float("nan"), "p_upper": float("nan"),
+                    "p_tost": float("nan"), "equivalent": False})
+        return out
+    m = float(d.mean())
+    sd = float(d.std(ddof=1))
+    se = sd / np.sqrt(n)
+    df = n - 1
+    p_lower = float(sps.t.sf((m + delta) / se, df))   # H0: mean <= -delta  (reject when mean is well above -delta)
+    p_upper = float(sps.t.cdf((m - delta) / se, df))  # H0: mean >= +delta  (reject when mean is well below +delta)
+    tcrit = float(sps.t.ppf(1 - alpha, df))
+    ci_low, ci_high = m - tcrit * se, m + tcrit * se  # (1 - 2 alpha) interval, the TOST-equivalent CI
+    p_tost = max(p_lower, p_upper)
+    out.update({"mean_diff": m, "std_diff": sd, "se": float(se), "ci_low": ci_low, "ci_high": ci_high,
+                "p_lower": p_lower, "p_upper": p_upper, "p_tost": p_tost, "equivalent": bool(p_tost < alpha)})
+    return out
+
+
 # ------------------------------------------------------------------------------------------------
 # multiple comparisons
 # ------------------------------------------------------------------------------------------------
