@@ -334,6 +334,54 @@ ortadan kaldırdığı için); Sin-MLP (sinüs aktivasyon) ise bu öğrenme oran
 şans düzeyine yakın; PMNIST'te aynı kontrol 0.809 vermişti), yani sinüs aktivasyonu veri kümesine ve öğrenme
 oranına güçlü biçimde duyarlıdır.
 
+### 7.4 Üçgen dalga haritası CIFAR-100 akışında (B2 paketi; `suites/cifar_tri.yaml`, 5 tohum, `reports/cifar_tri/`, `reports/cifar_tri_vs_main.png`)
+Üçgen dalga modeli (§13) ana paketle aynı protokolde (çevrimiçi varyant, 1000 görev, lr = 0.003, ana paketle
+aynı tohumlar) γ = 1.0 ve γ = 1.5 ile koşulmuştur. Eşleştirilmiş farklar `scripts/scaleup_tables.py`
+(bootstrap %95 GA, eşleştirilmiş t-testi, Holm düzeltmesi yok):
+
+| Model | Normalize AUC | Son pencere | Koruma oranı | Taze model farkı | Ölü birim | Ort. \|w\| | \|W\|/A | Aşan oran (son) |
+|---|---|---|---|---|---|---|---|---|
+| Standart | 0.749 ± 0.002 | 0.749 ± 0.010 | 0.983 ± 0.028 | +0.025 ± 0.014 | 0.184 | 0.047 | — | — |
+| Weight Clipping (κ = 1) | 0.750 ± 0.002 | 0.752 ± 0.005 | 0.988 ± 0.020 | +0.014 ± 0.013 | 0.188 | 0.040 | — | — |
+| Sinüs (γ = 5) | 0.747 ± 0.002 | 0.744 ± 0.008 | 0.977 ± 0.025 | +0.016 ± 0.009 | 0.212 | 0.047 | 0.11 | 0.000 |
+| Sinüs (γ = 1.2, 3 tohum, §7.3) | 0.712 ± 0.002 | 0.685 ± 0.017 | 0.912 ± 0.027 | — | 0.03 | 0.048 | 0.45 | doygun 0.0015 (çıkış katmanı 0.84) |
+| **Üçgen (γ = 1.0)** | **0.751 ± 0.001** | 0.752 ± 0.009 | 0.986 ± 0.024 | +0.010 ± 0.037 | 0.202 | 0.040 | 0.45 | 0.199 (çıkış katmanı 0.60) |
+| Üçgen (γ = 1.5) | 0.747 ± 0.002 | 0.746 ± 0.007 | 0.980 ± 0.022 | +0.020 ± 0.018 | 0.200 | 0.046 | 0.35 | 0.029 |
+
+| Eşleştirilmiş fark (AUC) | Ortalama [%95 GA] | p (t) | d_z |
+|---|---|---|---|
+| üçgen γ=1.0 − standart | +0.0017 [+0.0010, +0.0024] | 0.013 | +1.92 |
+| üçgen γ=1.0 − Weight Clipping | +0.0006 [−0.0007, +0.0020] | 0.463 | +0.36 |
+| üçgen γ=1.0 − sinüs γ=5 | +0.0035 [+0.0023, +0.0047] | 0.007 | +2.32 |
+| üçgen γ=1.0 − tanh | +0.0025 [+0.0014, +0.0035] | 0.015 | +1.83 |
+| üçgen γ=1.5 − üçgen γ=1.0 | −0.0032 [−0.0050, −0.0011] | 0.053 | −1.22 |
+| üçgen γ=1.0 − Continual Backprop | −0.0090 [−0.0103, −0.0076] | <0.001 | −5.26 |
+
+* **Üçgen dalga bu protokolde de Weight Clipping ile aynıdır**: AUC farkı +0.0006 [−0.0007, +0.0020],
+  ağırlık büyüklüğü iki modelde de 0.047 → 0.040'a iner (sınır A = b, |W|/A ≈ 0.45), ölü birim ve kerte
+  eğrileri çakışır. Standart ağa göre fark küçük ama tutarlıdır (+0.0017, beş tohumun beşinde pozitif;
+  son 100 görevde +0.0023 [+0.0012, +0.0034]); bu PMNIST'teki büyük farkın (+0.08) aksine, ağırlık
+  büyümesinin olmadığı bir protokolde beklenen küçük etkidir. Ölü birimleri hedefleyen yöntemlere
+  (Continual Backprop, L2 Init, NaP) göre yine −0.009 geridedir: §7.2'nin sonucu değişmez.
+* **Sıkı sınır altında sinüs ve üçgen dalga zıt yönde davranır (ana teorik soru için doğrudan kanıt).**
+  Sinüs γ = 1.2 (§7.3) AUC'yi 0.035 düşürmüş ve çevrimiçi doğruluğu 1000 görevde 0.78'den 0.62'ye (son 50 görevlik blok)
+  düşürmüştü; aynı sıkılıkta (|W|/A ≈ 0.45; üçgenin sınırı hatta daha dardır, γ = 1.0) üçgen dalga ise
+  standart ağdan geri kalmaz. Mekanizma ölçütleri farkı katman düzeyinde gösterir (şekil, panel c): sinüs
+  modelinde çıkış katmanı ağırlıklarının %84'ü tepe noktasında doyar (|J| < 0.1; ortalama J² 0.77 → 0.73),
+  üçgen modelinde aynı katmanın ağırlıklarının %60'ı sınırı en az bir kez aşmış ve geri yansımıştır, ancak
+  J ≡ 1 kaldığından öğrenme sürer. Aynı sınır büyüklüğü, aynı katman baskısı; tek fark haritanın sınırdaki
+  Jacobian'ıdır. Bu, §9.4'teki "sınırlılık mı, Jacobian'ın sıfırdan uzak kalması mı" sorusunu CIFAR tarafında
+  da Jacobian lehine yanıtlar: zararı veren sınırın kendisi değil, sınırda sıfırlanan türevdir.
+* **Yansıma sıklığı (B3)**: γ = 1.0 üçgen modelinde sınırı aşan ağırlık oranı ilk 100 görevde hızla
+  (%1.6 → %9.8), sonra yaklaşık t^0.3 ile büyür ve 1000 görevde %19.9'a ulaşır; katmanlar arasında büyük fark
+  vardır (giriş %20, gizli %9, çıkış %60). γ = 1.5 ile oran %2.9'a düşer (çıkış katmanı %20), yani
+  yansıma gerçekte seyrek bir olaydır ve sınırın 1.5 katı genişlemesi onu neredeyse ortadan kaldırır.
+* **γ duyarlılığı CIFAR'da küçüktür ve yönü beklenenin tersidir**: daha gevşek sınır (γ = 1.5) biraz
+  daha kötü sonuç verir (−0.003 [−0.005, −0.001], p = 0.053). Fark, Weight Clipping'in "küçük ağırlık =
+  daha az ölü birim" etkisinden çok, sıkı sınırın dolaylı bir düzenlileştirme etkisi olarak okunabilir;
+  5 tohumla kesin değildir. PMNIST γ taraması (B1, §13.4) bu soruya daha büyük etkinin olduğu rejimde
+  bakmaktadır.
+
 ## 8. Bileşen analizi (İP-4): sınırlılık, periyodiklik, yanlılık, katman seçimi
 Final PMNIST akışlarında, ana paketle aynı tohumlarda (eşleştirilmiş) yürütülen bileşen deneyleri
 (`reports/pmnist_ablation_summary.md`, `reports/pmnist_vs_sin.md`, `reports/pmnist_performance_ablation.png`,

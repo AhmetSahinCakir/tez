@@ -22,9 +22,9 @@ Durum sütunu: ✔ hazır · ◐ kısmen var · ✗ yeni. Hesap sütunu bu depod
 
 | # | Deney | Danışman maddesi | Hesap | Paket |
 |---|---|---|---|---|
-| B1 | Üçgen dalga γ duyarlılığı: γ ∈ {1.0, 1.25, 1.5, 2.0, 3.0}, 200 görev × 5.000, 5 tohum | deney 4 | ~15 CPU-saat | `suites/pmnist_tri_gamma.yaml` (yeni) |
-| B2 | Üçgen dalga CIFAR-100 çevrimiçi akış, 5 tohum (+ WC referansı varsa) | deney 6 | ~1 gün | `suites/cifar_tri.yaml` (yeni) |
-| B3 | Köşeye düşme oranı ölçümü için kısa koşu (B1 ile birlikte loglanır) | 5.2 | — | metrik ekle |
+| B1 ⏳ | Üçgen dalga γ duyarlılığı: γ ∈ {1.0, 1.25, 1.5, 2.0, 3.0}, 200 görev × 5.000, 5 tohum | deney 4 | ~15 CPU-saat | `suites/pmnist_tri_gamma.yaml` (yeni) |
+| B2 ✔ | Üçgen dalga CIFAR-100 çevrimiçi akış, 5 tohum (γ = 1.0 ve 1.5; WC referansı ana paketten) | deney 6 | 1.3 saat (4 çekirdek) | `suites/cifar_tri.yaml`, RAPOR §7.4, `reports/cifar_tri_vs_main.png` |
+| B3 ✔ | Yansıma sıklığı (`cross_frac`) metriği eklendi; CIFAR'da ölçüldü (RAPOR §7.4), PMNIST γ taramasında loglanıyor | 5.2 | — | `plasticity/metrics/mechanism.py` |
 
 ## C. Ana hesap paketi (dizüstünde ~1 hafta, burada ~2 hafta)
 

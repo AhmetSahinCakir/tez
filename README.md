@@ -76,6 +76,9 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 * Etkinin ana taşıyıcısı çıkış katmanının sınırlanmasıdır; yanlılıkların sınırlanması önemsizdir.
 * CIFAR-100 ikili akışında ağırlıklar büyümediğinden sınırlı modellerin etkisi yoktur; yalnızca ölü birimleri
   hedefleyen yöntemler (CBP, L2 Init, NaP) iyileşme sağlar.
+  Üçgen dalga (γ = 1) bu akışta da Weight Clipping ile aynıdır (ΔAUC +0.0006 [−0.0007, +0.0020]) ve
+  standart ağdan geri kalmaz; aynı sıkılıktaki sinüs (γ = 1.2) ise 0.035 kaybeder — sınırda sıfırlanan
+  türev zarar verir, sınırın kendisi değil (`docs/RAPOR.md` §7.4).
 * Durağan kontrol: üç model i.i.d. koşullarda aynı test doğruluğuna ulaşır.
 * Toplam 451 çalışma (≈ 95 CPU-saati); bütün ham kayıtlar `results/`, tablolar/şekiller `reports/` altındadır.
 
