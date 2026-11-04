@@ -8,6 +8,10 @@
 #     so two containers never work on, and push, the same runs.
 cd "$(dirname "$0")/.."
 LOG=results/scaleup_chain.log
+# results/*.log is git-ignored, so a fresh clone would not see the FINISHED markers and would restart the
+# finished chains; results/chain_markers.txt is tracked and carries the same markers.
+MARK=results/chain_markers.txt
+done_marker() { grep -q "$1" "$2" 2>/dev/null || grep -q "$1" "$MARK" 2>/dev/null; }
 mkdir -p results
 running() { ps -eo args | grep -v grep | grep -q "$1"; }
 restored=0
@@ -20,20 +24,20 @@ if other=$(bash scripts/other_container_active.sh); then
   exit 0
 fi
 started=""
-if ! grep -q "SCALEUP CHAIN FINISHED" "$LOG" 2>/dev/null && ! running "scripts/run_scaleup_chain.sh"; then
+if ! done_marker "SCALEUP CHAIN FINISHED" "$LOG" && ! running "scripts/run_scaleup_chain.sh"; then
   setsid nohup bash scripts/run_scaleup_chain.sh > /dev/null 2>&1 < /dev/null &
   started="$started run_scaleup_chain"
 fi
-if ! grep -q "FOLLOW-ON FINISHED" "$LOG" 2>/dev/null && ! running "scripts/run_after_scaleup.sh"; then
+if ! done_marker "FOLLOW-ON FINISHED" "$LOG" && ! running "scripts/run_after_scaleup.sh"; then
   setsid nohup bash scripts/run_after_scaleup.sh > /dev/null 2>&1 < /dev/null &
   started="$started run_after_scaleup"
 fi
 CLOG=results/c_chain.log
-if ! grep -q "C CHAIN FINISHED" "$CLOG" 2>/dev/null && ! running "scripts/run_c_chain.sh"; then
+if ! done_marker "C CHAIN FINISHED" "$CLOG" && ! running "scripts/run_c_chain.sh"; then
   setsid nohup bash scripts/run_c_chain.sh > /dev/null 2>&1 < /dev/null &
   started="$started run_c_chain"
 fi
-if { ! grep -q "FOLLOW-ON FINISHED" "$LOG" 2>/dev/null || ! grep -q "C CHAIN FINISHED" "$CLOG" 2>/dev/null; } && ! running "scripts/autocommit_results.sh"; then
+if { ! done_marker "FOLLOW-ON FINISHED" "$LOG" || ! done_marker "C CHAIN FINISHED" "$CLOG"; } && ! running "scripts/autocommit_results.sh"; then
   setsid nohup bash scripts/autocommit_results.sh 1800 > /dev/null 2>&1 < /dev/null &
   started="$started autocommit_results"
 fi
