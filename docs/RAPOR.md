@@ -36,8 +36,12 @@
 * **Sönümsüz haritalar (§13, mekanizma analizinin uygulaması):** türevi sınırda sıfırlanmayan, periyodik bir
   harita — üçgen dalga W = A·tri(Θ) — aynı çerçevede kalarak 200 ve 800 görevlik akışlarda §2'deki koruma
   ölçütünü her tohumda sağlar ve en iyi yayımlanmış yöntem Weight Clipping ile ayırt edilemeyecek kadar yakın
-  sonuç verir (AUC 0.836 vs 0.836, koruma 1.017 vs 1.017; standart ağa göre +0.062 [+0.060, +0.063], 10 tohum;
-  önceden belirlenmiş Δ = 0.005 marjıyla TOST eşdeğerlik testi AUC ve son pencerede eşdeğerlik verir, §13.3).
+  sonuç verir (200 görev: AUC 0.836 vs 0.836, koruma 1.017 vs 1.017; standart ağa göre +0.062 [+0.060, +0.063],
+  10 tohum). Kanonik 800 görev × 60.000 örnek protokolünde 10 eşleştirilmiş tohumla (§14.2): AUC 0.939 vs 0.939,
+  standart ağa göre +0.083 [+0.082, +0.083]; önceden belirlenmiş Δ = 0.005 marjıyla TOST, AUC, son pencere,
+  koruma oranı ve taze model farkının dördünde de eşdeğerlik verir (§13.3); Layer Norm + Weight Decay referansı
+  0.925'te kalır; pürüzsüz sinüs standart ağın gerisine düşer (−0.039), aynı sinüs haritası yansımalı geri
+  geçişle 0.924'e çıkar (H3'ün nedensel testi, 3 tohum).
   Sınırlılık tek başına yeterli değildir: pürüzsüz sınırlı haritalarda Jacobian sönümü uzun süreli
   öğrenilebilirliği sınırlarken, türevi sıfıra indirmeyen sınırlı-periyodik harita bu sorunu azaltır. Üç
   harita birden fazla özellikte (pürüzsüzlük, periyodiklik, parçalı doğrusallık) farklılaştığından üstünlük
@@ -594,8 +598,8 @@ plastisite kaybı sürmektedir — ölü birimlerin ortadan kalkması tek başı
 yavaşlayan kaybının standart ağa göre farkının büyüyüp büyümediği, (ii) geniş ağlarda (2000 birim) ölü birim
 ve sınır doygunluğu dinamiklerinin değişip değişmediği sınanmalıdır. Küçültülmüş protokolde 10 tohumla güven
 aralıkları çok dardır; etki büyüklükleri küçük (ΔAUC ≈ 0.01) olsa da yönleri kesindir.
-_Güncelleme (§14, proje sonrası):_ (i) kanonik uzunluk 3×100 ağla koşuldu (§14.2: sinüsün farkı tersine döner,
-üçgen dalga ≡ Weight Clipping) ve (ii) kanonik genişlik 200 görevlik protokolle koşuldu (§14.3: geniş ağ bu
+_Güncelleme (§14, proje sonrası):_ (i) kanonik uzunluk 3×100 ağla, 10 eşleştirilmiş tohumla koşuldu (§14.2:
+sinüsün farkı tersine döner, üçgen dalga Weight Clipping'e TOST-eşdeğerdir) ve (ii) kanonik genişlik 200 görevlik protokolle koşuldu (§14.3: geniş ağ bu
 ufukta plastisite kaybetmez, sınırlı haritalar fayda sağlamaz). Eksik kalan tek ölçek, geniş ağ × kanonik
 uzunluk (3×2000, 800 × 60.000) kombinasyonudur: bu makinede koşu başına 200–1.000 saat gerektirir ve GPU ister.
 
@@ -647,6 +651,20 @@ Sönümü yalnızca büyüklük olarak telafi etmek (ilk satır) işe yaramaz, �
 eder; sönümü *yansımaya* çeviren düzeltmeler (son iki satır) plastisiteyi geri getirir. Bu, H3'ün nedensel
 testidir: aynı haritada Jacobian sönümü kaldırıldığında plastisite geri gelir, ancak yalnızca sınırı aşan
 parametrenin geri dönebildiği (periyodik) biçimde kaldırıldığında.
+
+Aynı test kanonik uzunlukta da yapılmıştır (C3; 800 görev × 60.000 örnek, tohum 0–2; ayrıntı §14.2):
+
+| Harita (800 görev) | n | AUC | Son pencere | Koruma | Taze model farkı | Doyma payı (son) |
+|---|---:|---|---|---|---|---|
+| Pürüzsüz sinüs (γ = 1.5, lr = 0.003) | 10 | 0.818 | 0.720 | 0.792 | +0.212 | 0.78 |
+| Sinüs + tam yansıma (ε = 1; γ = 1, lr = 0.01) | 3 | 0.924 | 0.920 | 0.994 | +0.005 | 0.14 |
+| Üçgen dalga (γ = 1, lr = 0.003) | 10 | 0.939 | 0.940 | 1.005 | −0.023 | 0.00 |
+| Standart | 10 | 0.856 | 0.835 | 0.924 | +0.084 | — |
+
+Uzun ufukta fark büyür: pürüzsüz sinüs standart ağın altına düşerken (koruma 0.79), aynı harita yansımalı geri
+geçişle koruma ölçütünü 3/3 tohumda sağlar (koruma 0.994; eşleştirilmiş fark AUC +0.106 [+0.102, +0.109], son
+pencere +0.204, n = 3). Karşılaştırma her varyantın kendi seçilmiş γ ve lr değerleriyledir; tek etkenli (aynı γ,
+aynı lr) karşılaştırma yalnızca 200 görevlik geliştirme ızgarasında vardır.
 
 **Özgünlük sınırı.** Üçgen dalga haritasının kendisi yeni değildir: Dai vd. (2025), nanofotonik tasarım için
 Neuroshaper çerçevesinde periyodiklik ve yansıma simetrisi kısıtlarını üçgen dalga koordinat haritasıyla
@@ -768,15 +786,19 @@ ilan edilir.
 | 200 görev × 5.000 (§13.1) | Normalize AUC | 5 | +0.0004 | [−0.0018, +0.0027] | 0.006 | eşdeğer |
 | 200 görev × 5.000 | Son pencere | 5 | +0.0007 | [−0.0020, +0.0035] | 0.015 | eşdeğer |
 | 200 görev × 5.000 | Koruma oranı | 5 | +0.0014 | [−0.0023, +0.0050] | 0.051 | karar verilemez (Δ = 0.01: eşdeğer) |
-| 800 görev × 60.000 (§14.2) | Normalize AUC | 3 | +0.0004 | [−0.0002, +0.0011] | 0.001 | eşdeğer |
-| 800 görev × 60.000 | Son pencere | 3 | −0.0004 | [−0.0010, +0.0002] | 0.001 | eşdeğer |
-| 800 görev × 60.000 | Koruma oranı | 3 | −0.0004 | [−0.0028, +0.0021] | 0.016 | eşdeğer |
-| 800 görev × 60.000 | Taze model farkı | 3 | −0.0032 | [−0.0068, +0.0004] | 0.138 | karar verilemez (Δ = 0.01: eşdeğer) |
+| 800 görev × 60.000 (§14.2) | Normalize AUC | 10 | +0.0003 | [+0.0000, +0.0006] | < 0.001 | eşdeğer |
+| 800 görev × 60.000 | Son pencere | 10 | −0.0001 | [−0.0006, +0.0005] | < 0.001 | eşdeğer |
+| 800 görev × 60.000 | Koruma oranı | 10 | −0.0003 | [−0.0015, +0.0008] | < 0.001 | eşdeğer |
+| 800 görev × 60.000 | Taze model farkı | 10 | −0.0012 | [−0.0028, +0.0005] | 0.001 | eşdeğer |
 
-Performans ölçütlerinde (AUC, son pencere) iki yöntem Δ = 0.005 marjında eşdeğerdir; koruma oranı ve taze model
-farkı için 3–5 tohum yeterli güç vermez. Tohum sayısı pilot düzeyindedir (3 ve 5); nihai iddia için 800 görevlik
-protokolün 10 eşleştirilmiş tohumla tekrarı planlanmıştır (`docs/YAPILACAKLAR.md`, C1). O zamana kadar metinde
-"ayırt edilemeyecek kadar yakın" ifadesi kullanılır.
+800 görevlik kanonik protokolde, danışman değerlendirmesinde istenen 10 eşleştirilmiş tohumla (C1, 14 Kasım 2026;
+`reports/pmnist_fullstream/equivalence.md`) üçgen dalga ile Weight Clipping dört ölçütün dördünde de Δ = 0.005
+marjında **eşdeğerdir**; %90 güven aralıklarının tamamı ±0.003'ün içindedir, yani marj beşte üçüne indirilse de
+karar değişmez. 200 görevlik protokolde (5 ortak tohum) AUC ve son pencerede eşdeğerlik vardır, koruma oranında
+5 tohum Δ = 0.005 için yeterli güç vermez (Δ = 0.01'de eşdeğer). Bu nedenle metinde 800 görevlik sonuç için
+"TOST-eşdeğer (Δ = 0.005, 10 tohum)", 200 görevlik sonuç için "ayırt edilemeyecek kadar yakın" ifadesi
+kullanılır. Eşdeğerlik iddiası bu protokol ve bu eniyileyici (SGD) içindir; Adam altında iki yöntem ayrışır
+(§14.1).
 
 
 ### 13.4 Sınır genişliğine (γ) duyarlılık (B1 paketi; `suites/pmnist_tri_gamma.yaml`, `reports/pmnist_tri_gamma/`, `reports/pmnist_tri_gamma_vs_main.png`)
@@ -895,135 +917,201 @@ permütasyon testinin en küçük p'si 0,25'tir; §6'daki gibi iki test birlikte
 Dohare vd. (2024)'nin kanonik akış uzunluğu: her görevde 60.000 MNIST görüntüsü, tek geçiş, yığın boyutu 1,
 800 görev (koşu başına 4,8 × 10⁷ güncelleme; §6'daki 10⁶ güncellemenin 48 katı). Ağ, ana paketle aynı 3×100 MLP;
 hiperparametreler (γ, lr, κ) 200 görevlik geliştirme akışlarında seçilen değerler (§6, §13), bu ölçek için
-yeniden ayarlanmadı. Beş model × 3 tohum (tohumlar akışları da belirler; farklar aynı akış üzerinde
-eşleştirilmiştir). Sinüs ve tanh için `theta_scale='amplitude'`, γ = 1.5; üçgen dalga için γ = 1.0 (§13);
-Weight Clipping κ = 1. Pencereler: erken/son pencere = ilk/son 40 görev. Tohum sayısı: 15 koşu = 5 model × 3
-tohum; model başına 3 bağımsız tekrar pilot düzeyidir ve güven aralıkları buna göre okunmalıdır (10 tohuma
-tamamlanması planlıdır, `docs/YAPILACAKLAR.md` C1).
+yeniden ayarlanmadı. Tohumlar akışları da belirler; farklar aynı akış üzerinde eşleştirilmiştir. Sinüs ve tanh
+için `theta_scale='amplitude'`, γ = 1.5; üçgen dalga için γ = 1.0 (§13); Weight Clipping κ = 1. Pencereler:
+erken/son pencere = ilk/son 40 görev.
+
+Tohum sayısı (danışman değerlendirmesi C paketi, 14 Kasım 2026'da tamamlandı): **63 koşu** = beş ana model
+(standart, sinüs, tanh, Weight Clipping, üçgen dalga) × **10 eşleştirilmiş tohum** (C1) + Layer Norm + Weight
+Decay referansı × 10 tohum (C2; λ = 10⁻³, lr = 0.003) + yansımalı sinüs × 3 tohum (C3; `jacobian_floor` ε = 1,
+§13'te seçilen γ = 1.0, lr = 0.01). İlk üç tohum bu bölümün önceki sürümündeki 15 koşudur; sonuçlar 10 tohumda
+aynı kalmış, güven aralıkları 3–5 kat daralmıştır.
 
 **Ana sonuç.** Kanonik uzunlukta yansımalı sınırda (üçgen dalga) 800 görev boyunca belirgin plastisite düşüşü
-gözlenmez (§2 ölçütü 3/3 tohumda sağlanır) ve sonuç Weight Clipping'e ayırt edilemeyecek kadar yakındır (TOST,
-§13.3); pürüzsüz sinüs sınırı ise standart ağın gerisine düşer, tanh standart ağla örtüşür.
+gözlenmez (§2 ölçütü 10/10 tohumda sağlanır) ve sonuç Weight Clipping ile önceden belirlenmiş Δ = 0.005 marjında
+dört ölçütün dördünde de **eşdeğerdir** (TOST, §13.3); pürüzsüz sinüs sınırı standart ağın gerisine düşer, tanh
+standart ağla aynı düzeyde kalır.
 
 | Model (800 görev) | n | Normalize AUC | Erken pencere | Son pencere | Koruma oranı | Taze model farkı | Ölü birim (son) | Etkin kerte (son) |
 |---|---:|---|---|---|---|---|---|---|
-| Standart | 3 | 0.857 ± 0.001 | 0.905 ± 0.001 | 0.835 ± 0.007 | 0.923 ± 0.008 | +0.086 ± 0.031 | 0.525 ± 0.081 | 15.6 ± 1.1 |
-| Sinüs (γ = 1.5, lr = 0.003) | 3 | 0.818 ± 0.009 | 0.909 ± 0.001 | 0.716 ± 0.048 | 0.788 ± 0.052 | +0.214 ± 0.067 | 0.432 ± 0.068 | 6.5 ± 2.5 |
-| tanh (γ = 1.5, lr = 0.003) | 3 | 0.858 ± 0.002 | 0.911 ± 0.000 | 0.828 ± 0.007 | 0.908 ± 0.007 | +0.085 ± 0.009 | 0.437 ± 0.028 | 9.5 ± 1.5 |
-| Weight Clipping (κ = 1, lr = 0.003) | 3 | 0.939 ± 0.001 | 0.935 ± 0.003 | 0.940 ± 0.003 | 1.005 ± 0.000 | −0.019 ± 0.005 | 0.167 ± 0.061 | 54.6 ± 0.5 |
-| **Üçgen dalga (γ = 1, lr = 0.003)** | 3 | **0.939 ± 0.000** | 0.935 ± 0.003 | **0.939 ± 0.002** | **1.005 ± 0.003** | **−0.022 ± 0.007** | 0.177 ± 0.040 | 54.7 ± 1.2 |
+| Standart | 10 | 0.856 ± 0.001 | 0.904 ± 0.000 | 0.835 ± 0.001 | 0.924 ± 0.001 | +0.084 ± 0.006 | 0.523 ± 0.024 | 15.9 ± 0.7 |
+| Sinüs (γ = 1.5, lr = 0.003) | 10 | 0.818 ± 0.002 | 0.909 ± 0.000 | 0.720 ± 0.012 | 0.792 ± 0.013 | +0.212 ± 0.015 | 0.425 ± 0.014 | 6.9 ± 0.9 |
+| tanh (γ = 1.5, lr = 0.003) | 10 | 0.859 ± 0.001 | 0.911 ± 0.000 | 0.831 ± 0.002 | 0.912 ± 0.003 | +0.085 ± 0.003 | 0.406 ± 0.022 | 9.5 ± 0.4 |
+| Weight Clipping (κ = 1, lr = 0.003) | 10 | 0.939 ± 0.000 | 0.934 ± 0.001 | 0.940 ± 0.001 | 1.006 ± 0.001 | −0.022 ± 0.003 | 0.177 ± 0.013 | 54.8 ± 0.3 |
+| **Üçgen dalga (γ = 1, lr = 0.003)** | 10 | **0.939 ± 0.000** | 0.934 ± 0.001 | **0.940 ± 0.001** | **1.005 ± 0.001** | **−0.023 ± 0.001** | 0.177 ± 0.013 | 54.8 ± 0.3 |
+| Layer Norm + Weight Decay (λ = 10⁻³, lr = 0.003) | 10 | 0.925 ± 0.000 | 0.930 ± 0.000 | 0.923 ± 0.001 | 0.992 ± 0.001 | +0.008 ± 0.003 | 0.361 ± 0.016 | 42.4 ± 0.6 |
+| Yansımalı sinüs (ε = 1, γ = 1, lr = 0.01) | 3 | 0.924 ± 0.000 | 0.926 ± 0.000 | 0.920 ± 0.001 | 0.994 ± 0.001 | +0.005 ± 0.014 | 0.268 ± 0.024 | 58.7 ± 0.6 |
 
-_ortalama ± %95 GA (t-dağılımı, 3 tohum); `reports/pmnist_fullstream/summary.md`. Taze model farkı: 800. görevde
-sıfırdan eğitilen ağ − sürekli öğrenen ağ (negatif = sürekli öğrenen ağ taze ağdan iyi)._
+_ortalama ± %95 GA (t-dağılımı, tohumlar üzerinden); `reports/pmnist_fullstream/summary.md`. Taze model farkı:
+800. görevde sıfırdan eğitilen ağ − sürekli öğrenen ağ (negatif = sürekli öğrenen ağ taze ağdan iyi)._
 
-§2'deki operasyonel ölçüte göre (`python3 scripts/plasticity_criterion.py results/pmnist_fullstream`): üçgen dalga
-ve kırpma 3/3 tohumda üç koşulu da sağlar (koruma 1.005, eğim +0.0004 / 100 görev, taze model farkı −0.02);
-standart ağ (koruma 0.923, eğim −0.008, taze model farkı +0.09), tanh (0.908, −0.010, +0.09) ve sinüs (0.788,
-−0.024, +0.21) hiçbir tohumda sağlamaz. Aynı ölçütle 200 görevlik ana pakette (§6, §13) korunmuş sayılan
-modeller: üçgen dalga (10/10), Weight Clipping, L2 Init, NaP (5/5), Parseval ve Shrink & Perturb (3/3);
-Continual Backprop 4/5 ve yansımalı sinüs 6/10 ile "kısmen"; standart, sinüs, tanh ve diğerleri "kaybediyor".
-Geniş ağda (§14.3) dört model de 3/3 tohumda sağlar.
+§2'deki operasyonel ölçüte göre (`python3 scripts/plasticity_criterion.py results/pmnist_fullstream`;
+`reports/pmnist_fullstream/criterion.md`): üçgen dalga ve kırpma **10/10** tohumda üç koşulu da sağlar (koruma
+1.005 / 1.006, eğim +0.0004 / +0.0005 / 100 görev, taze model farkı −0.02); yansımalı sinüs 3/3 tohumda sağlar
+(0.994, −0.0010, +0.005); Layer Norm + Weight Decay 8/10 tohumda sağlar ("kısmen": koruma 0.992, eğim −0.0008,
+taze model farkı +0.008; iki tohumda taze model farkı eşiği, birinde koruma eşiği aşılır); standart ağ (koruma
+0.924, eğim −0.008, taze model farkı +0.08), tanh (0.912, −0.010, +0.09) ve sinüs (0.792, −0.024, +0.21) hiçbir
+tohumda sağlamaz. Aynı ölçütle 200 görevlik ana pakette (§6, §13) korunmuş sayılan modeller: üçgen dalga
+(10/10), Weight Clipping, L2 Init, NaP (5/5), Parseval ve Shrink & Perturb (3/3); Continual Backprop 4/5 ve
+yansımalı sinüs 6/10 ile "kısmen"; standart, sinüs, tanh ve diğerleri "kaybediyor". Geniş ağda (§14.3) dört
+model de 3/3 tohumda sağlar.
 
-**Eşleştirilmiş farklar** (aynı akış, 3 çift; ortalama [%95 bootstrap GA], eşleştirilmiş t-testi;
-`scripts/scaleup_tables.py`, `reports/pmnist_fullstream/comparison.md`):
+**Eşleştirilmiş farklar** (aynı akış, 10 çift; ortalama [%95 bootstrap GA]; `scripts/scaleup_tables.py`,
+`reports/pmnist_fullstream/scaleup_tables.md`, `comparison.md`). p değeri yazılmayan hücrelerin tümünde
+eşleştirilmiş t-testi p < 0.001'dir (tanh − standart: AUC p = 0.002, son pencere p = 0.004); bu hücrelerde
+işaret-çevirme permütasyon testi 10 çiftte alabileceği en küçük değeri verir (p = 0.002; Holm düzeltmesiyle 0.012).
 
 | Karşılaştırma | AUC | Son pencere | Koruma oranı | Taze model farkı |
 |---|---|---|---|---|
-| Üçgen − standart | **+0.082** [+0.081, +0.082], p < 0.001 | +0.104 [+0.101, +0.108], p < 0.001 | +0.082 [+0.080, +0.085], p < 0.001 | −0.108 [−0.119, −0.091], p = 0.007 |
-| Kırpma − standart | +0.081 [+0.081, +0.082], p < 0.001 | +0.105 [+0.101, +0.108], p < 0.001 | +0.083 [+0.081, +0.086], p < 0.001 | −0.105 [−0.113, −0.089], p = 0.006 |
-| Üçgen − kırpma | +0.0004 [+0.0002, +0.0009], p = 0.18 | −0.0004 [−0.0008, −0.0001], p = 0.18 | −0.0004 [−0.0012, +0.0013], p = 0.72 | −0.003 [−0.006, −0.002], p = 0.12 |
-| Üçgen − sinüs | +0.121 [+0.117, +0.124], p < 0.001 | +0.223 [+0.205, +0.242], p = 0.002 | +0.217 [+0.198, +0.238], p = 0.003 | −0.236 [−0.263, −0.216], p = 0.003 |
-| Sinüs − standart | **−0.040** [−0.043, −0.036], p = 0.002 | −0.119 [−0.141, −0.102], p = 0.009 | −0.135 [−0.158, −0.116], p = 0.008 | +0.128 [+0.097, +0.172], p = 0.03 |
-| tanh − standart | +0.000 [−0.001, +0.002], p = 0.52 | −0.007 [−0.012, −0.001], p = 0.15 | −0.014 [−0.019, −0.008], p = 0.05 | −0.001 [−0.009, +0.010], p = 0.82 |
+| Üçgen − standart | **+0.083** [+0.082, +0.083] | +0.104 [+0.103, +0.105] | +0.082 [+0.081, +0.083] | −0.108 [−0.113, −0.102] |
+| Kırpma − standart | +0.082 [+0.081, +0.083] | +0.104 [+0.103, +0.105] | +0.082 [+0.081, +0.083] | −0.107 [−0.112, −0.101] |
+| Üçgen − kırpma | +0.0003 [−0.0000, +0.0006], p = 0.09 | −0.0001 [−0.0006, +0.0005], p = 0.83 | −0.0003 [−0.0015, +0.0009], p = 0.63 | −0.0012 [−0.0029, +0.0005], p = 0.22 |
+| Üçgen − sinüs | +0.121 [+0.119, +0.123] | +0.219 [+0.210, +0.230] | +0.213 [+0.203, +0.225] | −0.235 [−0.248, −0.223] |
+| Sinüs − standart | **−0.039** [−0.040, −0.037] | −0.115 [−0.126, −0.106] | −0.131 [−0.143, −0.121] | +0.127 [+0.112, +0.143] |
+| tanh − standart | +0.003 [+0.002, +0.004] | −0.005 [−0.007, −0.003] | −0.012 [−0.015, −0.010] | +0.001 [−0.004, +0.005], p = 0.74 |
+| LN + WD − standart | +0.068 [+0.068, +0.069] | +0.087 [+0.086, +0.089] | +0.068 [+0.067, +0.069] | −0.076 [−0.082, −0.070] |
+| Üçgen − LN + WD | **+0.014** [+0.014, +0.015] | +0.017 [+0.016, +0.018] | +0.014 [+0.013, +0.015] | −0.031 [−0.033, −0.030] |
 
-Üç tohumun üçünde de aynı sıralama görülür (üçgen − standart AUC farkı tohumlara göre +0.082 / +0.081 / +0.082;
-sinüs − standart −0.040 / −0.043 / −0.036). Üçgen dalga ile kırpma arasındaki farklar her ölçütte 0.001'in
-altındadır; ölü birim payı (+0.010, p = 0.58) ve etkin kerte (+0.10, p = 0.79) de ayırt edilemez. Erken
-pencerede sinüs ve tanh standart ağdan küçük ama tutarlı biçimde iyidir (+0.004, p = 0.018; +0.006, p = 0.001):
-pürüzsüz sınırın kısa ufuktaki küçük faydası (§6) bu ölçekte de ilk 100 görevde vardır, ama sonra kaybolur.
+On tohumun onunda da aynı sıralama görülür: üçgen − standart AUC farkı tohumlara göre +0.081 … +0.085, sinüs −
+standart −0.034 … −0.043 aralığındadır (tek bir ters işaretli tohum yoktur). Üçgen dalga ile kırpma arasındaki
+farklar her ölçütte 0.0015'in altındadır; ölü birim payı (+0.001, p = 0.95) ve etkin kerte (+0.01, p = 0.95) de
+ayırt edilemez. tanh ile standart ağ arasındaki fark 10 tohumla istatistiksel olarak ölçülebilir hâle gelmiştir
+ama pratikte çok küçüktür ve yönü ölçüte göre değişir: AUC'de +0.003 (erken görevlerdeki avantaj), son pencerede
+−0.005, koruma oranında −0.012; TOST'a göre AUC'de Δ = 0.005, son pencerede Δ = 0.01 marjında standart ağa
+eşdeğerdir, koruma oranında ise standart ağdan *kötüdür* (`reports/pmnist_fullstream/equivalence.md`). Erken
+pencerede sinüs ve tanh standart ağdan küçük ama tutarlı biçimde iyidir (+0.005 ve +0.007, p < 0.001): pürüzsüz
+sınırın kısa ufuktaki küçük faydası (§6) bu ölçekte de ilk 100 görevde vardır, ama sonra kaybolur.
 
-**Eğri şekli** (çevrimiçi doğruluk, 100 görevlik blok ortalamaları, 3 tohum;
+**Eğri şekli** (çevrimiçi doğruluk, 100 görevlik blok ortalamaları, tohum ortalaması;
 `reports/pmnist_fullstream/performance.pdf`):
 
-* Standart: 0.901 → 0.874 → 0.862 → 0.852 → 0.850 → 0.842 → 0.842 → 0.836 (sürekli, yavaşlayan düşüş).
-* Sinüs: 0.905 → 0.872 → 0.848 → 0.830 → 0.811 → 0.791 → 0.764 → 0.721 (her blokta biraz daha hızlı düşüş;
-  son blokta tohumlar arası sapma 0.018'e çıkar).
-* tanh: 0.908 → 0.881 → 0.866 → 0.855 → 0.849 → 0.841 → 0.835 → 0.829 (standart eğriye paralel, +0.005 ile
-  −0.007 arasında).
-* Weight Clipping: 0.936 → 0.938 → 0.939 → 0.939 → 0.939 → 0.938 → 0.939 → 0.940 (düz).
-* Üçgen dalga: 0.936 → 0.939 → 0.939 → 0.939 → 0.940 → 0.940 → 0.940 → 0.940 (düz; ikinci bloktan sonra tohumlar
-  arası sapma ≤ 0.001).
+* Standart: 0.901 → 0.874 → 0.861 → 0.852 → 0.848 → 0.841 → 0.839 → 0.836 (sürekli, yavaşlayan düşüş).
+* Sinüs: 0.905 → 0.871 → 0.847 → 0.829 → 0.811 → 0.791 → 0.765 → 0.724 (her blokta biraz daha hızlı düşüş;
+  son blokta tohumlar arası sapma 0.016'ya çıkar).
+* tanh: 0.908 → 0.882 → 0.867 → 0.856 → 0.850 → 0.842 → 0.837 → 0.831 (standart eğriye paralel, +0.008 ile
+  −0.005 arasında).
+* Weight Clipping: 0.935 → 0.938 → 0.939 → 0.939 → 0.939 → 0.939 → 0.939 → 0.940 (düz).
+* Üçgen dalga: 0.935 → 0.939 → 0.939 → 0.940 → 0.940 → 0.940 → 0.940 → 0.940 (düz; tohumlar arası sapma 0.001).
+* Layer Norm + Weight Decay: 0.930 → 0.926 → 0.925 → 0.925 → 0.924 → 0.923 → 0.923 → 0.923 (ilk 200 görevde
+  0.005 kayıp, sonra neredeyse düz).
+* Yansımalı sinüs: 0.926 → 0.928 → 0.925 → 0.926 → 0.923 → 0.923 → 0.921 → 0.920 (çok yavaş düşüş, 800 görevde
+  0.006).
 
-Yansımalı modellerde eğim sıfırdır (−0.000 ± 0.000 / 100 görev); 100. görevden sonra ağ taze ağdan daha iyidir
-(taze model farkı −0.02) ve 800 görev boyunca öyle kalır. Standart ağ ilk 100 görevde 0.03, 800 görevde 0.07 kaybeder.
+Yansımalı modellerde (üçgen dalga, kırpma) eğim sıfırdır (+0.000 / 100 görev); 100. görevden sonra ağ taze ağdan
+daha iyidir (taze model farkı −0.02) ve 800 görev boyunca öyle kalır. Standart ağ ilk 100 görevde 0.03, 800
+görevde 0.07 kaybeder.
 
-**Mekanizma** (görev 0 → 100 → 200 → 400 → 600 → 799, 3 tohum ortalaması; `reports/pmnist_fullstream/mechanism.pdf`):
+**Layer Norm + Weight Decay referansı (C2).** Danışman değerlendirmesinde istenen güçlü ve basit referans
+(Lyle vd. 2024) standart ağın kaybının büyük bölümünü giderir (AUC +0.068, koruma 0.992) ama sert sınırlı iki
+yöntemin gerisinde kalır: üçgen dalga − LN + WD farkı AUC'de +0.014 [+0.014, +0.015], son pencerede +0.017,
+taze model farkında −0.031'dir ve on tohumun onunda aynı yöndedir (AUC farkı +0.013 … +0.015). LN + WD'nin eğrisi
+tam düz değildir (eğim −0.0008 / 100 görev, taze ağın 0.008 gerisinde) ve ölü birim payı 0.36'ya çıkar (ilk gizli
+katman 0.60, ikinci 0.47); etkin kerte 42'de durağandır. Ağırlık büyüklüğünü dolaylı (ceza terimiyle) sınırlayan
+yöntem, doğrudan (eleman bazında) sınırlayan yöntemlerden bu protokolde daha az etkilidir. Sınır: LN + WD'nin λ
+ve lr değerleri de 200 görevlik geliştirme akışında seçilmiştir; bu ölçek için ayrıca ayarlanmamıştır.
 
-* Doyma payı (|∂W/∂Θ|/A < 0.1): sinüs 0.00 → 0.30 → 0.50 → 0.66 → 0.74 → **0.80** (giriş katmanı 0.93); tanh
+**Yansımalı sinüs: H3'ün nedensel testinin uzun ufuk hâli (C3).** §13'teki 200 görevlik sonucun 800 görevde
+tekrarı: sinüs haritası aynen korunur, yalnızca geri geçişte türevin büyüklüğü 1'e sabitlenir (`jacobian_floor`
+ε = 1; parametre tepeyi aşıp geri dönebilir). Sonuç pürüzsüz sinüsün tam tersidir:
+
+| Ölçüt (800 görev, tohum 0–2) | Pürüzsüz sinüs | Yansımalı sinüs | Fark (yansımalı − pürüzsüz) | Üçgen dalga |
+|---|---|---|---|---|
+| Normalize AUC | 0.818 | 0.924 | **+0.106** [+0.102, +0.109], p < 0.001 | 0.939 |
+| Son pencere | 0.716 | 0.920 | +0.204 [+0.186, +0.223], p = 0.003 | 0.939 |
+| Koruma oranı | 0.788 | 0.994 | +0.206 [+0.186, +0.227], p = 0.003 | 1.005 |
+| Taze model farkı | +0.214 | +0.005 | −0.210 [−0.235, −0.193], p = 0.004 | −0.022 |
+| Doyma payı (son) | 0.78 | 0.14 | — | 0.00 |
+| Etkin adım çarpanı cos²Θ (son) | 0.12 | 0.44 (ileri harita; geri geçişte 1 alınır) | — | 1.00 |
+| Sınıra yığılma \|W\|/A (son) | 0.92 | 0.68 | — | 0.56 |
+| Etkin kerte (son) | 6.5 | 58.7 | +52.2 | 54.7 |
+
+Aynı haritada Jacobian sönümü yansımaya çevrildiğinde 800 görevlik düşüşün neredeyse tamamı ortadan kalkar
+(koruma 0.79 → 0.99), doyma payı tek yönlü birikmez (0.12 → 0.14'te durağan) ve temsil kertesi çökmek yerine
+artar (44 → 59). Bu, H3'ü ("pürüzsüz sınırın başarısızlığının nedeni Jacobian sönümüdür") kanonik ufukta
+destekleyen nedensel kanıttır. İki sınırlama açıkça belirtilmelidir: (i) n = 3'tür (eşleştirilmiş t-testi
+anlamlıdır, permütasyon testinin 3 çiftte alabileceği en küçük p ise 0.25'tir); (ii) iki koşu yalnızca Jacobian
+tabanıyla değil, her varyantın kendi geliştirme akışında seçilen hiperparametreleriyle de farklıdır (pürüzsüz
+sinüs γ = 1.5, lr = 0.003; yansımalı sinüs γ = 1.0, lr = 0.01), yani karşılaştırma "en iyi ayarlı pürüzsüz" ile
+"en iyi ayarlı yansımalı" arasındadır; aynı γ ve lr ile tek etkenli karşılaştırma 200 görevlik geliştirme
+ızgarasında vardır (`reports/pmnist_dev_hparams.md`), 800 görevde yapılmamıştır. Yansımalı sinüs üçgen dalganın
+0.015 gerisindedir (AUC −0.015 [−0.015, −0.015], son pencere −0.019; 3 çift) ve Layer Norm + Weight Decay ile
+aynı düzeydedir (AUC farkı −0.001, Δ = 0.005 marjında TOST-eşdeğer): sinüs tepesinin pürüzsüzlüğü ileri haritada
+sürdüğü için ağırlıklar sınıra daha yakın durur (|W|/A 0.68'e karşı 0.56) ve ilk gizli katmanın %83'ü ölür
+(üçgen dalgada %54).
+
+**Mekanizma** (görev 0 → 100 → 200 → 400 → 600 → 799, tohum ortalaması; `reports/pmnist_fullstream/mechanism.pdf`):
+
+* Doyma payı (|∂W/∂Θ|/A < 0.1): sinüs 0.00 → 0.30 → 0.50 → 0.66 → 0.74 → **0.79** (giriş katmanı 0.92); tanh
   0.00 → 0.06 → 0.18 → 0.33 → 0.41 → **0.46** (giriş 0.53); üçgen dalga tanım gereği 0 (|∂W/∂Θ| = 1).
 * Etkin adım çarpanı cos²Θ (sinüs) / (1 − tanh²)² (tanh): 0.83 → 0.33 → 0.23 → 0.16 → 0.13 → **0.11**;
   tanh 0.72 → 0.29 → 0.22 → 0.17 → 0.15 → **0.13**. Yani 800 görev sonunda pürüzsüz haritalı ağların etkin
-  öğrenme hızı başlangıcın %11–13'üne iner; adım başına ‖ΔW‖ standart ağda 0.012 → 0.019 artarken sinüste
-  0.010 → 0.008, tanh'ta 0.009 → 0.008 düşer. Üçgen dalgada ‖ΔW‖ 0.013 → 0.017, kırpmada 0.013 → 0.013.
-* Sınıra yığılma |W|/A: sinüs 0.35 → 0.76 → 0.84 → 0.88 → 0.90 → **0.92**; tanh 0.35 → 0.69 → 0.76 → 0.81 →
+  öğrenme hızı başlangıcın %11–13'üne iner; adım başına ‖ΔW‖ standart ağda 0.012 → 0.018 artarken sinüste
+  0.011 → 0.008, tanh'ta 0.010 → 0.007 düşer. Üçgen dalgada ‖ΔW‖ 0.013 → 0.014, kırpmada 0.013 → 0.013.
+* Sınıra yığılma |W|/A: sinüs 0.35 → 0.77 → 0.84 → 0.88 → 0.90 → **0.92**; tanh 0.35 → 0.69 → 0.76 → 0.81 →
   0.83 → **0.84**; üçgen dalga 0.52 → 0.56 → 0.56 → 0.56 → 0.56 → 0.56 — yansıma parametreleri sınırın ortasında
-  tutar, hiçbir zaman sınıra yığılma olmaz. Ortalama |w|: standart 0.064 → 0.232 (3,6 kat), sinüs → 0.153,
-  tanh → 0.145, kırpma ve üçgen → 0.071 (neredeyse sabit).
-* Ölü birim payı: standart 0.00 → 0.18 → 0.28 → 0.37 → 0.46 → **0.51**; sinüs 0.26 → 0.40 → 0.43 → 0.42 →
-  **0.43**; tanh → **0.44**; kırpma 0.13 → 0.15 → 0.16 → 0.18 → **0.17**; üçgen 0.13 → 0.13 → 0.16 → 0.18 → **0.19**.
-* Etkin kerte (son gizli katman): standart 46 → 24 → 23 → 20 → 17 → **14**; sinüs 41 → 13 → 8 → 7 → 7 → **6.5**;
-  tanh 39 → 21 → 16 → 11 → 10 → **10**; kırpma 41 → 50 → 52 → 54 → 54 → **55**; üçgen 40 → 50 → 53 → 54 → 54 → **55**.
-  Yansımalı modellerde temsil kertesi akış boyunca *artar*; standart ağda üçte birine, sinüste yedide birine
-  iner.
+  tutar, hiçbir zaman sınıra yığılma olmaz. Ortalama |w|: standart 0.064 → 0.233 (3,6 kat), sinüs → 0.154,
+  tanh → 0.146, kırpma ve üçgen → 0.071 (neredeyse sabit), LN + WD → 0.021 (ağırlık çürümesiyle küçülür).
+* Ölü birim payı: standart 0.00 → 0.20 → 0.28 → 0.37 → 0.47 → **0.52**; sinüs 0.24 → 0.39 → 0.42 → 0.42 →
+  **0.43**; tanh → **0.41**; kırpma 0.14 → 0.16 → 0.16 → 0.18 → **0.18**; üçgen 0.13 → 0.15 → 0.16 → 0.17 → **0.18**;
+  LN + WD 0.16 → 0.22 → 0.29 → 0.34 → **0.37**.
+* Etkin kerte (son gizli katman): standart 45 → 24 → 23 → 20 → 16 → **16**; sinüs 41 → 14 → 9 → 8 → 7 → **7**;
+  tanh 39 → 22 → 15 → 11 → 10 → **10**; kırpma 40 → 50 → 52 → 54 → 54 → **55**; üçgen 40 → 50 → 52 → 54 → 54 → **55**;
+  LN + WD 51 → 40 → 41 → 42 → 42 → **42**. Yansımalı modellerde temsil kertesi akış boyunca *artar*; standart ağda
+  üçte birine, sinüste altıda birine iner.
 
 Mekanizma resmi §9 ve §13'ün teşhisini kanonik ölçekte doğrular: pürüzsüz sınırda parametreler sınıra yığılır,
 Jacobian ile sönümlenir ve ağ donar; sinüsün ölü birim payı standart ağdan *düşük* olduğu hâlde performansı
 daha kötüdür, yani kayıp ölü birimlerden değil donan parametrelerden gelir. Yansımalı sınır (üçgen dalga) ile
-izdüşümlü sınır (kırpma) ise aynı durağan rejime ulaşır: |w| ≈ 0.07, ölü birim ≈ 0.17–0.19, etkin kerte ≈ 55,
-adım normu sabit. İki yöntem mekanizma ölçütlerinde de ayırt edilemeyecek kadar yakındır. Ölü birimlerin katman dağılımı dikkat
-çekicidir: sert sınırlı iki yöntemde ölü birimlerin tamamı ilk gizli katmandadır (L0 0.56 / 0.52, L1 ve L2 0.00),
-standart ağda ise üç katmana yayılır (0.45 / 0.57 / 0.52); sinüs ve tanh'ta ilk katman neredeyse canlıdır
-(0.05 / 0.16) ve ölüm derin katmanlardadır. Sert sınır altında ilk katmanın yarısını kaybetmek 800 görevde
-performansı düşürmemiştir, ancak §14.1'deki Adam rejiminde aynı mekanizmanın %92–95'e ulaşması çöküşle
+izdüşümlü sınır (kırpma) ise aynı durağan rejime ulaşır: |w| ≈ 0.07, ölü birim ≈ 0.18, etkin kerte ≈ 55,
+adım normu sabit. İki yöntem mekanizma ölçütlerinde de ayırt edilemeyecek kadar yakındır. Ölü birimlerin katman
+dağılımı dikkat çekicidir: sert sınırlı iki yöntemde ölü birimlerin tamamı ilk gizli katmandadır (L0 0.54 / 0.54,
+L1 ve L2 0.00), standart ağda ise üç katmana yayılır (0.45 / 0.62 / 0.50); sinüs ve tanh'ta ilk katman neredeyse
+canlıdır (0.04 / 0.12) ve ölüm derin katmanlardadır. Sert sınır altında ilk katmanın yarısını kaybetmek 800
+görevde performansı düşürmemiştir, ancak §14.1'deki Adam rejiminde aynı mekanizmanın %92–95'e ulaşması çöküşle
 çakışır; bu konu §14.4'te açık soru olarak ele alınır.
 
 **200 görevlik protokolle karşılaştırma** (§6, §13: 200 görev × 5.000 örnek, 10⁶ güncelleme):
 
-| Fark (model − standart), AUC | 200 görev × 5.000 (§6/§13) | 800 görev × 60.000 (bu bölüm) |
+| Fark (model − standart), AUC | 200 görev × 5.000 (§6/§13) | 800 görev × 60.000 (bu bölüm, 10 tohum) |
 |---|---|---|
-| Sinüs | +0.011 (0.785 vs 0.774) | **−0.040** (0.818 vs 0.857) |
-| tanh | +0.011 (0.785 vs 0.774) | +0.000 (0.858 vs 0.857) |
-| Üçgen dalga | +0.062 (0.836 vs 0.774) | **+0.082** (0.939 vs 0.857) |
-| Weight Clipping | +0.062 (0.836 vs 0.774) | +0.081 (0.939 vs 0.857) |
-| Koruma oranı: standart / üçgen / kırpma | 0.906 / 1.017 / 1.017 | 0.923 / 1.005 / 1.005 |
+| Sinüs | +0.011 (0.785 vs 0.774) | **−0.039** (0.818 vs 0.856) |
+| tanh | +0.011 (0.785 vs 0.774) | +0.003 (0.859 vs 0.856) |
+| Üçgen dalga | +0.062 (0.836 vs 0.774) | **+0.083** (0.939 vs 0.856) |
+| Weight Clipping | +0.062 (0.836 vs 0.774) | +0.082 (0.939 vs 0.856) |
+| Yansımalı sinüs | +0.052 (0.826 vs 0.774) | +0.067 (0.924 vs 0.857; 3 tohum) |
+| Koruma oranı: standart / üçgen / kırpma | 0.906 / 1.017 / 1.017 | 0.924 / 1.005 / 1.006 |
 
 (Mutlak AUC değerleri uzun protokolde daha yüksektir çünkü görev başına 12 kat daha fazla örnek vardır ve
 çevrimiçi doğruluk görev içinde daha yükseğe çıkar; karşılaştırılabilir olan farklardır.) Ufuk 48 kat
-uzayınca yansımalı sınırın üstünlüğü büyür (+0.062 → +0.082), tanh'ın küçük faydası sıfırlanır, sinüsünki
-tersine döner. §13'teki 200 görevlik üçgen dalga ≈ kırpma eşitliği (0.836 vs 0.836) 800 görevde de 0.001'in
-altında bir farkla korunur.
+uzayınca yansımalı sınırın üstünlüğü büyür (+0.062 → +0.083), tanh'ın küçük faydası neredeyse sıfırlanır,
+sinüsünki tersine döner. §13'teki 200 görevlik üçgen dalga ≈ kırpma eşitliği (0.836 vs 0.836) 800 görevde de
+0.0003'lük bir farkla korunur.
 
 **Sonuç ve tez için anlamı.**
 
 1. H1 (pürüzsüz sınırlı yeniden parametrizasyon plastisite kaybını önler) kanonik ölçekte *reddedilir*: sinüs
-   standart ağdan anlamlı biçimde kötü (p = 0.002), tanh standart ağdan farksızdır. §6'daki küçük olumlu fark
-   yalnızca kısa ufkun (doymanın henüz kısmi olduğu rejimin) ürünüdür.
+   standart ağdan anlamlı biçimde kötüdür (ΔAUC −0.039 [−0.040, −0.037], 10/10 tohumda aynı yön, p < 0.001); tanh
+   AUC'de standart ağa eşdeğer, koruma oranında ondan kötüdür. §6'daki küçük olumlu fark yalnızca kısa ufkun
+   (doymanın henüz kısmi olduğu rejimin) ürünüdür.
 2. Tezin yansımalı haritasında (üçgen dalga, §13) kanonik ölçekte belirgin plastisite düşüşü gözlenmez (koruma
-   oranı 1.005, taze modelden iyi, eğim +0.000 / 100 görev; §2 ölçütü her tohumda sağlanır) ve sonuç literatürün
-   en güçlü basit yöntemi Weight Clipping'e her ölçütte 0.001'in altında farkla, Δ = 0.005 marjında eşdeğer
-   düzeyde yakındır (§13.3). "En az rakip seviyesi" koşulu en uzun protokolde ve en güçlü rakip karşısında
-   3 tohumla sağlanmıştır; nihai iddia 10 tohum gerektirir.
+   oranı 1.005, taze modelden iyi, eğim +0.000 / 100 görev; §2 ölçütü 10/10 tohumda sağlanır) ve sonuç literatürün
+   en güçlü basit yöntemi Weight Clipping'e, önceden belirlenmiş Δ = 0.005 marjında AUC, son pencere, koruma
+   oranı ve taze model farkının dördünde de **TOST-eşdeğerdir** (10 eşleştirilmiş tohum, §13.3). "En az rakip
+   seviyesi" koşulu en uzun protokolde, en güçlü rakip karşısında ve danışman değerlendirmesinde istenen tohum
+   sayısıyla sağlanmıştır; ayrıca Layer Norm + Weight Decay referansını her tohumda geçer (ΔAUC +0.014).
 3. Yöntemin katkısı, kırpmayı geçmek değil, aynı etkiyi *yapısal* olarak (ayrı bir izdüşüm adımı olmadan, türevi
    her yerde birim olan tek bir parametrizasyonla) elde etmek ve pürüzsüz varyantın neden başarısız olduğunu
-   mekanizma ölçütleriyle (doyma payı, cos²Θ, |W|/A) açıklamaktır: küçük adımda yansıma ≈ izdüşüm, sönümleme = donma.
+   mekanizma ölçütleriyle (doyma payı, cos²Θ, |W|/A) ve nedensel bir müdahaleyle (yansımalı sinüs: aynı harita,
+   sönüm kaldırılınca koruma 0.79 → 0.99) açıklamaktır: küçük adımda yansıma ≈ izdüşüm, sönümleme = donma.
 4. Rejim bağımlılığı (§14.1) tablonun diğer yarısıdır: Adam ile aynı sert sınırlar çöker ve pürüzsüz sinüs
    en iyi tek-ağırlık yöntemi olur. Makalede sonuç "sınır türü × optimize edici" etkileşimi olarak sunulmalıdır.
 
 Şekiller: `reports/ozet/6_donma_orani.png` (katman başına donma oranı ve doğruluk, aynı görev ekseninde),
 `reports/pmnist_fullstream/performance.pdf` (eğriler), `mechanism.pdf` (doyma, |W|/A, ölü birim,
-kerte), `summary.pdf` (özet ölçütler), `fresh_gap.pdf` (taze model farkı). Koşu maliyeti (4 çekirdek, tek iş
-parçacığı): koşu başına standart ≈ 12 saat, kırpma ≈ 13 saat, tanh ≈ 20 saat, sinüs ≈ 19–23 saat, üçgen dalga
-≈ 27 saat (görev başına 164 s; haritanın yalnızca floor/abs ile yeniden yazımından sonra 122 s).
+kerte), `summary.pdf` (özet ölçütler), `fresh_gap.pdf` (taze model farkı). Koşu maliyeti (4 çekirdek, dört koşu
+eşzamanlı, tek iş parçacığı; koşu başına ortalama duvar süresi): standart ≈ 10 saat, kırpma ≈ 9 saat, LN + WD
+≈ 13 saat, tanh ≈ 23 saat, üçgen dalga ≈ 24 saat, sinüs ≈ 26 saat, yansımalı sinüs ≈ 28 saat; 63 koşunun toplamı
+≈ 1.130 çekirdek-saat.
 
 ### 14.3 Kanonik ağ genişliği: 3×2000, 200 görev × 5.000 örnek (`suites/pmnist_widenet.yaml`; `reports/pmnist_widenet/`)
 

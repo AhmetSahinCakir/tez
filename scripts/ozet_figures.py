@@ -34,7 +34,7 @@ ax.set_xlim(0,800*1.3); ax.set_ylim(0.68,0.96); label_end(ax,c)
 ax.set_xlabel("Görev sırası (her görev yeni bir piksel karışımı, 60.000 örnek)"); ax.set_ylabel("Görevdeki doğruluk")
 ax.set_title("Uzun akış (800 görev, 3×100 ağ): plastisite kaybı var mı?",loc="left",fontweight="bold",pad=22)
 ax.set_xticks(range(0,801,100))
-ax.text(0,1.015,"3 tohum ortalaması, 10 görevlik kayan ortalama. Yükseklik = ağın yeni görevi ne kadar iyi öğrendiği.",transform=ax.transAxes,fontsize=9.5,color="#52514e")
+ax.text(0,1.015,"10 tohum ortalaması, 10 görevlik kayan ortalama. Yükseklik = ağın yeni görevi ne kadar iyi öğrendiği.",transform=ax.transAxes,fontsize=9.5,color="#52514e")
 ax.legend(loc="lower left",frameon=False,fontsize=9.5)
 fig.tight_layout(); fig.savefig(f"{OUT}/1_uzun_akis_800_gorev.png",dpi=150); plt.close(fig)
 # ---------- F2: üç harita ----------
@@ -63,11 +63,11 @@ for ax,(data,title,ylab) in zip(axs,[(sat,"Donmuş parametre payı","sınırda d
     for lab,s in data.items(): ax.plot(s.index,s.values,color=COL[lab],lw=2,ls=STY.get(lab,"-"))
     ax.set_xlim(0,800*1.55); ax.set_xticks(range(0,801,200)); ax.set_title(title,loc="left",fontsize=11,fontweight="bold"); ax.set_xlabel("Görev"); ax.set_ylabel(ylab)
     lo,hi=ax.get_ylim(); ax.set_ylim(lo,hi); label_end(ax,data,fs=9)
-fig.suptitle("Neden sinüs kaybediyor, üçgen dalga kazanıyor? (800 görev, 3 tohum ortalaması)",x=0.01,ha="left",fontsize=12,fontweight="bold")
+fig.suptitle("Neden sinüs kaybediyor, üçgen dalga kazanıyor? (800 görev, 10 tohum ortalaması)",x=0.01,ha="left",fontsize=12,fontweight="bold")
 fig.tight_layout(rect=(0,0,1,0.95)); fig.savefig(f"{OUT}/3_mekanizma.png",dpi=150); plt.close(fig)
 # ---------- F4: üç protokol ----------
 prot=[("Küçük ağ (3×100)\n200 görev × 5.000 örnek, 10 tohum",{"baseline":0.743,"sin":0.760,"tanh":0.761,"tri":0.839,"weight_clipping":0.839}),
-      ("Küçük ağ (3×100)\n800 görev × 60.000 örnek, 3 tohum",{"baseline":0.835,"sin":0.716,"tanh":0.828,"tri":0.939,"weight_clipping":0.940}),
+      ("Küçük ağ (3×100)\n800 görev × 60.000 örnek, 10 tohum",{"baseline":0.835,"sin":0.720,"tanh":0.831,"tri":0.940,"weight_clipping":0.940}),
       ("Geniş ağ (3×2000)\n200 görev × 5.000 örnek, 3 tohum",{"baseline":0.863,"sin":0.864,"tanh":0.864,"tri":0.862})]
 fig,axs=plt.subplots(1,3,figsize=(13,4.6))
 for ax,(title,vals) in zip(axs,prot):

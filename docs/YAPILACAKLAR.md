@@ -30,10 +30,15 @@ Durum sütunu: ✔ hazır · ◐ kısmen var · ✗ yeni. Hesap sütunu bu depod
 
 | # | Deney | Danışman maddesi | Hesap | Paket |
 |---|---|---|---|---|
-| C1 ⏳ (31 Ekim'de bulutta başladı) | 800 görev × 60.000: standart / sinüs / tanh / üçgen / WC, tohum 3–9 (7 ek tohum, 35 koşu) → toplam 10 eşleştirilmiş tohum | deney 1 (kritik) | ~650 CPU-saat | `suites/pmnist_fullstream.yaml` seeds: [0..9] |
-| C2 ⏳ | LN + Weight Decay baseline, 800 görev, 10 tohum | deney 7 | ~150 CPU-saat | aynı pakete `ln_wd` koşusu |
-| C3 ⏳ | Yansımalı sinüs (jacobian_floor ε = 1), 800 görev, 3 tohum — H3 nedensel testinin uzun ufuk hâli | deney 2 | ~65 CPU-saat | aynı pakete `sin_refl` |
-| C4 | C1–C3 bitince: analyze.py, scaleup_tables.py, TOST, RAPOR §14.2 güncelle | — | — | reports/, RAPOR |
+| C1 ✔ (31 Ekim – 14 Kasım, bulutta) | 800 görev × 60.000: standart / sinüs / tanh / üçgen / WC, tohum 3–9 (7 ek tohum, 35 koşu) → toplam 10 eşleştirilmiş tohum | deney 1 (kritik) | ~650 CPU-saat | `suites/pmnist_fullstream.yaml` seeds: [0..9] |
+| C2 ✔ | LN + Weight Decay baseline, 800 görev, 10 tohum | deney 7 | ~150 CPU-saat | aynı pakete `ln_wd` koşusu |
+| C3 ✔ | Yansımalı sinüs (jacobian_floor ε = 1), 800 görev, 3 tohum — H3 nedensel testinin uzun ufuk hâli | deney 2 | ~65 CPU-saat | aynı pakete `sin_refl` |
+| C4 ✔ | analyze.py, scaleup_tables.py, TOST, koruma ölçütü; RAPOR §1, §13 (H3 tablosu), §13.3, §14.2 ve README güncellendi | — | — | `reports/pmnist_fullstream/` (summary, comparison, scaleup_tables, equivalence, criterion), RAPOR |
+
+**C paketi sonucu (14 Kasım 2026, 63 koşu, ≈ 1.130 çekirdek-saat):** üçgen dalga 0.939 = Weight Clipping 0.939
+(Δ = 0.005 marjında dört ölçütte TOST-eşdeğer, 10 tohum); standart 0.856; sinüs 0.818 (standarttan kötü, 10/10
+tohum); tanh 0.859; LN + Weight Decay 0.925 (üçgen dalganın 0.014 gerisinde, 10/10 tohum); yansımalı sinüs 0.924
+(pürüzsüz sinüse göre +0.106: H3 nedensel testi uzun ufukta da tutuyor, 3 tohum). Ayrıntı: RAPOR §14.2.
 
 ## D. İsteğe bağlı (GPU, tezden sonra da olabilir)
 

@@ -41,13 +41,15 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 | Weight Clipping κ=1 (5 tohum) | 0.836 ± 0.001 | 0.839 ± 0.002 | 1.017 ± 0.004 |
 | Continual Backprop (5 tohum) | 0.821 ± 0.001 | 0.821 ± 0.005 | 1.003 ± 0.008 |
 
-| Online Permuted MNIST, **800 görev × 60.000 örnek** (kanonik uzunluk, SGD, 3 tohum; §14.2) | Normalize AUC | Son pencere doğruluğu | Plastisite koruma oranı |
+| Online Permuted MNIST, **800 görev × 60.000 örnek** (kanonik uzunluk, SGD, 10 eşleştirilmiş tohum; §14.2) | Normalize AUC | Son pencere doğruluğu | Plastisite koruma oranı |
 |---|---|---|---|
-| Standart MLP | 0.857 ± 0.001 | 0.835 ± 0.007 | 0.923 ± 0.008 |
-| A·sin(Θ) | 0.818 ± 0.009 | 0.716 ± 0.048 | 0.788 ± 0.052 |
-| A·tanh(Θ) | 0.858 ± 0.002 | 0.828 ± 0.007 | 0.908 ± 0.007 |
-| **Üçgen dalga A·tri(Θ)** | **0.939 ± 0.000** | **0.939 ± 0.002** | **1.005 ± 0.003** |
-| Weight Clipping κ=1 | 0.939 ± 0.001 | 0.940 ± 0.003 | 1.005 ± 0.000 |
+| Standart MLP | 0.856 ± 0.001 | 0.835 ± 0.001 | 0.924 ± 0.001 |
+| A·sin(Θ) | 0.818 ± 0.002 | 0.720 ± 0.012 | 0.792 ± 0.013 |
+| A·tanh(Θ) | 0.859 ± 0.001 | 0.831 ± 0.002 | 0.912 ± 0.003 |
+| **Üçgen dalga A·tri(Θ)** | **0.939 ± 0.000** | **0.940 ± 0.001** | **1.005 ± 0.001** |
+| Weight Clipping κ=1 | 0.939 ± 0.000 | 0.940 ± 0.001 | 1.006 ± 0.001 |
+| Layer Norm + Weight Decay | 0.925 ± 0.000 | 0.923 ± 0.001 | 0.992 ± 0.001 |
+| Yansımalı sinüs (ε = 1; 3 tohum) | 0.924 ± 0.000 | 0.920 ± 0.001 | 0.994 ± 0.001 |
 
 | Online Permuted MNIST, **3×2000 ağ** (kanonik genişlik), 200 görev × 5.000 örnek, SGD, 3 tohum; §14.3 | Normalize AUC | Son pencere doğruluğu | Plastisite koruma oranı |
 |---|---|---|---|
@@ -59,9 +61,12 @@ Sonuçlar ve proje raporu: [`docs/RAPOR.md`](docs/RAPOR.md). Deney protokolü ay
 * **H1**: sınırlı yeniden parametrizasyon plastisite kaybını anlamlı fakat küçük ölçüde azaltır (ΔAUC +0.011
   [+0.010, +0.012], eşleştirilmiş permütasyon p = 0.002); Adam ile etki çok büyür (ΔAUC +0.03 … +0.09).
   Kanonik uzunlukta (800 görev × 60.000 örnek, §14.2) ise pürüzsüz sinüs sınırı standart ağın *gerisine* düşer
-  (ΔAUC −0.040 [−0.043, −0.036], p = 0.002; doyma payı 0.80, cos²Θ 0.11), tanh standart ağla örtüşür; yansımalı
-  üçgen dalgada 800 görev boyunca belirgin plastisite düşüşü gözlenmez (koruma oranı 1.005, eğim 0) ve sonuç
-  Weight Clipping'e her ölçütte 0.001'in altında farkla, Δ = 0.005 marjında TOST-eşdeğer düzeyde yakındır (3 tohum). Kanonik genişlikte (3×2000, 200 görev, §14.3) standart ağ bu ufukta plastisite
+  (ΔAUC −0.039 [−0.040, −0.037], 10/10 tohumda aynı yön, p < 0.001; doyma payı 0.79, cos²Θ 0.11), tanh standart
+  ağla aynı düzeyde kalır; yansımalı üçgen dalgada 800 görev boyunca belirgin plastisite düşüşü gözlenmez (koruma
+  oranı 1.005, eğim 0, §2 ölçütü 10/10 tohumda) ve sonuç Weight Clipping'e Δ = 0.005 marjında dört ölçütte de
+  TOST-eşdeğerdir (10 eşleştirilmiş tohum, §13.3); Layer Norm + Weight Decay referansını her tohumda geçer
+  (ΔAUC +0.014). Aynı sinüs haritası yansımalı geri geçişle (ε = 1) 0.818'den 0.924'e çıkar: H3'ün nedensel
+  testinin uzun ufuk hâli (3 tohum). Kanonik genişlikte (3×2000, 200 görev, §14.3) standart ağ bu ufukta plastisite
   kaybetmez ve sınırlı haritalar fayda sağlamaz (ΔAUC −0.002 … −0.006, son pencerede fark ≤ 0.002): yöntemin
   faydası standart ağın kaybettiği rejime bağlıdır.
 * **H2**: sinüs ve tanh SGD altında ayırt edilemez → etki sınırlılıktan kaynaklanır; Adam altında sinüs tanh'ı geçer.

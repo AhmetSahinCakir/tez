@@ -39,6 +39,6 @@ for j, (m, name, col) in enumerate(MODELS):
     if j == 0:
         ax2.set_ylabel("Görevdeki doğruluk")
     ax2.legend(frameon=False, fontsize=9, loc="lower left")
-fig.suptitle("Donma oranı (üst, katman başına) ve doğruluk (alt): 800 görev, 3 tohum ortalaması", x=0.01, ha="left", fontsize=12, fontweight="bold")
+fig.suptitle("Donma oranı (üst, katman başına) ve doğruluk (alt): 800 görev, 10 tohum ortalaması", x=0.01, ha="left", fontsize=12, fontweight="bold")
 fig.text(0.01, 0.01, "Sinüste giriş katmanı 400 görevde %80'in üzerinde donar ve doğruluk eşzamanlı düşer; tanh daha yavaş; üçgen dalgada tanım gereği 0.", fontsize=9, color="#52514e")
 fig.tight_layout(rect=(0, 0.03, 1, 0.95)); fig.savefig(OUT, dpi=150); print("wrote", OUT)
