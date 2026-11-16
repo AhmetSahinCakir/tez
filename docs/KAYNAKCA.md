@@ -1,64 +1,109 @@
-# Kaynakça durumu (makale ve tez)
+# Kaynakça doğrulama kaydı (makale ve tez)
 
-Tam kayıtlar: `paper/references.bib` (BibTeX, 49 kaynak). Son tarama: 16 Kasım 2026.
+Tam kayıtlar: `paper/references.bib` (BibTeX, 49 kaynak; hepsi makalede atıflı). Doğrulama tarihi: 16 Kasım 2026.
 
-Durum sütunu: **✔** = künye bu taramada yayıncı / bildiri sayfasından doğrulandı; **○** = künye hafızadan yazıldı,
-gönderimden önce sayfa ve cilt numaraları kontrol edilmeli (çalışmanın varlığı ve içeriği konusunda şüphe yok).
-Not: bu bulut oturumundan arxiv.org açılamıyor (ağ izni yok); doğrulamalar arama sonuçlarından yapıldı.
+**Yöntem.** Her kaynak birincil bir kaynaktan tek tek bulundu; künye (başlık, yazarlar, yer, yıl, sayfa) o
+kaynaktaki kayıtla karşılaştırıldı ve makalede o kaynağa atfedilen ifade, özet ya da tam metin okunarak
+kontrol edildi. Hiçbir künye hafızadan bırakılmadı.
 
-## 1. Depoda zaten kullanılan kaynaklar (15)
+Künye kaynakları: arXiv API (40 kayıt), PMLR sayfaları, NeurIPS ve ICLR resmî bildiri siteleri (BibTeX
+kayıtları), Reinforcement Learning Journal sayfası, Crossref (DOI kayıtları), yayıncı PDF'leri.
 
-| Kaynak | Makaledeki rolü | Durum |
+## Doğrulamanın bulduğu hatalar (düzeltildi)
+
+| Kaynak | Hata | Düzeltme |
 |---|---|---|
-| Dohare vd. 2024, Nature 632 | Olgunun tanımı, 800 görevlik protokol, Continual Backprop | ○ |
-| Lyle vd. 2023, ICML | Plastisite kaybının nedenleri, ağırlık normu | ○ |
-| Lyle vd., "Disentangling…", CoLLAs (PMLR 274, 2025) | Layer Norm + Weight Decay referansı; "birden fazla mekanizma" | ✔ (yıl: bildiri cildi 2025, konferans 2024) |
-| Lyle vd. 2024, NeurIPS (NaP) | Normalize-and-Project | ○ |
-| Elsayed vd. 2024, RLJ 5:2198–2217 | Weight Clipping (ana rakip) | ✔ |
-| Elsayed ve Mahmood 2024, ICLR | UPGD | ○ |
-| Kumar vd., CoLLAs (PMLR 274:410–430) | L2 Init | ✔ |
-| Ash ve Adams 2020, NeurIPS | Warm-start, Shrink & Perturb | ○ |
-| Chung vd. 2024, NeurIPS | Parseval düzenlileştirmesi | ○ |
-| Lee vd. 2025, ICML (PMLR 267) | Hyperspherical normalization | ✔ |
-| Lillo ve Cheney, ICLR 2026 | Aktivasyon tasarımı, Smooth-Leaky, "türev tabanı" | ✔ |
-| Chen ve Zhang, arXiv:2511.17228 (2025) | Kompakt parametre uzayı, Sin-MLP, CIFAR-100 protokolü | ✔ arXiv; **düzeltme:** depoda "2026" yazıyordu. PRX Quantum'da yayımlandığına dair doğrulanmamış bir bilgi var, kontrol edilmeli |
-| Dai vd. 2025, npj Comput. Mater. | Üçgen dalga haritasının daha önceki kullanımı (özgünlük sınırı) | ✔ künye; **üçgen dalga pasajı ve makale no. (259) bu taramada doğrulanamadı**, gönderimden önce metinden alıntılanmalı |
-| He vd. 2015, ICCV | Kaiming başlatma | ○ |
-| Schuirmann 1987 | TOST eşdeğerlik testi | ○ |
+| Zilly vd. 2021 | Yazar listesi yanlıştı (iki yazar hatalı yazılmıştı) | Zilly, Achille, Censi, Frazzoli; NeurIPS 34, s. 12386–12399 |
+| Chen ve Zhang | arXiv ön baskısı (2025) olarak girilmişti | PRX Quantum 7(3), 033003 (2026), DOI 10.1103/ry52-85ll |
+| Klein vd. (derleme) | Yazar listesi eski sürüme aitti | Güncel sürüm (v3): Klein, Luther, McAuliffe, Miklautz, Plant, Tschiatschek |
+| Joudaki vd. 2026 | Yazar listesi eksikti | 8 yazar, ICLR 2026, s. 48999–49027 |
+| Wang vd. 2025 | İkinci yazarın adı "Wei P. Dai" yazılmıştı | Bildiri kaydındaki biçim: "Wei Dai"; s. 69412–69444 |
+| Roy ve Vetterli 2007 | Sayfa numarası doğrulanamadı | Sayfa numarası çıkarıldı (başlık, yazar, konferans doğrulandı) |
+| Makale metni | "Ağırlık normunun büyümesi" için Lyle vd. 2023'e atıf yapılmıştı; o çalışmanın özeti eğrilik değişimini vurguluyor | Atıf Dohare vd. 2024, Elsayed vd. 2024, Lyle vd. 2024'e taşındı; Lyle vd. 2023 eğrilik için kullanıldı |
+| Makale metni | Dohare vd. için "doğrusal ağdan iyi öğrenemez" yazılmıştı | Nature özetindeki ifade: "sığ (shallow) bir ağdan iyi öğrenemez" |
+| Kullanılmayan iki kayıt | Agarwal vd. 2021 ve Dohare vd. 2023 metinde atıflı değildi | Kaynakçadan çıkarıldı |
 
-## 2. Bu taramada eklenenler (34)
+## Kaynak kaynak doğrulama
 
-**Mutlaka gerekli olanlar (hakem arar):**
+"İçerik" sütunu, makalede o kaynağa dayandırılan ifadenin hangi metinle doğrulandığını gösterir.
 
-| Kaynak | Neden gerekli | Durum |
+### Plastisite kaybı: olgu ve açıklamalar
+
+| Kaynak | Künye kaynağı | İçerik kontrolü |
 |---|---|---|
-| Lewandowski, Schuurmans, Machado, "Plastic learning with deep Fourier features", ICLR 2025 | Sürekli öğrenmede periyodik (sin/cos) *aktivasyon*; bizim çalışmamıza en yakın "periyodiklik" çalışması, farkı açıkça yazılmalı | ✔ |
-| Joudaki vd., "Barriers for learning in an evolving world", ICLR 2026 | Plastisite kaybının matematiksel açıklaması (gradyan akışının değişmez manifoldları) | ✔ (yazar listesi eksik: 8 yazar, 4'ü doğrulandı) |
-| Wang vd., "The dual nature of plasticity loss…", NeurIPS 2025 | İki tür plastisite kaybı | ✔ |
-| Liu ve Mou, "Do neural networks lose plasticity in a gradually changing world?", arXiv 2026 | Karşı görüş: kayıp, ani görev değişiminin ürünü | ✔ |
-| Oh vd., "Soft weight rescaling", arXiv 2025 | Ağırlık büyüklüğünü sınırlayan yeni bir yöntem | ✔ |
-| Klein vd., "Plasticity loss in deep RL: a survey", arXiv 2024 | Derleme | ✔ |
-| Zilly vd. 2021, NeurIPS | "Karşılıklı donmuş ağırlıklar": donma mekanizmasının öncülü | ○ |
-| Sokar vd. 2023; Abbas vd. 2023; Nikishin vd. 2022; Lyle vd. 2022; Berariu vd. 2021; Dohare vd. 2021; Juliani ve Ash 2024; Lewandowski vd. 2023 | Olgunun ve mekanizmaların temel literatürü | ○ |
-| Lewandowski vd. 2025 (spektral düzenlileştirme); Galashov vd. 2024; Farias ve Jozefiak 2025; Dohare vd. 2023 | Diğer çözüm aileleri | ○ |
+| Dohare vd. 2024, Nature 632(8026):768–774 | Crossref | Tam metin (Europe PMC): 800 görev, görev başına 60.000 görüntü tek tek; ölü birim artar, ağırlık büyüklüğü artar, etkin kerte düşer; "shallow network" |
+| Dohare vd. 2021, arXiv:2108.06325 | arXiv | Özet: sürekli öğrenmede backprop'un zamanla bozulması |
+| Ash ve Adams 2020, NeurIPS 33:3884–3894 | NeurIPS | Özet + tam metin: warm-start daha kötü genelleme; "shrink and perturb" |
+| Berariu vd. 2021, arXiv:2106.00042 | arXiv | Özet: önceden eğitilmiş model taze modelin genellemesine ulaşamayabilir |
+| Lyle vd. 2022, ICLR | arXiv ("Presented at ICLR 2022") | Tam metin: "feature rank" ölçümü, kapasite kaybı |
+| Lyle vd. 2023, ICML, PMLR 202:23190–23211 | PMLR | Özet: kayıp, kayıp yüzeyinin eğriliğindeki değişimle bağlantılı |
+| Lyle vd., CoLLAs, PMLR 274:750–783 (2025) | PMLR | Özet + tam metin: bağımsız mekanizmalar; layer norm + weight decay; "parameter norm growth" |
+| Nikishin vd. 2022, ICML, PMLR 162:16828–16847 | PMLR | Özet: ajanın bir bölümünü periyodik sıfırlama |
+| Sokar vd. 2023, ICML, PMLR 202:32145–32168 | PMLR | Özet: uyuyan nöronlar, ReDo |
+| Abbas vd. 2023, CoLLAs, PMLR 232:620–636 | PMLR | Tam metin: aktivasyon ayak izi seyrekleşir; CReLU |
+| Zilly vd. 2021, NeurIPS 34:12386–12399 | NeurIPS | Özet: ardışık katmanlarda "karşılıklı donmuş" ağırlıklar |
+| Lewandowski vd. 2023, arXiv:2312.00246 | arXiv | Özet: eğrilik yönlerinin kaybı |
+| Juliani ve Ash 2024, NeurIPS 37:113884–113910 | NeurIPS | Özet: on-policy derin RL'de plastisite kaybı |
+| Klein vd. 2024, arXiv:2411.04832 (v3) | arXiv | Özet: derleme, 50'den fazla yöntem |
+| Joudaki vd. 2026, ICLR, s. 48999–49027 | ICLR | Özet: gradyan yörüngelerini tutan manifoldlar; donmuş ve klon birimler |
+| Wang vd. 2025, NeurIPS 38:69412–69444 | NeurIPS | Özet: iki tür plastisite kaybı |
+| Liu ve Mou 2026, arXiv:2602.09234 | arXiv | Özet: görev geçişinin ani olmasının rolü |
 
-**Yöntem ve arka plan:**
+### Çözüm yöntemleri
 
-| Kaynak | Rolü | Durum |
+| Kaynak | Künye kaynağı | İçerik kontrolü |
 |---|---|---|
-| Sitzmann vd. 2020 (SIREN); Ziyin vd. 2020 | Periyodik aktivasyonlar | ○ |
-| Naumov vd. 2018 | Ağırlıkların periyodik fonksiyonu (nicemleme düzenlileştirmesi) | ○ |
-| Salimans ve Kingma 2016 | Ağırlık yeniden parametrizasyonu | ○ |
-| Courbariaux vd. 2015 | Ağırlık kırpmanın önceki kullanımı | ○ |
-| Bengio vd. 2013 | Düz-geçişli kestirici (yansımalı sinüsün geri geçişi) | ○ |
-| Goodfellow vd. 2013; Zenke vd. 2017; LeCun vd. 1998; Krizhevsky 2009 | Permuted MNIST, MNIST, CIFAR-100 | ○ |
-| Ba vd. 2016; Kingma ve Ba 2015; Roy ve Vetterli 2007 | Layer Norm, Adam, etkin kerte | ○ |
-| Lakens 2017; Holm 1979; Efron ve Tibshirani 1993; Agarwal vd. 2021 | İstatistik: eşdeğerlik testi, çoklu test düzeltmesi, bootstrap, tohum sayısı | ○ |
+| Elsayed vd. 2024, RLJ 5:2198–2217 | RLJ sayfası | Tam metin: [−κ·s_l, κ·s_l] aralığına kırpma, s_l başlatma sınırı |
+| Elsayed ve Mahmood 2024, ICLR, s. 33399–33430 | ICLR | Özet: yararlılık ölçekli pertürbasyon (UPGD) |
+| Kumar vd., CoLLAs, PMLR 274:410–430 (2025) | PMLR | Özet: başlangıç parametrelerine doğru L2 (L2 Init) |
+| Lyle vd. 2024, NeurIPS 37:106440–106473 | NeurIPS | Özet: norm büyümesi ile etkin öğrenme hızı düşüşü; Normalize-and-Project |
+| Chung vd. 2024, NeurIPS 37:127937–127967 | NeurIPS | Özet: Parseval düzenlileştirmesi, ortogonallik |
+| Lewandowski vd. 2025, ICLR, s. 34504–34530 | ICLR | Özet: spektral düzenlileştirme |
+| Lewandowski vd. 2025, ICLR, s. 31112–31137 | ICLR | Özet: her katmanda sinüs + kosinüs (deep Fourier features) |
+| Galashov vd. 2024, NeurIPS 37:83197–83234 | NeurIPS | Özet: başlangıç dağılımına doğru yumuşak sıfırlama |
+| Farias ve Jozefiak 2025, ICLR, s. 20852–20886 | ICLR | Özet: nöron sıfırlama (SNR) |
+| Lee vd. 2025, ICML, PMLR 267:33352–33403 | PMLR | Özet: hiperküresel normalizasyon ile norm büyümesinin sınırlanması |
+| Oh vd. 2025, arXiv:2507.04683 | arXiv | Özet: Soft Weight Rescaling |
+| Lillo ve Cheney 2026, ICLR, s. 96814–96850 | ICLR | Tam metin: "non-zero derivative floor", Smooth-Leaky |
+| Chen ve Zhang 2026, PRX Quantum 7:033003 | Crossref | Tam metin (arXiv v2): 3.000 ikili CIFAR-100 görevi; sinüs aktivasyonlu MLP plastisite kaybeder; kompakt manifold |
 
-## 3. Taramanın sonucu
+### Periyodik fonksiyonlar, sınırlı ağırlıklar, yeniden parametrizasyon
 
-* Yapısal olarak sınırlı-periyodik bir *ağırlık* yeniden parametrizasyonunu plastisite kaybı için inceleyen bir
-  çalışma bulunamadı; en yakın çalışmalar periyodik *aktivasyon* (Lewandowski vd. 2025), aktivasyon şekli
-  (Lillo ve Cheney 2026) ve işlemsel sınır (Elsayed vd. 2024) üzerinedir. Özgünlük iddiası bu sınırla yazıldı.
-* Gönderimden önce yapılacaklar: (i) ○ işaretli künyelerin sayfa/cilt kontrolü; (ii) Dai vd. 2025'teki üçgen
-  dalga pasajının metinden doğrulanması; (iii) Chen ve Zhang'ın dergi künyesi; (iv) Joudaki vd. yazar listesi.
+| Kaynak | Künye kaynağı | İçerik kontrolü |
+|---|---|---|
+| Dai vd. 2025, npj Comput. Mater. 11(1):259 | Crossref | Tam metin: üçgen dalga koordinat haritası; "constant gradient magnitudes … in contrast with sinusoidal mappings, whose varying gradients…" |
+| Sitzmann vd. 2020, NeurIPS 33:7462–7473 | NeurIPS | Özet: periyodik aktivasyonlar |
+| Ziyin vd. 2020, NeurIPS 33:1583–1594 | NeurIPS | Özet: periyodik fonksiyonların öğrenilmesi |
+| Naumov vd. 2018, arXiv:1811.09862 | arXiv | Özet: ağırlıkların periyodik fonksiyonları düzenlileştirici olarak |
+| Salimans ve Kingma 2016, NeurIPS 29 | NeurIPS | Özet: ağırlık yeniden parametrizasyonu |
+| Courbariaux vd. 2015, NeurIPS 28 | NeurIPS | Tam metin: ağırlıkların kırpılması (clip) |
+| Bengio vd. 2013, arXiv:1308.3432 | arXiv | Özet: "straight-through estimator" |
+
+### Veri kümeleri, mimari, eniyileme
+
+| Kaynak | Künye kaynağı | İçerik kontrolü |
+|---|---|---|
+| Goodfellow vd. 2013, arXiv:1312.6211 | arXiv | Tam metin: piksel permütasyonlu MNIST görevleri |
+| Zenke vd. 2017, ICML, PMLR 70:3987–3995 | PMLR | Tam metin: "permuted MNIST" |
+| LeCun vd. 1998, Proc. IEEE 86(11):2278–2324 | Crossref | Künye |
+| Krizhevsky 2009, teknik rapor | Rapor PDF'i (Toronto Üniversitesi) | Künye |
+| He vd. 2015, ICCV, s. 1026–1034 | Crossref | Özet: doğrultucular için başlatma |
+| Ba vd. 2016, arXiv:1607.06450 | arXiv | Özet |
+| Kingma ve Ba 2015, ICLR | arXiv ("3rd ICLR, San Diego, 2015") | Özet |
+| Roy ve Vetterli 2007, EUSIPCO | Bildiri PDF'i (EURASIP) | Başlık, yazar, konferans; sayfa numarası verilmedi |
+
+### İstatistik
+
+| Kaynak | Künye kaynağı | Not |
+|---|---|---|
+| Schuirmann 1987, J. Pharmacokinet. Biopharm. 15(6):657–680 | Crossref | TOST |
+| Lakens 2017, Soc. Psychol. Personal. Sci. 8(4):355–362 | Crossref | Eşdeğerlik testleri |
+| Efron ve Tibshirani 1993 | Crossref (DOI 10.1007/978-1-4899-4541-9) | Bootstrap |
+| Holm 1979, Scand. J. Statist. 6(2):65–70 | **İkincil kaynak** | JSTOR otomatik erişimi engelliyor, Crossref'te kayıt yok; künye arama sonuçlarındaki JSTOR kaydından (stable/4615733) alındı. Elle bir kez kontrol edilmeli |
+
+## Sınırlar
+
+* İçerik kontrolü, makalede kullanılan ifadeyle sınırlıdır; makalelerin tamamı baştan sona okunmadı.
+* Holm (1979) birincil kaynaktan doğrulanamayan tek künyedir.
+* "Sınırlı-periyodik ağırlık yeniden parametrizasyonunu plastisite kaybı için inceleyen bir çalışma bulunamadı"
+  ifadesi kapsamlı bir sistematik taramaya değil, yapılan aramalara dayanır; makalede de bu şekilde yazıldı.

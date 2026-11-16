@@ -20,7 +20,7 @@
 \newcommand{\todo}[1]{\textcolor{red}{[#1]}}
 
 \title{Beyond Bounded Weights: Non-Saturating Periodic Reparameterization\\for Preserving Plasticity in Continual Learning}
-\author{Ahmet \c{S}ahin \c{C}ak{\i}r \and E.~U.~K\"u\c{c}\"uksille\\[2pt]
+\author{Ahmet \c{S}ahin \c{C}ak{\i}r \and Ecir U\u{g}ur K\"u\c{c}\"uksille\\[2pt]
 \small \todo{affiliation and e-mail addresses}}
 \date{}
 
@@ -31,23 +31,25 @@
 Neural networks trained on a long sequence of tasks gradually lose the ability to learn new ones.
 Growth of the weight magnitude is one of the identified causes, and keeping every weight inside a fixed
 interval is a simple and effective remedy.
-We ask whether boundedness alone is what matters.
+We examine empirically whether boundedness alone is what matters.
 We study structural reparameterizations $W = A\,f(\Theta/A)$ in which a bounded map $f$ guarantees $|W|\le A$
 by construction, and compare a smooth periodic map (sine), a smooth non-periodic map (tanh) and a
 piecewise-linear periodic map (triangle wave).
-On Online Permuted MNIST at the canonical length of 800 tasks with 60{,}000 examples each, with ten paired seeds,
-the smooth maps do not preserve plasticity: the sine map ends \emph{below} the unconstrained network
+On Online Permuted MNIST with a small fully connected network, at a stream length of 800 tasks with 60{,}000
+examples each and ten paired seeds, the smooth maps do not preserve plasticity: the sine map ends \emph{below} the unconstrained network
 (normalized area under the online-accuracy curve $0.818$ versus $0.856$) and tanh matches it ($0.859$).
 Their weights drift towards the bound, where the derivative of the map vanishes; the effective step size falls
 to about $11\%$ of its initial value and $79\%$ of the parameters end up saturated.
 The triangle wave, whose derivative has unit magnitude everywhere, shows no measurable loss over 800 tasks
-($0.939$), outperforms layer normalization with weight decay ($0.925$), and is statistically equivalent to
-weight clipping under a pre-specified margin of $0.005$ on all four metrics we test.
-A causal intervention supports the explanation: keeping the sine map in the forward pass but replacing its
-derivative by its sign in the backward pass restores performance from $0.818$ to $0.924$.
-Element-wise boundedness is therefore not sufficient; the map must also keep the update magnitude away from zero.
-We also report where the conclusion stops holding: under Adam the ranking of hard and smooth bounds reverses,
-and in a wide network that does not lose plasticity none of the bounded maps helps.
+($0.939$), is ahead of layer normalization with weight decay ($0.925$), and is statistically equivalent to
+weight clipping under a pre-specified margin of $0.005$ on the four metrics we test; it does not improve on
+weight clipping.
+An intervention supports this explanation: keeping the sine map in the forward pass but replacing its
+derivative by its sign in the backward pass raises performance from $0.818$ to $0.924$ (three seeds).
+In this setting, element-wise boundedness alone was not sufficient; the map also had to keep the update
+magnitude away from zero. The study is limited to one main benchmark and small networks, and we report
+where the conclusion does not hold: under Adam the ranking of hard and smooth bounds reverses, and in a wide
+network that does not lose plasticity none of the bounded maps helps.
 \end{abstract}
 
 % ======================================================================================================
@@ -60,9 +62,9 @@ backpropagation learns new tasks more slowly and less accurately than a freshly 
 is distinct from catastrophic forgetting, which concerns old tasks; it concerns the ability to acquire new ones.
 
 Several mechanisms have been tied to the phenomenon, among them dead or dormant units
-\citep{sokar2023dormant,abbas2023loss}, loss of representational rank \citep{lyle2022understanding},
-changes in curvature \citep{lewandowski2023directions} and growth of the parameter norm
-\citep{lyle2023understanding,dohare2024loss}; they act together, and treating a single one is usually not
+\citep{sokar2023dormant,abbas2023loss}, loss of representational rank \citep{lyle2022understanding,dohare2024loss},
+changes in curvature \citep{lyle2023understanding,lewandowski2023directions} and growth of the weight
+magnitude \citep{dohare2024loss,elsayed2024weight,lyle2024normalization}; they act together, and treating a single one is usually not
 enough \citep{lyle2024disentangling}. Among the remedies that target the parameter norm, the simplest is
 \emph{weight clipping} \citep{elsayed2024weight}: after every update each weight is projected back onto an
 interval $[-\kappa b,\kappa b]$ whose width is tied to the initialization scale $b$ of its layer.
@@ -77,48 +79,53 @@ constraint is part of the model, it composes with any optimizer, and a periodic 
 has left the interval a way back in. Our starting hypothesis was that the smooth periodic choice
 $f=\sin$ would preserve plasticity because it keeps the weights bounded.
 
-The hypothesis fails, and the way in which it fails is the subject of this paper. Under gradient descent on
+In our experiments this hypothesis did not hold, and the way in which it fails is the subject of this paper. Under gradient descent on
 $\Theta$ the change of the effective weight is scaled by $f'(\Theta/A)^2$. A smooth map that attains its bound
 has $f'=0$ there, so a weight that approaches the bound receives ever smaller updates and eventually
-stops moving. Over a long stream this happens to most of the network. The remedy follows from the diagnosis:
+stops moving. Over a long stream we observe this for most of the parameters. The remedy follows from the diagnosis:
 use a bounded periodic map whose derivative never vanishes. The triangle wave is the simplest such map; inside
 the interval it is the identity, and at the bound the parameter is \emph{reflected} instead of frozen.
 
 \paragraph{Contributions.}
 \begin{itemize}
-  \item We show, at the canonical stream length of \citet{dohare2024loss} and with ten paired seeds, that
-        bounded weights obtained through a smooth map do not preserve plasticity: the sine map is worse than
+  \item On Online Permuted MNIST with a small network, at the stream length of \citet{dohare2024loss} and with
+        ten paired seeds, we find that bounded weights obtained through a smooth map do not preserve
+        plasticity: the sine map is worse than
         the unconstrained network in every one of the ten seeds, and tanh is equivalent to it in normalized
         area under the curve (Section~\ref{sec:main}).
-  \item We identify the cause as Jacobian damping at the bound, measure it (saturated fraction, step multiplier,
-        distance to the bound; Section~\ref{sec:mechanism}), and test it with an intervention that removes the
-        damping while leaving the forward map unchanged (Section~\ref{sec:causal}).
-  \item We show that a non-saturating periodic map, the triangle wave, preserves plasticity over 800 tasks
-        and is statistically equivalent to weight clipping under a pre-specified margin (two one-sided tests),
-        and that both outperform layer normalization with weight decay (Sections~\ref{sec:main}--\ref{sec:lnwd}).
+  \item We provide evidence that the cause is Jacobian damping at the bound: we measure it (saturated
+        fraction, step multiplier, distance to the bound; Section~\ref{sec:mechanism}) and test it with an
+        intervention that removes the damping while leaving the forward map unchanged
+        (Section~\ref{sec:causal}; three seeds).
+  \item We find that a non-saturating periodic map, the triangle wave, shows no loss of plasticity over 800
+        tasks and is statistically equivalent to weight clipping under a pre-specified margin (two one-sided
+        tests), and that both are ahead of layer normalization with weight decay (Sections~\ref{sec:main}--\ref{sec:lnwd}).
   \item We delimit the result: sensitivity to the width of the bound, a second benchmark, the Adam optimizer and
         a wide network are reported in Section~\ref{sec:scope}, including the cases in which the ranking changes.
 \end{itemize}
 
-We do not claim that the triangle wave improves on weight clipping; in the regime we study the two are
-indistinguishable, and we explain why they should be. The claim is about \emph{which property} of a bounded
-parameterization matters: not boundedness alone, but boundedness together with an update magnitude that
-stays away from zero.
+We do not propose a method that improves on weight clipping; in the regime we study the two are
+indistinguishable, and we give an argument for why this is expected. Nor is the triangle wave itself new
+(Section~2). The contribution is an empirical one about \emph{which property} of a bounded parameterization
+mattered in our experiments: not boundedness alone, but boundedness together with an update magnitude that
+stays away from zero. The evidence comes from one main benchmark and small fully connected networks, and
+Section~\ref{sec:scope} lists the settings in which the conclusion does not carry over.
 
 % ======================================================================================================
 \section{Related work}
 
 \paragraph{Loss of plasticity.}
 Warm-started networks generalize worse than freshly initialized ones \citep{ash2020warm,berariu2021study},
-and the effect accumulates over long task sequences until a deep network learns no better than a linear one
+and the effect accumulates over long task sequences until a deep network learns no better than a shallow one
 \citep{dohare2021continual,dohare2024loss}. The same degradation appears in reinforcement learning, where the
 data distribution changes with the policy
 \citep{nikishin2022primacy,lyle2022understanding,abbas2023loss,sokar2023dormant,juliani2024study};
 \citet{klein2024survey} survey this literature. Explanations include saturated and dead units
 \citep{sokar2023dormant,abbas2023loss}, mutually frozen weights \citep{zilly2021plasticity}, loss of
 curvature directions \citep{lewandowski2023directions}, feature-rank collapse \citep{lyle2022understanding}
-and norm growth \citep{lyle2023understanding}. Recent analyses describe loss of plasticity as trapping in
-invariant manifolds of the gradient flow \citep{joudaki2026barriers}, separate it into regimes with different
+and growth of the parameter norm \citep{dohare2024loss,lyle2024disentangling}. Recent analyses describe loss
+of plasticity through manifolds in parameter space that trap gradient trajectories, created by frozen
+(saturated) units and by cloned units \citep{joudaki2026barriers}, separate it into two types with different
 signatures \citep{wang2025dual}, or attribute part of it to the abruptness of task changes
 \citep{liu2026gradually}. \citet{lyle2024disentangling} show that the mechanisms are largely independent and
 that combining layer normalization with weight decay addresses several of them at once.
@@ -140,15 +147,16 @@ Periodic \emph{activations} are established in implicit neural representations \
 and for extrapolating periodic signals \citep{ziyin2020neural}. In continual learning,
 \citet{lewandowski2025fourier} show that concatenated sine and cosine activations in every layer keep networks
 trainable, and \citet{lillo2026activation} relate plasticity to the shape of the activation function,
-in particular to a non-zero derivative floor. \citet{chen2025intrinsic} report that quantum neural networks,
-whose parameters live on a compact manifold, do not lose plasticity, while a classical network with sine
-activations does. All of these change the function computed by a unit. We instead apply the periodic map to
+in particular to a non-zero derivative floor. \citet{chen2026intrinsic} report that quantum neural networks,
+whose optimization is confined to a compact manifold, do not lose plasticity, while a classical network with
+sine activations, whose weights remain unbounded, does. All of these change the function computed by a unit. We instead apply the periodic map to
 the \emph{weights}: the network remains a standard ReLU network with respect to $W$, and only the coordinates
 in which the optimizer moves are changed. Periodic functions of the weights have been used as regularizers for
-quantization \citep{naumov2018periodic}, and a triangle-wave map has been used to impose periodicity in a
-neural shape parameterization \citep{dai2025shaping}; we are not aware of a study of bounded periodic weight
-reparameterizations for loss of plasticity.
-% TODO before submission: re-read Dai et al. (2025) and quote the triangle-wave passage and its remark on sine gradients exactly.
+quantization \citep{naumov2018periodic}. The triangle wave itself is not new as a map with constant gradient
+magnitude: \citet{dai2025shaping} use a triangle-wave coordinate mapping to enforce periodicity and reflection
+symmetry in a neural shape parameterization and choose it over sinusoidal mappings because of their varying
+gradients. We are not aware of a study that applies bounded periodic reparameterizations to network
+\emph{weights} in the context of loss of plasticity, but we have not surveyed the literature exhaustively.
 
 \paragraph{Reparameterization and straight-through gradients.}
 Writing weights as a function of other parameters changes the optimization geometry without changing the
@@ -196,7 +204,7 @@ order, by
 The factor $f'^2\in[0,1]$ is a per-parameter multiplier of the learning rate. For the sine map
 it is $\cos^2(\Theta/A)=1-(W/A)^2$: the closer a weight is to the bound, the smaller its step.
 
-\begin{proposition}\label{prop:tradeoff}
+\begin{proposition}[Elementary observation]\label{prop:tradeoff}
 Let $f:\mathbb{R}\to[-1,1]$ be continuously differentiable and attain the value $1$ or $-1$ at some point $x^\star$.
 Then $f'(x^\star)=0$. In particular, a map cannot be smooth, bounded with attained bounds, and have a
 derivative bounded away from zero.
@@ -205,7 +213,7 @@ derivative bounded away from zero.
 $x^\star$ is an interior extremum of a differentiable function.
 \end{proof}
 
-The proposition is elementary, but it organizes the design space. A smooth bounded map either attains its
+The observation is elementary; we state it only because it organizes the design space. A smooth bounded map either attains its
 bound (sine), in which case the step multiplier vanishes at a finite $\Theta$ and a parameter that reaches it
 stops; or it approaches the bound only asymptotically (tanh), in which case the multiplier decays without
 limit as $|\Theta|$ grows. In both cases a weight that the data push towards the bound is slowed down
@@ -330,8 +338,8 @@ and then declines at an increasing rate, to $0.724$ in the last hundred tasks. I
 the standard network by $0.039$ (95\% interval $[0.037,0.040]$), with the same sign in all ten seeds
 (per-seed differences between $-0.034$ and $-0.043$). \emph{Tanh is no better than no constraint}: its AUC is
 within $0.003$ of the standard network, its final window is lower by $0.005$ and its retention ratio by
-$0.012$. Bounding the weights with a smooth map therefore does not preserve plasticity; with the sine map it
-is harmful.
+$0.012$. In this protocol, bounding the weights with a smooth map does not preserve plasticity, and with the sine map
+it is harmful.
 
 \emph{The triangle wave shows no loss.} Its accuracy is flat from the second hundred tasks on ($0.939$ to
 $0.940$), the slope is $+0.0004$ per 100 tasks, and after 800 tasks it is better than a fresh network by
@@ -371,7 +379,7 @@ with the pre-specified margin $\Delta=0.005$ (Table~\ref{tab:tost}). The 90\% in
 lies inside $(-0.003,0.003)$ for all four metrics, so equivalence holds with room to spare and would also hold
 for a margin of $0.003$. The two methods agree in the mechanism measures as well: final dead-unit fraction
 $0.177$ in both (difference $+0.001$, $p=0.95$), effective rank $54.8$ in both, mean absolute weight $0.071$
-in both. This is the behaviour predicted in Section~\ref{sec:method}: with small steps, reflection and
+in both. This is consistent with the argument of Section~\ref{sec:method}: with small steps, reflection and
 projection at the same bound are nearly the same operation.
 
 \begin{table}[t]
@@ -435,9 +443,9 @@ derivative. The reflected sine of Section~\ref{sec:floor} changes only the deriv
 Table~\ref{tab:causal} shows the outcome on seeds 0--2. Removing the damping restores almost all of the lost
 performance: the AUC rises by $0.106$ $[0.102,0.109]$, the retention ratio from $0.79$ to $0.99$, and the
 retention criterion is met in all three seeds. The saturated fraction no longer ratchets upward (it settles
-near $0.13$), and the effective rank rises to $59$ instead of collapsing to $6.5$. The failure of the smooth
-bound is therefore caused by the vanishing derivative, not by boundedness, periodicity or the particular
-values of the sine map.
+near $0.13$), and the effective rank rises to $59$ instead of collapsing to $6.5$. This indicates that the failure of the smooth
+bound is mainly due to the vanishing derivative and not to boundedness, periodicity or the particular
+values of the sine map. Given the two caveats below, we regard it as strong but not conclusive evidence.
 
 \begin{table}[t]
   \centering\small
@@ -473,7 +481,7 @@ A second way of removing the damping fails, and the failure is informative. Mult
 $\min(1/\cos^2,c_{\max})$ compensates the magnitude of the damping but leaves the parameter at the bound.
 On the 200-task stream this made plasticity \emph{worse} as $c_{\max}$ grew (retention $0.909\to0.849\to0.757$
 for $c_{\max}=3,10,30$) while the saturated fraction rose from $28\%$ to $67\%$ (Appendix~\ref{app:short}).
-What helps is not a larger step at the bound but a step that leads away from it.
+In these runs, what helped was not a larger step at the bound but a step that leads away from it.
 
 \subsection{Comparison with layer normalization and weight decay}\label{sec:lnwd}
 
@@ -535,14 +543,16 @@ whether standardizing the inputs would remove it.
 % ======================================================================================================
 \section{Conclusion}
 
-Keeping weights bounded is one of the simplest ways to preserve plasticity, but how the bound is enforced
-decides whether it works. A smooth bounded reparameterization damps the update exactly where the weights
+Keeping weights bounded is one of the simplest ways to preserve plasticity, but in our experiments the way
+in which the bound was enforced decided whether it worked. A smooth bounded reparameterization damps the update exactly where the weights
 accumulate, and over a long stream this freezes the network; with the sine map the result is worse than no
 constraint at all. A bounded periodic map with a derivative of unit magnitude, the triangle wave, avoids the
 damping, shows no loss of plasticity over 800 tasks, and is statistically equivalent to weight clipping while
 expressing the constraint as part of the model. Removing the damping from the sine map without changing its
-forward pass recovers most of the loss, which identifies the damping as the cause. For the design of
-bounded parameterizations the lesson is that boundedness must be paired with a non-vanishing update.
+forward pass recovers most of the loss, which supports the damping as the main cause. For the design of
+bounded parameterizations our results suggest that boundedness should be paired with a non-vanishing update.
+These conclusions rest on one main benchmark, small fully connected networks and SGD; they should be tested
+on larger architectures and other streams before being generalized.
 Two directions follow from the limits of this study: a boundary rule that suits adaptive optimizers, and an
 account of when, as a function of width and stream length, a network enters the regime in which bounding helps.
 

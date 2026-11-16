@@ -1,6 +1,7 @@
 % References for the paper and the thesis.
-% Status of every entry is tracked in docs/KAYNAKCA.md ("doğrulandı" = bibliographic details checked against
-% the publisher / proceedings page in November 2026; "kontrol et" = written from memory, check before submission).
+% Every entry was checked against a primary source on 16 November 2026 (arXiv API, PMLR, NeurIPS and ICLR
+% proceedings, Reinforcement Learning Journal, Crossref, publisher PDFs); see docs/KAYNAKCA.md for the source
+% used for each entry and for the passages that were read to confirm how each work is cited.
 
 % ---------------------------------------------------------------- loss of plasticity: phenomenon
 @article{dohare2024loss,
@@ -85,9 +86,10 @@
 }
 @inproceedings{zilly2021plasticity,
   title     = {On plasticity, invariance, and mutually frozen weights in sequential task learning},
-  author    = {Zilly, Julian and Achille, Alessandro and Tagliasacchi, Andrea and Soatto, Stefano},
+  author    = {Zilly, Julian and Achille, Alessandro and Censi, Andrea and Frazzoli, Emilio},
   booktitle = {Advances in Neural Information Processing Systems},
   volume    = {34},
+  pages     = {12386--12399},
   year      = {2021}
 }
 @article{lewandowski2023directions,
@@ -101,26 +103,29 @@
   author    = {Juliani, Arthur and Ash, Jordan T.},
   booktitle = {Advances in Neural Information Processing Systems},
   volume    = {37},
+  pages     = {113884--113910},
   year      = {2024}
 }
 @article{klein2024survey,
   title   = {Plasticity loss in deep reinforcement learning: A survey},
-  author  = {Klein, Timo and Miklautz, Lukas and Sidak, Kevin and Plant, Claudia and Tschiatschek, Sebastian},
+  author  = {Klein, Timo and Luther, Christoph and McAuliffe, Manus and Miklautz, Lukas and Plant, Claudia and Tschiatschek, Sebastian},
   journal = {arXiv preprint arXiv:2411.04832},
-  year    = {2024}
+  year    = {2024},
+  note    = {version 3, 2026}
 }
 @inproceedings{joudaki2026barriers,
   title     = {Barriers for learning in an evolving world: Mathematical understanding of loss of plasticity},
-  author    = {Joudaki, Amir and Lanzillotta, Giulia and Samragh Razlighi, Mohammad and Mirzadeh, Iman and others},
+  author    = {Joudaki, Amir and Lanzillotta, Giulia and Samragh, Mohammad and Mirzadeh, Iman and Alizadeh-Vahid, Keivan and Hofmann, Thomas and Farajtabar, Mehrdad and Faghri, Fartash},
   booktitle = {International Conference on Learning Representations},
-  year      = {2026},
-  note      = {arXiv:2510.00304}
+  pages     = {48999--49027},
+  year      = {2026}
 }
 @inproceedings{wang2025dual,
   title     = {The dual nature of plasticity loss in deep continual learning: Dissection and mitigation},
-  author    = {Wang, Haoyu and Dai, Wei P. and Zhang, Jiawei and Ma, Jialun and Huang, Mingyi and Yu, Yuguo},
+  author    = {Wang, Haoyu and Dai, Wei and Zhang, Jiawei and Ma, Jialun and Huang, Mingyi and Yu, Yuguo},
   booktitle = {Advances in Neural Information Processing Systems},
   volume    = {38},
+  pages     = {69412--69444},
   year      = {2025}
 }
 @article{liu2026gradually,
@@ -143,6 +148,7 @@
   title     = {Addressing loss of plasticity and catastrophic forgetting in continual learning},
   author    = {Elsayed, Mohamed and Mahmood, A. Rupam},
   booktitle = {International Conference on Learning Representations},
+  pages     = {33399--33430},
   year      = {2024}
 }
 @inproceedings{kumar2023maintaining,
@@ -159,6 +165,7 @@
   author    = {Lyle, Clare and Zheng, Zeyu and Khetarpal, Khimya and Martens, James and van Hasselt, Hado and Pascanu, Razvan and Dabney, Will},
   booktitle = {Advances in Neural Information Processing Systems},
   volume    = {37},
+  pages     = {106440--106473},
   year      = {2024}
 }
 @inproceedings{chung2024parseval,
@@ -166,18 +173,21 @@
   author    = {Chung, Wesley and Cherif, Lynn and Meger, David and Precup, Doina},
   booktitle = {Advances in Neural Information Processing Systems},
   volume    = {37},
+  pages     = {127937--127967},
   year      = {2024}
 }
 @inproceedings{lewandowski2025spectral,
   title     = {Learning continually by spectral regularization},
   author    = {Lewandowski, Alex and Bortkiewicz, Micha{\l} and Kumar, Saurabh and Gy{\"o}rgy, Andr{\'a}s and Schuurmans, Dale and Ostaszewski, Mateusz and Machado, Marlos C.},
   booktitle = {International Conference on Learning Representations},
+  pages     = {34504--34530},
   year      = {2025}
 }
 @inproceedings{lewandowski2025fourier,
   title     = {Plastic learning with deep {F}ourier features},
   author    = {Lewandowski, Alex and Schuurmans, Dale and Machado, Marlos C.},
   booktitle = {International Conference on Learning Representations},
+  pages     = {31112--31137},
   year      = {2025}
 }
 @inproceedings{galashov2024nonstationary,
@@ -185,12 +195,14 @@
   author    = {Galashov, Alexandre and Titsias, Michalis K. and Gy{\"o}rgy, Andr{\'a}s and Lyle, Clare and Pascanu, Razvan and Teh, Yee Whye and Sahani, Maneesh},
   booktitle = {Advances in Neural Information Processing Systems},
   volume    = {37},
+  pages     = {83197--83234},
   year      = {2024}
 }
 @inproceedings{farias2025self,
   title     = {Self-normalized resets for plasticity in continual learning},
   author    = {Farias, Vivek F. and Jozefiak, Adam D.},
   booktitle = {International Conference on Learning Representations},
+  pages     = {20852--20886},
   year      = {2025}
 }
 @inproceedings{lee2025hyperspherical,
@@ -212,20 +224,18 @@
   title     = {Activation function design sustains plasticity in continual learning},
   author    = {Lillo, Lute and Cheney, Nick},
   booktitle = {International Conference on Learning Representations},
-  year      = {2026},
-  note      = {arXiv:2509.22562}
+  pages     = {96814--96850},
+  year      = {2026}
 }
-@article{chen2025intrinsic,
+@article{chen2026intrinsic,
   title   = {Intrinsic preservation of plasticity in continual quantum learning},
   author  = {Chen, Yu-Qin and Zhang, Shi-Xin},
-  journal = {arXiv preprint arXiv:2511.17228},
-  year    = {2025}
-}
-@inproceedings{dohare2023overcoming,
-  title     = {Overcoming policy collapse in deep reinforcement learning},
-  author    = {Dohare, Shibhansh and Lan, Qingfeng and Mahmood, A. Rupam},
-  booktitle = {Sixteenth European Workshop on Reinforcement Learning},
-  year      = {2023}
+  journal = {PRX Quantum},
+  volume  = {7},
+  number  = {3},
+  pages   = {033003},
+  year    = {2026},
+  doi     = {10.1103/ry52-85ll}
 }
 
 % ---------------------------------------------------------------- periodic functions, bounded weights, reparameterization
@@ -250,6 +260,7 @@
   author  = {Dai, Tianxiang and Shao, Yixuan and Mao, Chenkai and Wu, Yu and Azzouz, Sara and Zhou, You and Fan, Jonathan A.},
   journal = {npj Computational Materials},
   volume  = {11},
+  number  = {1},
   pages   = {259},
   year    = {2025},
   doi     = {10.1038/s41524-025-01752-w}
@@ -334,8 +345,8 @@
 @inproceedings{roy2007effective,
   title     = {The effective rank: A measure of effective dimensionality},
   author    = {Roy, Olivier and Vetterli, Martin},
-  booktitle = {15th European Signal Processing Conference},
-  pages     = {606--610},
+  booktitle = {15th European Signal Processing Conference (EUSIPCO)},
+  address   = {Pozna{\'n}, Poland},
   year      = {2007}
 }
 
@@ -365,18 +376,13 @@
   volume  = {6},
   number  = {2},
   pages   = {65--70},
-  year    = {1979}
+  year    = {1979},
+  url     = {https://www.jstor.org/stable/4615733}
 }
 @book{efron1993introduction,
   title     = {An Introduction to the Bootstrap},
   author    = {Efron, Bradley and Tibshirani, Robert J.},
   publisher = {Chapman \& Hall},
-  year      = {1993}
-}
-@inproceedings{agarwal2021deep,
-  title     = {Deep reinforcement learning at the edge of the statistical precipice},
-  author    = {Agarwal, Rishabh and Schwarzer, Max and Castro, Pablo Samuel and Courville, Aaron and Bellemare, Marc G.},
-  booktitle = {Advances in Neural Information Processing Systems},
-  volume    = {34},
-  year      = {2021}
+  year      = {1993},
+  doi       = {10.1007/978-1-4899-4541-9}
 }
