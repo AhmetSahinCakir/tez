@@ -40,12 +40,14 @@ examples each and ten paired seeds, the smooth maps do not preserve plasticity: 
 (normalized area under the online-accuracy curve $0.818$ versus $0.856$) and tanh matches it ($0.859$).
 Their weights drift towards the bound, where the derivative of the map vanishes; the effective step size falls
 to about $11\%$ of its initial value and $79\%$ of the parameters end up saturated.
-The triangle wave, whose derivative has unit magnitude everywhere, shows no measurable loss over 800 tasks
+The triangle wave, whose derivative has unit magnitude away from its corner points, shows no measurable loss over 800 tasks
 ($0.939$), is ahead of layer normalization with weight decay ($0.925$), and is statistically equivalent to
 weight clipping under a pre-specified margin of $0.005$ on the four metrics we test; it does not improve on
 weight clipping.
-An intervention supports this explanation: keeping the sine map in the forward pass but replacing its
-derivative by its sign in the backward pass raises performance from $0.818$ to $0.924$ (three seeds).
+An intervention supports this explanation: keeping the sine map in the forward pass but using the sign of
+its derivative as a surrogate gradient in the backward pass, so that parameters are no longer trapped at the
+bound, raises performance from $0.818$ to $0.924$ (three seeds, each variant with its own tuned
+hyperparameters; a single-factor replication with ten seeds is in progress).
 In this setting, element-wise boundedness alone was not sufficient; the map also had to keep the update
 magnitude away from zero. The study is limited to one main benchmark and small networks, and we report
 where the conclusion does not hold: under Adam the ranking of hard and smooth bounds reverses, and in a wide
@@ -83,7 +85,7 @@ In our experiments this hypothesis did not hold, and the way in which it fails i
 $\Theta$ the change of the effective weight is scaled by $f'(\Theta/A)^2$. A smooth map that attains its bound
 has $f'=0$ there, so a weight that approaches the bound receives ever smaller updates and eventually
 stops moving. Over a long stream we observe this for most of the parameters. The remedy follows from the diagnosis:
-use a bounded periodic map whose derivative never vanishes. The triangle wave is the simplest such map; inside
+use a bounded periodic map whose derivative does not approach zero. The triangle wave is the simplest such map; inside
 the interval it is the identity, and at the bound the parameter is \emph{reflected} instead of frozen.
 
 \paragraph{Contributions.}
@@ -177,9 +179,12 @@ $\Theta$ through Eq.~\eqref{eq:reparam}. We consider three maps (Figure~\ref{fig
   \text{tanh:}\quad & f(x)=\tanh x, & f'(x)&=1-\tanh^2 x,\\
   \text{triangle wave:}\quad & f(x)=\tri(x)=\tfrac{2}{\pi}\arcsin\!\big(\sin(\tfrac{\pi}{2}x)\big), & |f'(x)|&=1 .
 \end{align}
-The triangle wave has period $4$, equals the identity on $[-1,1]$ and is reflected at $\pm1$. Its derivative
-is $+1$ on rising and $-1$ on falling flanks; at the corners, a set of measure zero, we use the one-sided
-value, so the derivative is never zero.
+The triangle wave has period $4$ and range $[-1,1]$, equals the identity on $[-1,1]$ and is reflected at
+$\pm1$. Its derivative is $+1$ on rising and $-1$ on falling flanks, so $|f'|=1$ wherever the derivative
+exists. It does not exist at the corner points $x\equiv\pm1 \pmod 4$, where the subdifferential is $[-1,1]$;
+our implementation returns the right-hand derivative there ($-1$ at a maximum, $+1$ at a minimum), never
+zero. In a trained network no parameter was found exactly at a corner and two out of $99{,}710$ were within
+$10^{-6}A$ of one, so the convention has no practical effect (Appendix~\ref{app:impl}).
 
 \paragraph{Matched initialization.} All models start from the same effective weights: we draw $W_0$ once
 and set $\Theta_0 = A f^{-1}(W_0/A)$ on the principal branch. Because the argument of $f$ is $\Theta/A$, we
@@ -190,7 +195,7 @@ rate $\eta$ therefore moves a small weight exactly as a step on $W$ would in the
   \centering
   \includegraphics[width=0.88\linewidth]{figures/fig_maps.pdf}
   \caption{The three bounded maps (left) and the magnitude of their derivative (right). The derivative of the
-  smooth maps vanishes at the bound; that of the triangle wave has unit magnitude everywhere.}
+  smooth maps vanishes at the bound; that of the triangle wave has unit magnitude except at its corner points.}
   \label{fig:maps}
 \end{figure}
 
@@ -201,7 +206,10 @@ order, by
 \begin{equation}
   \Delta W \;\approx\; f'(\Theta/A)\,\Delta\Theta \;=\; -\,\eta\, f'(\Theta/A)^2\, g . \label{eq:damping}
 \end{equation}
-The factor $f'^2\in[0,1]$ is a per-parameter multiplier of the learning rate. For the sine map
+The factor $f'^2\in[0,1]$ is a per-parameter multiplier of the learning rate.\footnote{With the alternative
+scaling $W=A f(\Theta)$ the true Jacobian is $A f'(\Theta)$ and the multiplier is $A^2 f'(\Theta)^2$, where
+$A^2$ is a constant per-layer factor. We use the argument $\Theta/A$ so that the multiplier equals one at
+initialization scale and the bounded models take the same step as the standard network for small weights.} For the sine map
 it is $\cos^2(\Theta/A)=1-(W/A)^2$: the closer a weight is to the bound, the smaller its step.
 
 \begin{proposition}[Elementary observation]\label{prop:tradeoff}
@@ -219,7 +227,7 @@ stops; or it approaches the bound only asymptotically (tanh), in which case the 
 limit as $|\Theta|$ grows. In both cases a weight that the data push towards the bound is slowed down
 precisely when it gets there, and noise can move it back only at the reduced rate. We refer to this
 one-way accumulation as a \emph{saturation ratchet}. Giving up smoothness removes the trade-off: the triangle
-wave is bounded and has $|f'|=1$.
+wave is bounded and has $|f'|=1$ away from its corner points.
 
 \subsection{Reflection and projection}
 
@@ -233,17 +241,26 @@ trajectory in $W$; the difference is that the constraint is part of the paramete
 separate projection step. The two can separate when the step is large relative to the interval, which is the
 case for adaptive optimizers (Section~\ref{sec:scope}).
 
-\subsection{Reflected sine: removing the damping without changing the map}\label{sec:floor}
+\subsection{Reflected sine: a surrogate gradient that removes the trapping}\label{sec:floor}
 
 To test whether damping is the cause of failure and not some other property of the sine map, we use an
 intervention that leaves the forward pass untouched. In the backward pass we replace $f'$ by
 \begin{equation}
   \tilde f'(x) \;=\; \operatorname{sign}\!\big(f'(x)\big)\,\max\!\big(|f'(x)|,\varepsilon\big), \label{eq:floor}
 \end{equation}
-a straight-through-type estimator \citep{bengio2013estimating}. With $\varepsilon=0$ this is the sine map;
-with $\varepsilon=1$ the backward derivative is $\operatorname{sign}(\cos(\Theta/A))$, so a parameter passes
-over the crest and comes back down on the other side. We call this variant the \emph{reflected sine}. Its
-weights are still $A\sin(\Theta/A)$; only the damping is removed.
+a surrogate gradient of the straight-through type \citep{bengio2013estimating,yin2019understanding}; it is
+not the true derivative of the map. With true derivative $J=f'(\Theta/A)$ and surrogate $\tilde J=\tilde
+f'(\Theta/A)$, the parameter moves by $\Delta\Theta=-\eta\,\tilde J g$ and the weight, to first order, by
+\begin{equation}
+  \Delta W \;\approx\; -\,\eta\, J\,\tilde J\, g . \label{eq:surrogate}
+\end{equation}
+With $\varepsilon=0$ this is the sine map and $J\tilde J=\cos^2(\Theta/A)$. With $\varepsilon=1$ the surrogate
+is $\operatorname{sign}(\cos(\Theta/A))$ and $J\tilde J=|\cos(\Theta/A)|$. We call this variant the
+\emph{reflected sine}. Two things should be kept apart. The attenuation of the \emph{weight} step is not
+removed: it is weakened from $\cos^2$ to $|\cos|$, and the weight step still vanishes to first order exactly
+at the crest. What is removed is the attenuation of the \emph{parameter} step: $\Theta$ now moves at the full
+rate $\eta|g|$, so it is no longer trapped near the crest, passes over it, and the weight returns to the
+interior on the other side. The forward map, and hence the set of reachable weights, is unchanged.
 
 % ======================================================================================================
 \section{Experimental setup}\label{sec:setup}
@@ -275,8 +292,11 @@ sine; $\kappa=1$ for clipping; and a weight-decay coefficient of $10^{-3}$.
 quotient. The \emph{slope} is the linear trend of online accuracy per 100 tasks. The \emph{fresh-model gap} is
 the online accuracy of a freshly initialized network trained on the last task minus that of the continually
 trained network on the same task; it is positive when the continual learner is worse than a network that has
-never seen any other task. We call plasticity \emph{retained} in a run when three conditions hold together:
-retention ratio $\ge0.99$, slope $\ge-0.002$ per 100 tasks, and fresh-model gap $\le0.01$. These thresholds
+never seen any other task and negative when it is better. The slope is the ordinary least-squares slope of the
+per-task online accuracy against the task index over all 800 tasks of a run. We call plasticity
+\emph{retained} in a run (one seed) when three conditions hold jointly for that run: retention ratio
+$\ge0.99$, slope $\ge-0.002$ per 100 tasks, and fresh-model gap $\le+0.01$, that is, the continual learner is at
+most $0.01$ below the fresh network (the condition is one-sided, not a bound on the absolute difference). These thresholds
 were fixed before the 800-task runs were analysed. As mechanism measures we record the fraction of
 \emph{saturated} parameters ($|f'|<0.1$), the mean step multiplier $\langle f'^2\rangle$, the mean distance to
 the bound $\langle|W|\rangle/A$, the fraction of dead ReLU units, and the effective rank \citep{roy2007effective}
@@ -377,7 +397,14 @@ The triangle wave and weight clipping differ by less than $0.0015$ on every metr
 (Table~\ref{tab:paired}). To turn ``no detectable difference'' into a positive statement we test equivalence
 with the pre-specified margin $\Delta=0.005$ (Table~\ref{tab:tost}). The 90\% interval of the paired difference
 lies inside $(-0.003,0.003)$ for all four metrics, so equivalence holds with room to spare and would also hold
-for a margin of $0.003$. The two methods agree in the mechanism measures as well: final dead-unit fraction
+for a margin of $0.003$; with the wider margin $\Delta=0.01$ all four tests are likewise positive. The
+normalized AUC is the primary metric and the other three are secondary; since every $p_{\mathrm{TOST}}$ is at
+most $0.001$, the four conclusions also hold after a Bonferroni correction. The margin of $0.005$ (half a
+percentage point of accuracy) is small relative to the effects of interest in this study: about $6\%$ of the
+gap between the bounded and the standard network ($0.083$) and about a third of the gap to layer normalization
+with weight decay ($0.014$). The statement of equivalence is limited to this protocol (SGD, Online Permuted
+MNIST, $3\times100$ network, ten paired seeds, these metrics and this margin); it is not a claim that the two
+methods coincide in general, and Section~\ref{sec:scope} shows a setting in which they do not. The two methods agree in the mechanism measures as well: final dead-unit fraction
 $0.177$ in both (difference $+0.001$, $p=0.95$), effective rank $54.8$ in both, mean absolute weight $0.071$
 in both. This is consistent with the argument of Section~\ref{sec:method}: with small steps, reflection and
 projection at the same bound are nearly the same operation.
@@ -409,8 +436,8 @@ projection at the same bound are nearly the same operation.
   multiplier falls to about a tenth; with the triangle wave the weights stay in the middle of the interval and
   the multiplier is one by construction. The effective rank of the representation collapses for the smooth
   maps and the standard network and increases for the reflecting and projecting bounds. For the reflected sine
-  the saturated fraction and the multiplier are those of the forward map; its backward pass uses a derivative of
-  unit magnitude.}
+  the saturated fraction and the multiplier $\langle f'^2\rangle$ are those of the forward map; its effective
+  weight-step multiplier is $\langle|f'|\rangle$ (Eq.~\ref{eq:surrogate}), which was not logged in these runs.}
   \label{fig:mechanism}
 \end{figure}
 
@@ -440,8 +467,8 @@ with sine and $10$ with tanh, and \emph{rises} from $40$ to $55$ with the triang
 
 The comparison between sine and triangle wave changes two things at once, the shape of the map and its
 derivative. The reflected sine of Section~\ref{sec:floor} changes only the derivative used in the backward pass.
-Table~\ref{tab:causal} shows the outcome on seeds 0--2. Removing the damping restores almost all of the lost
-performance: the AUC rises by $0.106$ $[0.102,0.109]$, the retention ratio from $0.79$ to $0.99$, and the
+Table~\ref{tab:causal} shows the outcome on seeds 0--2. Letting the parameters pass the crest restores almost
+all of the lost performance: the AUC rises by $0.106$ $[0.102,0.109]$, the retention ratio from $0.79$ to $0.99$, and the
 retention criterion is met in all three seeds. The saturated fraction no longer ratchets upward (it settles
 near $0.13$), and the effective rank rises to $59$ instead of collapsing to $6.5$. This indicates that the failure of the smooth
 bound is mainly due to the vanishing derivative and not to boundedness, periodicity or the particular
@@ -450,7 +477,8 @@ values of the sine map. Given the two caveats below, we regard it as strong but 
 \begin{table}[t]
   \centering\small
   \caption{Causal test on the 800-task stream (seeds 0--2). The reflected sine has the same forward map as the
-  sine model; only the backward derivative is replaced by its sign (Eq.~\ref{eq:floor}, $\varepsilon=1$).}
+  sine model; only the backward derivative is replaced by its sign (Eq.~\ref{eq:floor}, $\varepsilon=1$).
+  In this table the two models also differ in $\gamma$ and learning rate (see text).}
   \label{tab:causal}
   \resizebox{\linewidth}{!}{%
   \begin{tabular}{@{}lcccc@{}}
@@ -468,7 +496,9 @@ values of the sine map. Given the two caveats below, we regard it as strong but 
   \end{tabular}}
 \end{table}
 
-Two caveats apply. The test uses three seeds; the paired $t$-tests are significant, but the smallest
+Two caveats apply, and a replication that addresses both (ten paired seeds, identical $\gamma$, learning rate,
+initial weights and task stream, differing only in the backward rule) is in progress; the numbers in
+Table~\ref{tab:causal} should be read as preliminary until it is complete. The test uses three seeds; the paired $t$-tests are significant, but the smallest
 permutation $p$-value attainable with three pairs is $0.25$. And each model runs with the hyperparameters
 selected for it on the development stream (sine: $\gamma=1.5$, learning rate $0.003$; reflected sine:
 $\gamma=1$, learning rate $0.01$), so the comparison is between the best-tuned smooth and the best-tuned
@@ -477,7 +507,8 @@ grid (Appendix~\ref{app:short}). The reflected sine remains $0.015$ below the tr
 still flat near the crest, so its weights sit closer to the bound ($0.68$ versus $0.56$) and more of its
 first hidden layer dies ($83\%$ versus $54\%$ of the units).
 
-A second way of removing the damping fails, and the failure is informative. Multiplying the gradient by
+A different intervention, which compensates the magnitude of the damping without freeing the parameter,
+fails, and the failure is informative. Multiplying the gradient by
 $\min(1/\cos^2,c_{\max})$ compensates the magnitude of the damping but leaves the parameter at the bound.
 On the 200-task stream this made plasticity \emph{worse} as $c_{\max}$ grew (retention $0.909\to0.849\to0.757$
 for $c_{\max}=3,10,30$) while the saturated fraction rose from $28\%$ to $67\%$ (Appendix~\ref{app:short}).
@@ -546,10 +577,11 @@ whether standardizing the inputs would remove it.
 Keeping weights bounded is one of the simplest ways to preserve plasticity, but in our experiments the way
 in which the bound was enforced decided whether it worked. A smooth bounded reparameterization damps the update exactly where the weights
 accumulate, and over a long stream this freezes the network; with the sine map the result is worse than no
-constraint at all. A bounded periodic map with a derivative of unit magnitude, the triangle wave, avoids the
-damping, shows no loss of plasticity over 800 tasks, and is statistically equivalent to weight clipping while
-expressing the constraint as part of the model. Removing the damping from the sine map without changing its
-forward pass recovers most of the loss, which supports the damping as the main cause. For the design of
+constraint at all. A bounded periodic map whose derivative has unit magnitude away from its corner points, the triangle wave,
+avoids the damping, shows no loss of plasticity over 800 tasks, and is statistically equivalent to weight clipping while
+expressing the constraint as part of the model. Replacing the derivative of the sine map by its sign in the backward pass, without changing the forward
+pass, recovers most of the loss in a preliminary three-seed test, which points to the vanishing derivative,
+and the trapping of parameters it produces, as the main cause. For the design of
 bounded parameterizations our results suggest that boundedness should be paired with a non-vanishing update.
 These conclusions rest on one main benchmark, small fully connected networks and SGD; they should be tested
 on larger architectures and other streams before being generalized.
@@ -578,6 +610,51 @@ per run: standard 10\,h, weight clipping 9\,h, layer normalization with weight d
 triangle wave 24\,h, sine 26\,h, reflected sine 28\,h. The reparameterized models are slower in our
 implementation because the map and its derivative are evaluated for every parameter at every step with batch
 size one; the overhead is a property of the implementation and not of the method.
+
+\section{Implementation of the maps and their derivatives}\label{app:impl}
+
+\paragraph{Forward and backward pass.} All maps are implemented as one custom automatic-differentiation
+function with an explicit backward pass. With $x=\Theta/A$ the forward pass returns $W=A f(x)$ and the backward
+pass multiplies the incoming gradient $\partial L/\partial W$ by $d(x)$, where $d=\cos x$ (sine),
+$d=1-\tanh^2x$ (tanh) and $d\in\{+1,-1\}$ (triangle wave). The triangle wave is evaluated without inverse
+trigonometric functions: with $u=x+1$ and $y=u-4\lfloor u/4\rfloor\in[0,4)$ we set $\tri(x)=1-|y-2|$ and
+$d=1-2\lfloor y/2\rfloor$. This choice gives the right-hand derivative at the corners ($y=0$: $d=+1$; $y=2$:
+$d=-1$) and avoids the undefined value that differentiating $\arcsin(\sin(\cdot))$ would produce there.
+For the derivative floor of Eq.~\eqref{eq:floor} the forward pass is unchanged and $d$ is replaced by
+$\operatorname{sign}(d)\max(|d|,\varepsilon)$ in the backward pass only; all Jacobian statistics reported in
+the paper are computed from the true derivative.
+
+\paragraph{Checks.} Unit tests compare the backward pass of the sine and tanh maps with finite differences,
+compare the triangle-wave implementation bit-wise with a reference implementation including the corner rule,
+and verify that all models start from identical effective weights. A further test takes one real optimizer step and compares the realized change of the weight with
+Eqs.~(\ref{eq:damping}) and (\ref{eq:surrogate}); Table~\ref{tab:step} gives the measured ratio
+$\Delta W/(-\eta g)$ at several positions. The reflected sine follows $|\cos|$, not $1$: its weight step is
+attenuated less than that of the sine map but still vanishes at the crest, while its parameter step is not
+attenuated at all.
+
+\begin{table}[h]
+  \centering\small
+  \caption{Realized weight step relative to the undamped step, $\Delta W/(-\eta g)$, for one SGD step with
+  $\eta=10^{-4}$ and $A=0.3$ (double precision).}
+  \label{tab:step}
+  \begin{tabular}{@{}cccccc@{}}
+    \toprule
+    $\Theta/A$ & $\cos^2$ & $|\cos|$ & Sine & Reflected sine & Triangle wave\\
+    \midrule
+    $0$        & $1.000$ & $1.000$ & $1.0000$ & $1.0000$ & $1.0000$\\
+    $0.25\pi$  & $0.500$ & $0.707$ & $0.5001$ & $0.7072$ & $1.0000$\\
+    $0.40\pi$  & $0.095$ & $0.309$ & $0.0955$ & $0.3092$ & $1.0000$\\
+    $0.45\pi$  & $0.024$ & $0.156$ & $0.0245$ & $0.1566$ & $1.0000$\\
+    $0.49\pi$  & $0.001$ & $0.031$ & $0.0010$ & $0.0316$ & $1.0000$\\
+    $0.50\pi$  & $0.000$ & $0.000$ & $0.0000$ & $0.0002$ & $1.0000$\\
+    $0.55\pi$  & $0.024$ & $0.156$ & $0.0245$ & $0.1566$ & $1.0000$\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Corner points.} After $10^5$ updates of a triangle-wave network ($\gamma=1$, learning rate $0.003$)
+none of the $99{,}710$ parameters was exactly at a corner; $2$ were within $10^{-6}A$, $34$ within $10^{-4}A$
+and $2{,}030$ ($2.0\%$) within $10^{-2}A$ of one.
 
 \section{Results on the 200-task stream}\label{app:short}
 

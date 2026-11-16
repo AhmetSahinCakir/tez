@@ -27,3 +27,8 @@ runs:
   # C1 grid (five models x seeds 3-9) is scheduled first.
   - {label: ln_wd, overrides: {method.name: ln_wd, model.layer_norm: true}}
   - {label: sin_refl, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.jacobian_floor: 1.0}, seeds: [0, 1, 2]}
+  # Single-factor causal test requested in the advisor report of 16 November 2026 (item 2.1): identical to the
+  # `sin` run (gamma = 1.5, lr = 0.003, same seeds = same initial weights and same task stream); the ONLY change
+  # is the derivative used in the backward pass (jacobian_floor = 1).  Hyper-parameters are written explicitly
+  # because the label has no entry in selected_pmnist.yaml.
+  - {label: sin_refl_matched, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.jacobian_floor: 1.0, model.gamma: 1.5, optimizer.lr: 0.003}}
