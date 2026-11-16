@@ -1,0 +1,24 @@
+# Adam regime with ten paired seeds (advisor report of 16 November 2026, section 4: "for the paper, the basic
+# methods should be brought to at least 10 paired seeds").  Same protocol and settings as the three-seed runs
+# reported in RAPOR 14.1 (Adam, lr 1e-3, 200 tasks x 5,000 examples, method hyper-parameters transferred from
+# SGD without re-tuning); all five models are run on seeds 0-9 in one self-contained results directory.
+name: pmnist_adam10
+base_config: configs/pmnist_pilot.yaml
+workers: 4
+stream_seed_offset: 0
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+common:
+  stream.n_tasks: 200
+  stream.samples_per_task: 5000
+  metrics.every_n_tasks: 5
+  metrics.fisher_samples: 32
+  metrics.update_tracking_every: 100
+  fresh_reference.every_n_tasks: 25
+  optimizer.name: adam
+  optimizer.lr: 0.001
+runs:
+  - {label: adam_std, overrides: {method.name: baseline}}
+  - {label: adam_sin, overrides: {model.reparam.hidden: sin, model.reparam.output: sin, model.gamma: 1.5}}
+  - {label: adam_tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh, model.gamma: 1.5}}
+  - {label: adam_weight_clipping, overrides: {method.name: weight_clipping, method.kappa: 1.0}}
+  - {label: adam_tri, overrides: {model.reparam.hidden: tri, model.reparam.output: tri, model.gamma: 1.0}}

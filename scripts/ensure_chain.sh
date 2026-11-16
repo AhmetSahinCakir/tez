@@ -42,7 +42,12 @@ if ! done_marker "CAUSAL CHAIN FINISHED" "$KLOG" && ! running "scripts/run_causa
   setsid nohup bash scripts/run_causal_chain.sh > /dev/null 2>&1 < /dev/null &
   started="$started run_causal_chain"
 fi
-if { ! done_marker "FOLLOW-ON FINISHED" "$LOG" || ! done_marker "C CHAIN FINISHED" "$CLOG" || ! done_marker "CAUSAL CHAIN FINISHED" "$KLOG"; } && ! running "scripts/autocommit_results.sh"; then
+ALOG=results/adam10_chain.log
+if ! done_marker "ADAM10 CHAIN FINISHED" "$ALOG" && ! running "scripts/run_adam10_chain.sh"; then
+  setsid nohup bash scripts/run_adam10_chain.sh > /dev/null 2>&1 < /dev/null &
+  started="$started run_adam10_chain"
+fi
+if { ! done_marker "FOLLOW-ON FINISHED" "$LOG" || ! done_marker "C CHAIN FINISHED" "$CLOG" || ! done_marker "CAUSAL CHAIN FINISHED" "$KLOG" || ! done_marker "ADAM10 CHAIN FINISHED" "$ALOG"; } && ! running "scripts/autocommit_results.sh"; then
   setsid nohup bash scripts/autocommit_results.sh 1800 > /dev/null 2>&1 < /dev/null &
   started="$started autocommit_results"
 fi
