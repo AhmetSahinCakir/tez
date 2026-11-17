@@ -1,18 +1,28 @@
 # Konferans bildirisinin (kisa protokol: 200 gorev x 5.000 ornek) sekilleri ve istatistikleri.
-# Kullanim: python3 scripts/bildiri_figures.py
+# Kullanim: python3 scripts/bildiri_figures.py        (Turkce bildiri: sekil_*.pdf, tablo_*.tex, istatistikler.md)
+#           python3 scripts/bildiri_figures.py en     (Ingilizce bildiri: fig_*.pdf, table_*.tex; ondalik nokta)
 # Okur: results/pmnist_main/<etiket>/seed*/{summary.json,tasks.jsonl}
 # Yazar: bildiri/figures/*.pdf ve bildiri/istatistikler.md
-import glob, json, os
+import glob, json, os, sys
 import numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from scipy import stats
 
 SRC, OUT = "results/pmnist_main", "bildiri"
+EN = len(sys.argv) > 1 and sys.argv[1] == "en"
 os.makedirs(f"{OUT}/figures", exist_ok=True)
 LABELS = ["baseline", "sin", "tanh", "tri", "weight_clipping"]
 COL = {"baseline": "#2a78d6", "sin": "#eb6834", "tanh": "#1baf7a", "tri": "#eda100", "weight_clipping": "#d6498a"}
 NAME = {"baseline": "Standart", "sin": "Sinüs", "tanh": "Tanh", "tri": "Üçgen dalga", "weight_clipping": "Ağırlık kırpma"}
+if EN:
+    NAME = {"baseline": "Standard", "sin": "Sine", "tanh": "Tanh", "tri": "Triangle wave", "weight_clipping": "Weight clipping"}
+TXT = {"task": "Task", "acc": "Online accuracy", "mult": "Step multiplier", "mean": "Mean"} if EN else \
+      {"task": "Görev", "acc": "Çevrim içi doğruluk", "mult": "Adım çarpanı", "mean": "Ortalama"}
+FIG = {"maps": "fig_maps", "acc": "fig_accuracy", "mech": "fig_mechanism"} if EN else \
+      {"maps": "sekil_haritalar", "acc": "sekil_dogruluk", "mech": "sekil_mekanizma"}
+TAB = {"res": "table_results", "mech": "table_mechanism"} if EN else {"res": "tablo_sonuclar", "mech": "tablo_mekanizma"}
+DEC = "." if EN else "{,}"
 LS = {"weight_clipping": (0, (4, 2))}
 plt.rcParams.update({"font.size": 8, "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42,
                      "axes.edgecolor": "#52514e", "xtick.color": "#52514e", "ytick.color": "#52514e",
@@ -60,7 +70,7 @@ for ax, yl in zip(axs, [r"$W/A=f(\Theta/A)$", r"$|f'(\Theta/A)|$"]):
 axs[0].axhline(1, color="#b8b7b2", ls="--", lw=0.7); axs[0].axhline(-1, color="#b8b7b2", ls="--", lw=0.7)
 axs[1].set_ylim(-0.05, 1.15)
 fig.legend(loc="upper center", ncol=3, fontsize=7, handlelength=1.6, columnspacing=1.2, bbox_to_anchor=(0.5, 1.02))
-fig.tight_layout(rect=(0, 0, 1, 0.9), w_pad=0.6); fig.savefig(f"{OUT}/figures/sekil_haritalar.pdf"); plt.close(fig)
+fig.tight_layout(rect=(0, 0, 1, 0.9), w_pad=0.6); fig.savefig(f"{OUT}/figures/{FIG['maps']}.pdf"); plt.close(fig)
 
 # ---------------------------------------------------------------- Sekil 2: cevrim ici dogruluk
 fig, ax = plt.subplots(figsize=(3.45, 2.25))
@@ -68,9 +78,9 @@ for lab in LABELS:
     t, m, h = band(lab, "acc", win=5)
     ax.fill_between(t, m - h, m + h, color=COL[lab], alpha=0.18, lw=0)
     ax.plot(t, m, color=COL[lab], lw=1.4, ls=LS.get(lab, "-"), label=NAME[lab])
-grid(ax); ax.set_xlabel("Görev"); ax.set_ylabel("Çevrim içi doğruluk"); ax.set_xlim(1, 200)
+grid(ax); ax.set_xlabel(TXT["task"]); ax.set_ylabel(TXT["acc"]); ax.set_xlim(1, 200)
 ax.legend(fontsize=7, ncol=1, loc="lower left", handlelength=2.0, labelspacing=0.25, borderaxespad=0.3)
-fig.tight_layout(); fig.savefig(f"{OUT}/figures/sekil_dogruluk.pdf"); plt.close(fig)
+fig.tight_layout(); fig.savefig(f"{OUT}/figures/{FIG['acc']}.pdf"); plt.close(fig)
 
 # ---------------------------------------------------------------- Sekil 3: mekanizma
 fig, axs = plt.subplots(1, 2, figsize=(3.45, 1.9))
@@ -81,11 +91,11 @@ for lab in LABELS:
     t, m, h = band(lab, "w_abs")
     axs[1].fill_between(t, m - h, m + h, color=COL[lab], alpha=0.18, lw=0)
     axs[1].plot(t, m, color=COL[lab], lw=1.4, ls=LS.get(lab, "-"), label=NAME[lab])
-for ax, yl in zip(axs, [r"Adım çarpanı $\langle f'^2\rangle$", r"Ortalama $|W|$"]):
-    grid(ax); ax.set_xlabel("Görev"); ax.set_ylabel(yl, labelpad=1); ax.set_xlim(1, 200)
+for ax, yl in zip(axs, [TXT["mult"] + r" $\langle f'^2\rangle$", TXT["mean"] + r" $|W|$"]):
+    grid(ax); ax.set_xlabel(TXT["task"]); ax.set_ylabel(yl, labelpad=1); ax.set_xlim(1, 200)
 axs[0].set_ylim(0.4, 1.05)
 fig.legend(loc="upper center", ncol=3, fontsize=6.5, handlelength=1.8, columnspacing=1.0, bbox_to_anchor=(0.5, 1.03))
-fig.tight_layout(rect=(0, 0, 1, 0.86), w_pad=0.6); fig.savefig(f"{OUT}/figures/sekil_mekanizma.pdf"); plt.close(fig)
+fig.tight_layout(rect=(0, 0, 1, 0.86), w_pad=0.6); fig.savefig(f"{OUT}/figures/{FIG['mech']}.pdf"); plt.close(fig)
 
 # ---------------------------------------------------------------- istatistikler
 KEYS = [("auc_norm", "AUC"), ("early_window_mean", "ilk pencere"), ("final_window_mean", "son pencere"),
@@ -119,7 +129,8 @@ for k, kn in KEYS[:4]:
     se = d.std(ddof=1) / np.sqrt(n); m = d.mean(); h90 = stats.t.ppf(0.95, n - 1) * se
     p = max(1 - stats.t.cdf((m + 0.005) / se, n - 1), stats.t.cdf((m - 0.005) / se, n - 1))
     out.append(f"| {kn} | {n} | {m:+.4f} | [{m - h90:+.4f}, {m + h90:+.4f}] | {p:.3g} |")
-open(f"{OUT}/istatistikler.md", "w").write("\n".join(out) + "\n")
+if not EN:  # istatistik dosyasi dilden bagimsizdir; yalnizca Turkce kosuda yazilir
+    open(f"{OUT}/istatistikler.md", "w").write("\n".join(out) + "\n")
 print("\n".join(out))
 
 # ---------------------------------------------------------------- LaTeX tablolari (ondalik virgul)
@@ -131,29 +142,29 @@ def cell(lab, k, nd=3, sign=False):
     v = [summ[lab][s].get(k) for s in sorted(summ[lab])]
     if any(a is None for a in v): return "--"
     m, h = ci(v)
-    return ("$%s\\pm%s$" % (tr(m, nd, sign), tr(h, nd))).replace(".", "{,}").replace("-", "-")
+    return ("$%s\\pm%s$" % (tr(m, nd, sign), tr(h, nd))).replace(".", DEC).replace("-", "-")
 
 
 def pair(lab, k1, k2, nd=3):
     a = np.mean([summ[lab][s][k1] for s in summ[lab]]); b = np.mean([summ[lab][s][k2] for s in summ[lab]])
-    return ("$%s\\to%s$" % (tr(a, nd), tr(b, nd))).replace(".", "{,}")
+    return ("$%s\\to%s$" % (tr(a, nd), tr(b, nd))).replace(".", DEC)
 
 
 rows = []
 for lab in ["tri", "weight_clipping", "sin", "tanh", "baseline"]:
     rows.append(" & ".join([NAME[lab], str(len(summ[lab])), cell(lab, "auc_norm"), cell(lab, "final_window_mean"),
                             cell(lab, "retention_ratio"), cell(lab, "fresh_gap_final", sign=True)]) + r"\\")
-open(f"{OUT}/tablo_sonuclar.tex", "w").write("\n".join(rows) + "\n")
+open(f"{OUT}/{TAB['res']}.tex", "w").write("\n".join(rows) + "\n")
 rows = []
 for lab in ["tri", "weight_clipping", "sin", "tanh", "baseline"]:
     ratio = np.mean([summ[lab][s]["final_step_dw_norm"] / summ[lab][s]["early_step_dw_norm"] for s in summ[lab]])
     rows.append(" & ".join([NAME[lab], cell(lab, "final_jac_sq_mean/all", 2).split("\\pm")[0] + "$" if cell(lab, "final_jac_sq_mean/all") != "--" else "--",
-                            ("$%.1f$" % (100 * np.mean([summ[lab][s]["final_sat_frac/all"] for s in summ[lab]]))).replace(".", "{,}") if "final_sat_frac/all" in summ[lab][0] else "--",
+                            ("$%.1f$" % (100 * np.mean([summ[lab][s]["final_sat_frac/all"] for s in summ[lab]]))).replace(".", DEC) if "final_sat_frac/all" in summ[lab][0] else "--",
                             pair(lab, "early_w_abs_mean/all", "final_w_abs_mean/all"),
-                            ("$%.2f$" % ratio).replace(".", "{,}"),
+                            ("$%.2f$" % ratio).replace(".", DEC),
                             ("$%.0f\\to%.0f$" % (np.mean([summ[lab][s]["early_effective_rank/last"] for s in summ[lab]]),
                                                 np.mean([summ[lab][s]["final_effective_rank/last"] for s in summ[lab]])))]) + r"\\")
-open(f"{OUT}/tablo_mekanizma.tex", "w").write("\n".join(rows) + "\n")
+open(f"{OUT}/{TAB['mech']}.tex", "w").write("\n".join(rows) + "\n")
 first = {lab: band(lab, "jac_sq")[1][0] for lab in ["sin", "tanh", "tri"]}
 print("ilk olcumde adim carpani:", first)
-print(open(f"{OUT}/tablo_sonuclar.tex").read()); print(open(f"{OUT}/tablo_mekanizma.tex").read())
+print(open(f"{OUT}/{TAB['res']}.tex").read()); print(open(f"{OUT}/{TAB['mech']}.tex").read())
