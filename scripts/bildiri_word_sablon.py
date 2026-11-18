@@ -305,7 +305,8 @@ for e in src:
             kids += [run(name), br(), run(dept, italic=True, size=20), br(True), run(org, italic=True, size=20), br(True),
                      run(city, size=20), br(), run(contact, size=20)]
             last = k == len(AUTHORS) - 1                # son yazar paragrafi yazar bolumunu kapatir (ek bos paragraf yok)
-            new.append(para("Author", kids, spacing=dict(before="0", after="200"), **({"sectPr": sect_author} if last else {})))
+            # Word, sutun sonunun oldugu satiri ilk sutunda bos satir olarak birakir; ozetle aradaki bosluk o satirdir
+            new.append(para("Author", kids, spacing=dict(before="0", after="0"), **({"sectPr": sect_author} if last else {})))
         if BLIND: new.append(para(None, sectPr=sect_author))
     elif st == "Heading4":
         state = txt                                    # "Abstract" / "Keywords": sonraki paragrafin basina eklenir
