@@ -312,8 +312,8 @@ for e in src:
         state = txt                                    # "Abstract" / "Keywords": sonraki paragrafin basina eklenir
     elif st in STYLE:
         assert not held, "bekleyen sekil/tablo yerlestirilmedi"
-        if txt == "References":
-            new.append(para("Balk5", content(e))); state = "refs"
+        if txt in ("References", "Acknowledgment"):          # numarasiz bilesen basliklari: sablonda "Heading 5"
+            new.append(para("Balk5", content(e))); state = "refs" if txt == "References" else None
         else:
             new.append(para(STYLE[st], content(e))); wait = True
     elif state == "Abstract":
