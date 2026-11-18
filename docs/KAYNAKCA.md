@@ -137,3 +137,9 @@ Goodfellow vd. ICLR 2014 arşivinin bağlandığı arXiv metninden okundu. Otoma
 okunamayanlar: Lyle vd. 2022 (OpenReview), Chen ve Zhang (APS), LeCun vd. 1998 (IEEE Xplore), Schuirmann 1987 (Springer);
 ilk ikisinin arXiv sürümü okundu. Salimans ve Kingma cümlesindeki "ağın temsil edebildiği işlevler değişmez" eki kaynakta
 açıkça geçmediği için çıkarıldı.
+
+**Kullanıcının indirdiği yayıncı PDF'lerinden kontrol (18 Kasım 2026).** LeCun vd. 1998 (Proc. IEEE 86(11), s. 2278-2324:
+"The resulting database was called the modified NIST, or MNIST, dataset"), Schuirmann 1987 (J. Pharmacokinet. Biopharm.
+15(6), s. 657-680: "The Two One-Sided Tests Procedure" bölümü) ve Chen ve Zhang 2026 (PRX Quantum 7, 033003: sinüs
+aktivasyonlu klasik MLP, ağırlıklar sınırsız, plastisite kaybı; ana metin ve Ek D) yayımlanmış metinden doğrulandı.
+Asıl metni henüz okunmayan tek kaynak: Lyle, Rowland ve Dabney 2022 (ICLR; arXiv sürümü okundu).
