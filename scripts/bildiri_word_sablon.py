@@ -13,6 +13,16 @@ D = "bildiri/word"
 TEMPLATE, CONTENT, OUT = f"{D}/template-a4.docx", f"{D}/icerik.docx", f"{D}/iisec2027_paper.docx"
 FIGS = ["fig1_maps.png", "fig2_accuracy.png", "fig3_mechanism.png"]
 ANON = "Author information removed for double-blind review"
+# Yazar bloklari (sablondaki sira: ad; bolum; kurum; sehir, ulke; e-posta ya da ORCID).
+# "python3 scripts/bildiri_word_sablon.py anon" yazar bilgisi olmayan (kor hakemlik) surumu uretir.
+AUTHORS = [
+    ("Ahmet \u015eahin \u00c7ak\u0131r", "Department of Computer Engineering", "S\u00fcleyman Demirel University",
+     "Isparta, T\u00fcrkiye", "ORCID: 0009-0007-1035-6771"),
+    ("Ecir U\u011fur K\u00fc\u00e7\u00fcksille", "Department of Computer Engineering", "S\u00fcleyman Demirel University",
+     "Isparta, T\u00fcrkiye", "ecirugur@gmail.com"),
+]
+BLIND = len(sys.argv) > 1 and sys.argv[1] == "anon"
+if BLIND: OUT = f"{D}/iisec2027_paper_anonymous.docx"
 COLW = 4866          # sutun genisligi (twip): (11906 - 2*907 - 360) / 2
 FIGW = 3060000       # sekil genisligi: 8.5 cm (EMU)
 
@@ -254,7 +264,8 @@ sect_body = copy.deepcopy([p for p in old if p.find("w:pPr/w:sectPr/w:cols[@w:nu
 sect_last = copy.deepcopy(old[-1])                                        # belge sonu bolumu
 borders = [e for e in old if etree.QName(e).localname == "tbl"][0].find("w:tblPr/w:tblBorders", NS)
 assert etree.QName(sect_last).localname == "sectPr" and sect_body is not None
-sect_author.find("w:cols", NS).attrib.pop(w("num"))                       # kor hakemlik: tek satir, tek sutun
+if BLIND: sect_author.find("w:cols", NS).attrib.pop(w("num"))             # kor hakemlik: tek satir, tek sutun
+else: sect_author.find("w:cols", NS).set(w("num"), str(len(AUTHORS)))    # her yazar kendi sutununda
 for e in old: body.remove(e)                                              # sablonun butun metni silinir
 
 # ---------------------------------------------------------------- icerigi yerlestir
@@ -280,9 +291,22 @@ for e in src:
         p = etree.Element(w("p")); p.append(title_pPr)
         for c in content(e): p.append(c)
         new.append(p)
-        new.append(para("Author", spacing=dict(before="0", after="0"), sectPr=sect_title))
-        new.append(para("Author", [run(ANON)]))
-        new.append(para(None, sectPr=sect_author))
+        # yazar bloklarinin ustundeki bosluk bu paragrafta durur: iki sutundaki bloklar ayni hizadan baslar
+        gap = dict(before="0", after="0") if BLIND else dict(before="0", after="0", line="240", lineRule="exact")
+        new.append(para("Author", spacing=gap, sectPr=sect_title))
+        if BLIND:
+            new.append(para("Author", [run(ANON)]))
+        for k, (name, dept, org, city, contact) in enumerate([] if BLIND else AUTHORS):
+            def br(italic=False):
+                r = run("", italic=italic, size=20); r.remove(r.find("w:t", NS)); r.append(E("br")); return r
+            kids = []
+            if k:                                      # sonraki yazar: yeni sutun
+                cb = etree.Element(w("r")); cb.append(E("br", type="column")); kids.append(cb)
+            kids += [run(name), br(), run(dept, italic=True, size=20), br(True), run(org, italic=True, size=20), br(True),
+                     run(city, size=20), br(), run(contact, size=20)]
+            last = k == len(AUTHORS) - 1                # son yazar paragrafi yazar bolumunu kapatir (ek bos paragraf yok)
+            new.append(para("Author", kids, spacing=dict(before="0", after="200"), **({"sectPr": sect_author} if last else {})))
+        if BLIND: new.append(para(None, sectPr=sect_author))
     elif st == "Heading4":
         state = txt                                    # "Abstract" / "Keywords": sonraki paragrafin basina eklenir
     elif st in STYLE:
