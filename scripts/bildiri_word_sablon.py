@@ -123,6 +123,15 @@ def fix_math(el):
         if scr is not None and scr.get(f"{{{M}}}val") == "double-struck":
             scr.getparent().remove(scr)
             for t in r.iter(f"{{{M}}}t"): t.text = t.text.replace("R", "\u211d")
+    FUNCS = ("sin", "cos", "tanh")                                    # "sinx" yerine "sin x": islev adindan sonra ince bosluk
+    for r in list(el.iter(f"{{{M}}}r", f"{{{M}}}sSup")):
+        nxt = r.getnext()
+        if nxt is None or etree.QName(nxt).localname != "r" or not text_of(nxt).strip(): continue
+        if etree.QName(r).localname == "r" and text_of(r) in FUNCS:
+            r.find("m:t", NS).text += "\u2009"
+        elif etree.QName(r).localname == "sSup" and text_of(r.find("m:e", NS)) in FUNCS:
+            sp = etree.Element(f"{{{M}}}r"); t = etree.SubElement(sp, f"{{{M}}}t"); t.text = "\u2009"
+            r.addnext(sp)
     for mat in el.iter(f"{{{M}}}m"):                                  # hizali denklem: "f'(x)" ve "= ..." hucrelerini birlestir
         for r in list(mat.iter(f"{{{M}}}r")):                         # etiketten sonraki ek bosluk: sutun araligi yeter
             if text_of(r) and not text_of(r).strip("\u2001"): r.getparent().remove(r)
@@ -338,6 +347,16 @@ x = open(cp, encoding="utf-8").read()
 if 'Extension="png"' not in x:
     x = x.replace("<Default ", '<Default Extension="png" ContentType="image/png"/><Default ', 1)
 open(cp, "w", encoding="utf-8").write(x)
+
+# Word resimleri kaydederken/PDF'e cevirirken kucultmesin ("Do not compress images in file")
+sp = f"{tmp}/word/settings.xml"
+x = open(sp, encoding="utf-8").read()
+if "doNotAutoCompressPictures" not in x:
+    for anchor in ("<w:shapeDefaults>", "<w:decimalSymbol "):
+        if anchor in x:
+            x = x.replace(anchor, "<w:doNotAutoCompressPictures/>" + anchor, 1); break
+    else: sys.exit("settings.xml: yer bulunamadi")
+open(sp, "w", encoding="utf-8").write(x)
 
 # ---------------------------------------------------------------- belge ozellikleri: sablon metni ve kisi adi kalmasin
 title = text_of(new[0])

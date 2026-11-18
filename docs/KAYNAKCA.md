@@ -108,3 +108,22 @@ kayıtları), Reinforcement Learning Journal sayfası, Crossref (DOI kayıtları
 * Holm (1979) birincil kaynaktan doğrulanamayan tek künyedir.
 * "Sınırlı-periyodik ağırlık yeniden parametrizasyonunu plastisite kaybı için inceleyen bir çalışma bulunamadı"
   ifadesi kapsamlı bir sistematik taramaya değil, yapılan aramalara dayanır; makalede de bu şekilde yazıldı.
+
+## Bildiri (IISEC) için yeniden doğrulama: 18 Kasım 2026
+
+Bildirideki 21 kaynak birincil kayıtlardan yeniden çekildi (arXiv API, PMLR cilt sayfaları v70/v202/v232/v274,
+NeurIPS ve ICLR bildiri sitelerinin BibTeX kayıtları, Crossref, Reinforcement Learning Journal 2024 sayısı, EURASIP
+arşivindeki EUSIPCO 2007 PDF'i, ICLR 2014 arşivi). Yazar, başlık, yer, cilt, sayfa ve yıl bilgilerinin hepsi tuttu.
+
+İçerik kontrolü (bildiride o kaynağa dayandırılan cümle, özet ya da tam metinle karşılaştırıldı):
+
+* Tam metinden: Dohare vd. 2024 (Europe PMC), Lyle vd. 2022, Elsayed vd. 2024, Lillo ve Cheney 2026, Chen ve Zhang 2026
+  (arXiv sürümü), Dai vd. 2025 (arXiv sürümü), He vd. 2015, Goodfellow vd. 2014, Zenke vd. 2017, Roy ve Vetterli 2007.
+* Özetten: Ash ve Adams 2020, Lyle vd. 2023, Sokar vd. 2023, Abbas vd. 2023, Lyle vd. 2024 (NeurIPS), Lyle vd. (CoLLAs),
+  Kumar vd., Lewandowski vd. 2025, Salimans ve Kingma 2016.
+* Yalnızca künye (tam metne erişilemedi): LeCun vd. 1998 (MNIST), Schuirmann 1987 (TOST; başlık yöntemi adıyla anıyor).
+
+Bu kontrolün bildiride düzelttirdiği ifadeler: (1) "nedenler birlikte etki eder" -> Lyle vd.'nin özetindeki gibi
+"nedenler ayrıdır, yalnızca birini gidermek her zaman yetmez"; (2) "Kaiming sınırı b=sqrt(6/n)" -> He vd. Gauss
+biçimini (varyans 2/n) verir; "aynı varyansı veren düzgün dağılım sınırı" olarak yazıldı; (3) ağırlık normalleştirme
+için "optimizasyon geometrisi" -> özetteki "koşullanma" ifadesi.

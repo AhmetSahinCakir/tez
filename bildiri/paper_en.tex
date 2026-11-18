@@ -46,8 +46,7 @@ initialised network \cite{ash2020warm,lyle2023understanding,dohare2024loss}. Thi
 
 Several causes have been proposed: dead or dormant units \cite{sokar2023dormant,abbas2023loss}, a falling
 representation rank \cite{lyle2022understanding,dohare2024loss} and growth of the weight magnitude
-\cite{dohare2024loss,elsayed2024weight,lyle2024normalization}. These causes act together
-\cite{lyle2024disentangling}. Among the methods that limit the weight magnitude, the simplest is \emph{weight
+\cite{dohare2024loss,elsayed2024weight,lyle2024normalization}. These causes are separate, and removing only one of them is not always enough \cite{lyle2024disentangling}. Among the methods that limit the weight magnitude, the simplest is \emph{weight
 clipping} \cite{elsayed2024weight}: after every update each weight is projected back into the interval
 $[-\kappa b,\kappa b]$, whose width is set by the initialisation scale $b$ of the layer.
 
@@ -73,7 +72,7 @@ Warm-started networks have been shown to generalise worse than networks trained 
 and this effect grows over long task sequences \cite{dohare2024loss}. Methods that
 control the weight magnitude include regularisation towards the initial parameters \cite{kumar2023maintaining},
 norm projection after normalisation \cite{lyle2024normalization} and weight clipping \cite{elsayed2024weight}.
-Lyle et al. \cite{lyle2024disentangling} report that the causes are largely independent and that combining layer normalisation with weight decay reduces several of them at once.
+Lyle et al. \cite{lyle2024disentangling} report that the causes are independent of each other and that layer normalisation combined with weight decay is effective at maintaining plasticity in a variety of tasks.
 
 Periodic functions have been studied in continual learning as \emph{activations}: using sine and cosine together
 in every layer kept networks trainable \cite{lewandowski2025fourier}, and plasticity has been related to the
@@ -81,8 +80,7 @@ derivative of the activation staying away from zero \cite{lillo2026activation}. 
 activations and unbounded weights, on the other hand, has been reported to lose plasticity
 \cite{chen2026intrinsic}. These studies change the function computed by a unit. Here the periodic map is
 applied to the \emph{weights}: in terms of $W$ the network remains a standard ReLU network, and only the
-coordinates in which the optimiser moves change. Writing the weights as a function of other parameters changes
-the optimisation geometry without changing the function class \cite{salimans2016weight}. The triangle wave is
+coordinates in which the optimiser moves change. Writing the weights as a function of other parameters changes the conditioning of the optimisation problem without changing the functions the network can represent \cite{salimans2016weight}. The triangle wave is
 not new as a map with constant gradient magnitude; it was preferred to the sine in a neural shape
 parameterization \cite{dai2025shaping}. In our literature search we did not find a study that applies a bounded
 periodic reparameterization to network weights in the context of loss of plasticity; the search was not a systematic review.
@@ -92,8 +90,7 @@ periodic reparameterization to network weights in the context of loss of plastic
 
 \subsection{Bounded reparameterization}
 
-The weights of a fully connected layer with $n$ inputs are initialised uniformly in $[-b,b]$ with the Kaiming
-bound $b=\sqrt{6/n}$ \cite{he2015delving}. The amplitude is fixed to $A=\gamma b$ ($\gamma\ge1$), and every
+The weights of a fully connected layer with $n$ inputs are initialised uniformly in $[-b,b]$ with $b=\sqrt{6/n}$, which gives the variance $2/n$ proposed by He et al. \cite{he2015delving}. The amplitude is fixed to $A=\gamma b$ ($\gamma\ge1$), and every
 weight and every bias is tied to a free parameter $\Theta$ through \eqref{eq:reparam}. Three maps are examined
 (Fig.~\ref{fig:maps}):
 \begin{align}
@@ -150,11 +147,10 @@ A run consists of $10^6$ updates.
 \textbf{Network and optimiser.} A ReLU multilayer perceptron with three hidden layers of 100 units each is
 trained with plain stochastic gradient descent.
 
-\textbf{Models.} (i)~The standard network; (ii--iv)~reparameterization of all weights and biases with the sine,
+\textbf{Models.} Five models are compared: (i)~the standard network; (ii--iv)~reparameterization of all weights and biases with the sine,
 tanh and triangle-wave maps; (v)~weight clipping \cite{elsayed2024weight}.
 
-\textbf{Hyperparameters.} All values were selected on separate 100-task development streams that share no
-permutation with the evaluation streams, and were not changed during evaluation. The selected values are: a
+\textbf{Hyperparameters.} All values were selected on a separate 100-task development stream (one seed), generated with a different random seed from the evaluation streams, and were not changed during evaluation. The selected values are: a
 learning rate of 0.003 for all models; $\gamma=1.5$ for sine and tanh; $\gamma=1$ for the triangle wave;
 $\kappa=1$ for clipping.
 
@@ -236,8 +232,7 @@ triangle wave improves on weight clipping.
 
 \begin{table}[t]
   \centering
-  \caption{Mechanism measures. $\langle f'^2\rangle$ and the saturated fraction are values at the end of the
-  stream; arrows show the change from the early window to the final window.}
+  \caption{Mechanism measures. $\langle f'^2\rangle$ and the saturated fraction are means over the final window; arrows show the change from the early window to the final window.}
   \label{tab:mechanism}
   \setlength{\tabcolsep}{2.5pt}\footnotesize
   \resizebox{\linewidth}{!}{%
@@ -253,8 +248,7 @@ triangle wave improves on weight clipping.
 
 Fig.~\ref{fig:mechanism} and Table~\ref{tab:mechanism} show that the loss in the smooth maps is consistent
 with \eqref{eq:damping}. In the sine and tanh models the mean weight magnitude grows along the stream (from
-0.064 to 0.098 and 0.093); as the weights approach the bound the mean step multiplier falls steadily, from 0.85
-to 0.56 for sine and from 0.74 to 0.47 for tanh. In line with this, the norm of the actual weight step
+0.064 to 0.098 and 0.093); as the weights approach the bound the mean step multiplier falls steadily: for sine from 0.85 at the first measurement to 0.56 in the final window, and for tanh from 0.74 to 0.47. In line with this, the norm of the actual weight step
 drops to 0.85 and 0.84 times its early-window value; for the standard network, the triangle wave and weight
 clipping this ratio is slightly above one. At this stream length the fraction of fully saturated parameters
 ($|f'|<0.1$) is still low (4.3\% for sine); the loss appears together with a slowdown spread over all
@@ -264,7 +258,7 @@ For the triangle wave the step multiplier is one by definition and the mean weig
 constant along the stream (from 0.061 to 0.064); the same values are measured for weight clipping. The
 effective rank of the last hidden-layer representation falls from 37 to 22 in the standard network and from 34
 to 21 for sine, whereas it does not fall for the triangle wave and weight clipping (from 33 to 37 and 38). The
-fraction of dead units is similar across the models (between 0.12 and 0.18 at the end of the stream) and does
+fraction of dead units is similar across the models (between 0.12 and 0.18 in the final window) and does
 not explain the observed difference.
 
 % ----------------------------------------------------------------------------------------------------
@@ -283,7 +277,7 @@ constraint being part of the model; whether this brings any practical benefit wa
 The study has the following limitations. (i)~A single dataset and a small fully connected network are used.
 (ii)~The stream is short (200 tasks, 5,000 samples per task); longer streams are needed to see a loss that builds up slowly. (iii)~Only stochastic gradient descent is tried; with adaptive optimisers the step
 may be large relative to the interval, so the results may differ. (iv)~The width of the bound differs between
-the models (it was selected separately for each model on the development streams); the effects of the shape of
+the models (it was selected separately for each model on the development stream); the effects of the shape of
 the map and of the width of the bound are therefore not fully separated in this experiment. (v)~Weight clipping
 was run with five seeds. (vi)~That the damping is the \emph{cause} of the loss is not tested directly here; the
 measurements are only consistent with this explanation. An intervention experiment that changes only the
