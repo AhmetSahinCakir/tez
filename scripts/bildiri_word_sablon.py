@@ -134,11 +134,23 @@ def text_of(el):
 # ---------------------------------------------------------------- tablolar
 FONT = {b: ImageFont.truetype(f"/usr/share/fonts/truetype/liberation/LiberationSerif-{n}.ttf", 160)
         for b, n in ((False, "Regular"), (True, "Bold"))}  # Times New Roman ile ayni olcu; 160 birim = 8 pt
-PAD = 45  # hucre ic boslugu (twip, her yan)
+PAD = 40   # hucre ic boslugu (twip, her yan)
+TSZ = 15   # tablo yazisi 7.5 pt (yarim punto birimi): satirlar tek satira sigsin diye; sablonun "table col subhead" boyutu
 
 
 def twips(s, bold=False):
-    return FONT[bold].getlength(s)  # 8 pt yazi: 160 birim = 160 twip
+    return FONT[bold].getlength(s) * TSZ / 16  # 160 birim = 8 pt = 160 twip
+
+
+def small(p):
+    """Hucre yazisini TSZ boyutuna getirir (rPr icinde semanin istedigi sirayla)."""
+    for r in p.iter(w("r")):
+        rPr = r.find("w:rPr", NS)
+        if rPr is None:
+            rPr = etree.Element(w("rPr")); r.insert(0, rPr)
+        at = next((i for i, c in enumerate(rPr) if etree.QName(c).localname in ("vertAlign", "lang")), len(rPr))
+        rPr.insert(at, E("szCs", val=TSZ)); rPr.insert(at, E("sz", val=TSZ))
+    return p
 
 
 def table(tbl, borders):
@@ -152,12 +164,11 @@ def table(tbl, borders):
                 p0.append(run(" "))
                 for c in content(p1): p0.append(c)
     ncol = len(rows[0])
-    words = lambda p, bold: max(twips(x, bold) for x in text_of(p).split())
     need = []
     for j in range(ncol):
-        head = words(rows[0][j], True)               # baslik satiri kelimelerden bolunebilir
-        cells = max(words(r[j], False) if j == 0 else twips(text_of(r[j])) for r in rows[1:])   # model adlari da bolunebilir
-        need.append(max(head, cells) + 2 * PAD + 20)
+        head = max(twips(x, True) for x in text_of(rows[0][j]).split())   # baslik satiri kelimelerden bolunebilir
+        cells = max(twips(text_of(r[j])) for r in rows[1:])               # veri satirlari tek satir
+        need.append(max(head, cells) + 2 * PAD + 10)
     extra = COLW - sum(need)
     if extra < 0: sys.exit(f"tablo sutuna sigmiyor: {sum(need):.0f} > {COLW}")
     widths = [int(n + extra / ncol) for n in need]
@@ -179,7 +190,7 @@ def table(tbl, borders):
             tc = etree.SubElement(tr, w("tc"))
             tcPr = etree.SubElement(tc, w("tcPr")); tcPr.append(E("tcW", w=widths[j], type="dxa")); tcPr.append(E("vAlign", val="center"))
             style = "tablecolhead" if i == 0 else "tablecopy"
-            tc.append(para(style, content(p), jc="left" if (j == 0 and i > 0) else "center"))
+            tc.append(small(para(style, content(p), jc="left" if (j == 0 and i > 0) else "center")))
     return t
 
 
@@ -192,7 +203,8 @@ def png_size(path):
 
 def picture(rid, n, path, alt):
     px, py = png_size(path)
-    cx, cy = FIGW, int(FIGW * py / px)
+    cx = min(FIGW, int(px / 600 * 914400))            # sekiller 600 dpi: yazi boyutlari (7-8 pt) korunur
+    cy = int(cx * py / px)
     xml = f"""<w:r xmlns:w="{W}" xmlns:wp="{WP}" xmlns:a="{A}" xmlns:pic="{PIC}" xmlns:r="{R}"><w:drawing>
 <wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="{cx}" cy="{cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>
 <wp:docPr id="{n}" name="Figure {n}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>
@@ -227,11 +239,19 @@ for e in old: body.remove(e)                                              # sabl
 # ---------------------------------------------------------------- icerigi yerlestir
 new, rels, eq, fig, prev = [], [], 0, 0, None
 STYLE = {"Heading1": "Balk1", "Heading2": "Balk2"}
-state = None
+state, wait, held = None, False, []       # wait: basliktan sonra henuz metin gelmedi; held: bekletilen sekil/tablolar
+
+
+def floaty(el):
+    (held if wait else new).append(el)    # IEEE: sekil ve tablo, metinde anildiktan sonra yerlestirilir
+
+
 for e in src:
     tag = etree.QName(e).localname
     if tag == "tbl":
-        new.append(table(e, borders)); prev = "tbl"; continue
+        floaty(table(e, borders))
+        if not wait: prev = "tbl"
+        continue
     if tag != "p": continue
     st = e.find("w:pPr/w:pStyle", NS); st = st.get(w("val")) if st is not None else ""
     txt = text_of(e).strip()
@@ -244,15 +264,16 @@ for e in src:
         new.append(para(None, sectPr=sect_author))
     elif st == "Heading4":
         state = txt                                    # "Abstract" / "Keywords": sonraki paragrafin basina eklenir
-    elif st in STYLE or (st == "Heading1" and txt == "References"):
+    elif st in STYLE:
+        assert not held, "bekleyen sekil/tablo yerlestirilmedi"
         if txt == "References":
             new.append(para("Balk5", content(e))); state = "refs"
         else:
-            new.append(para(STYLE[st], content(e)))
+            new.append(para(STYLE[st], content(e))); wait = True
     elif state == "Abstract":
-        new.append(para("Abstract", [run("Abstract", italic=True), run("—")] + content(e))); state = None
+        new.append(para("Abstract", [run("Abstract", italic=True), run("\u2014")] + content(e))); state = None
     elif state == "Keywords":
-        new.append(para("Keywords", [run("Keywords—")] + content(e))); state = None
+        new.append(para("Keywords", [run("Keywords\u2014")] + content(e))); state = None
     elif state == "refs":
         new.append(para("references", content(e)))
     elif e.find("m:oMathPara", NS) is not None:
@@ -264,17 +285,22 @@ for e in src:
         fig += 1
         rid = f"rIdFig{fig}"; rels.append((rid, FIGS[fig - 1]))
         cap = e.getnext()
-        new.append(para(None, [picture(rid, fig, f"{D}/{FIGS[fig - 1]}", text_of(cap).strip())], keepNext=True,
-                        spacing=dict(before="120", after="0"), jc="center"))
+        floaty(para(None, [picture(rid, fig, f"{D}/{FIGS[fig - 1]}", text_of(cap).strip())], keepNext=True,
+                    spacing=dict(before="120", after="0"), jc="center"))
     elif st == "ImageCaption":
-        new.append(para("figurecaption", content(e)))
+        floaty(para("figurecaption", content(e)))
     elif st == "TableCaption":
-        new.append(para("tablehead", content(e), keepNext=True))
+        floaty(para("tablehead", content(e), keepNext=True))
     else:
         extra = {}
         if prev == "eq" and st == "FirstParagraph": extra["ind"] = dict(firstLine="0")   # denklemden sonra ayni paragraf suruyor
         if prev == "tbl": extra["spacing"] = dict(before="160")
         new.append(para("GvdeMetni", content(e), **extra))
+        wait = False
+        if held:
+            prev = "tbl" if etree.QName(held[-1]).localname == "tbl" else None
+            new += held; held = []
+            continue
     prev = None
 
 assert eq == 3 and fig == 3, (eq, fig)

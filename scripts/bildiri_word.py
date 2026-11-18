@@ -4,6 +4,7 @@
 #         bildiri/word/fig*.png     (600 dpi sekiller)
 # Gerekir: pandoc, pdftoppm
 import os, re, subprocess
+from PIL import Image, ImageChops
 
 B, OUT = "bildiri", "bildiri/word"
 os.makedirs(OUT, exist_ok=True)
@@ -33,6 +34,9 @@ FIG = {"fig_maps": "fig1_maps", "fig_accuracy": "fig2_accuracy", "fig_mechanism"
 # ---------------------------------------------------------------- sekiller: PDF -> 600 dpi PNG
 for src, dst in FIG.items():
     subprocess.run(["pdftoppm", "-r", "600", "-png", "-singlefile", f"{B}/figures/{src}.pdf", f"{OUT}/{dst}"], check=True)
+    im = Image.open(f"{OUT}/{dst}.png").convert("RGB")   # beyaz kenarlari kirp (her yanda 0.5 mm kalsin); olcek degismez
+    x0, y0, x1, y1 = ImageChops.difference(im, Image.new("RGB", im.size, (255, 255, 255))).getbbox()
+    im.crop((max(x0 - 12, 0), max(y0 - 12, 0), min(x1 + 12, im.width), min(y1 + 12, im.height))).save(f"{OUT}/{dst}.png", dpi=(600, 600))
 
 # ---------------------------------------------------------------- LaTeX on isleme
 body = tex.split(r"\maketitle", 1)[1].split(r"\bibliographystyle", 1)[0]
