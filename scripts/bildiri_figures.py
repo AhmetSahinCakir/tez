@@ -27,6 +27,11 @@ LS = {"weight_clipping": (0, (4, 2))}
 plt.rcParams.update({"font.size": 8, "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42,
                      "axes.edgecolor": "#52514e", "xtick.color": "#52514e", "ytick.color": "#52514e",
                      "legend.frameon": False, "font.family": "DejaVu Sans"})
+LEG = (7, 6.5)   # gosterge yazi boyutlari (Sekil 1-2, Sekil 3)
+if EN:           # IEEE sablonu: sekil yazilari 8 punto Times New Roman; eksen etiketlerinde sozcuk kullanilir
+    plt.rcParams.update({"font.family": "serif", "font.serif": ["Times New Roman", "Liberation Serif"], "mathtext.fontset": "stix",
+                         "font.size": 8, "axes.labelsize": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
+    LEG = (8, 8)
 
 
 def grid(ax):
@@ -65,11 +70,12 @@ maps = [("sin", np.sin(x), np.abs(np.cos(x))), ("tanh", np.tanh(x), 1 - np.tanh(
 fig, axs = plt.subplots(1, 2, figsize=(3.45, 1.75))
 for lab, f, dfx in maps:
     axs[0].plot(x, f, color=COL[lab], lw=1.4, label=NAME[lab]); axs[1].plot(x, dfx, color=COL[lab], lw=1.4)
-for ax, yl in zip(axs, [r"$W/A=f(\Theta/A)$", r"$|f'(\Theta/A)|$"]):
-    grid(ax); ax.set_xlabel(r"$\Theta/A$"); ax.set_ylabel(yl, labelpad=1)
+YL1 = [r"Weight, $W/A$", r"Derivative magnitude, $|f'|$"] if EN else [r"$W/A=f(\Theta/A)$", r"$|f'(\Theta/A)|$"]
+for ax, yl in zip(axs, YL1):
+    grid(ax); ax.set_xlabel(r"Parameter, $\Theta/A$" if EN else r"$\Theta/A$"); ax.set_ylabel(yl, labelpad=1)
 axs[0].axhline(1, color="#b8b7b2", ls="--", lw=0.7); axs[0].axhline(-1, color="#b8b7b2", ls="--", lw=0.7)
 axs[1].set_ylim(-0.05, 1.15)
-fig.legend(loc="upper center", ncol=3, fontsize=7, handlelength=1.6, columnspacing=1.2, bbox_to_anchor=(0.5, 1.02))
+fig.legend(loc="upper center", ncol=3, fontsize=LEG[0], handlelength=1.6, columnspacing=1.2, bbox_to_anchor=(0.5, 1.02))
 fig.tight_layout(rect=(0, 0, 1, 0.9), w_pad=0.6); fig.savefig(f"{OUT}/figures/{FIG['maps']}.pdf"); plt.close(fig)
 
 # ---------------------------------------------------------------- Sekil 2: cevrim ici dogruluk
@@ -79,7 +85,7 @@ for lab in LABELS:
     ax.fill_between(t, m - h, m + h, color=COL[lab], alpha=0.18, lw=0)
     ax.plot(t, m, color=COL[lab], lw=1.4, ls=LS.get(lab, "-"), label=NAME[lab])
 grid(ax); ax.set_xlabel(TXT["task"]); ax.set_ylabel(TXT["acc"]); ax.set_xlim(1, 200)
-ax.legend(fontsize=7, ncol=1, loc="lower left", handlelength=2.0, labelspacing=0.25, borderaxespad=0.3)
+ax.legend(fontsize=LEG[0], ncol=1, loc="lower left", handlelength=2.0, labelspacing=0.25, borderaxespad=0.3)
 fig.tight_layout(); fig.savefig(f"{OUT}/figures/{FIG['acc']}.pdf"); plt.close(fig)
 
 # ---------------------------------------------------------------- Sekil 3: mekanizma
@@ -91,10 +97,11 @@ for lab in LABELS:
     t, m, h = band(lab, "w_abs")
     axs[1].fill_between(t, m - h, m + h, color=COL[lab], alpha=0.18, lw=0)
     axs[1].plot(t, m, color=COL[lab], lw=1.4, ls=LS.get(lab, "-"), label=NAME[lab])
-for ax, yl in zip(axs, [TXT["mult"] + r" $\langle f'^2\rangle$", TXT["mean"] + r" $|W|$"]):
+YL3 = [r"Step multiplier, $\langle f'^2\rangle$", r"Weight magnitude, $|W|$"] if EN else [TXT["mult"] + r" $\langle f'^2\rangle$", TXT["mean"] + r" $|W|$"]
+for ax, yl in zip(axs, YL3):
     grid(ax); ax.set_xlabel(TXT["task"]); ax.set_ylabel(yl, labelpad=1); ax.set_xlim(1, 200)
 axs[0].set_ylim(0.4, 1.05)
-fig.legend(loc="upper center", ncol=3, fontsize=6.5, handlelength=1.8, columnspacing=1.0, bbox_to_anchor=(0.5, 1.03))
+fig.legend(loc="upper center", ncol=3, fontsize=LEG[1], handlelength=1.8, columnspacing=1.0, bbox_to_anchor=(0.5, 1.03))
 fig.tight_layout(rect=(0, 0, 1, 0.86), w_pad=0.6); fig.savefig(f"{OUT}/figures/{FIG['mech']}.pdf"); plt.close(fig)
 
 # ---------------------------------------------------------------- istatistikler
@@ -152,7 +159,7 @@ def pair(lab, k1, k2, nd=3):
 
 rows = []
 for lab in ["tri", "weight_clipping", "sin", "tanh", "baseline"]:
-    rows.append(" & ".join([NAME[lab], str(len(summ[lab])), cell(lab, "auc_norm"), cell(lab, "final_window_mean"),
+    rows.append(" & ".join([NAME[lab]] + ([] if EN else [str(len(summ[lab]))]) + [cell(lab, "auc_norm"), cell(lab, "final_window_mean"),
                             cell(lab, "retention_ratio"), cell(lab, "fresh_gap_final", sign=True)]) + r"\\")
 open(f"{OUT}/{TAB['res']}.tex", "w").write("\n".join(rows) + "\n")
 rows = []

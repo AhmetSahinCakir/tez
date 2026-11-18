@@ -155,7 +155,7 @@ def text_of(el):
 FONT = {b: ImageFont.truetype(f"/usr/share/fonts/truetype/liberation/LiberationSerif-{n}.ttf", 160)
         for b, n in ((False, "Regular"), (True, "Bold"))}  # Times New Roman ile ayni olcu; 160 birim = 8 pt
 PAD = 40   # hucre ic boslugu (twip, her yan)
-TSZ = 15   # tablo yazisi 7.5 pt (yarim punto birimi): satirlar tek satira sigsin diye; sablonun "table col subhead" boyutu
+TSZ = 16   # tablo yazisi (yarim punto): sablonun "table copy" / "table col head" stillerindeki 8 punto
 
 
 def twips(s, bold=False):
@@ -164,6 +164,7 @@ def twips(s, bold=False):
 
 def small(p):
     """Hucre yazisini TSZ boyutuna getirir (rPr icinde semanin istedigi sirayla)."""
+    if TSZ == 16: return p                      # stilin kendi boyutu: dogrudan bicim eklenmez
     for r in p.iter(w("r")):
         rPr = r.find("w:rPr", NS)
         if rPr is None:
