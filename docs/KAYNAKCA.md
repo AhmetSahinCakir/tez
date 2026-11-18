@@ -21,6 +21,7 @@ kayıtları), Reinforcement Learning Journal sayfası, Crossref (DOI kayıtları
 | Roy ve Vetterli 2007 | Sayfa numarası doğrulanamadı | Sayfa numarası çıkarıldı (başlık, yazar, konferans doğrulandı) |
 | Makale metni | "Ağırlık normunun büyümesi" için Lyle vd. 2023'e atıf yapılmıştı; o çalışmanın özeti eğrilik değişimini vurguluyor | Atıf Dohare vd. 2024, Elsayed vd. 2024, Lyle vd. 2024'e taşındı; Lyle vd. 2023 eğrilik için kullanıldı |
 | Makale metni | Dohare vd. için "doğrusal ağdan iyi öğrenemez" yazılmıştı | Nature özetindeki ifade: "sığ (shallow) bir ağdan iyi öğrenemez" |
+| Goodfellow vd. | Yalnızca arXiv ön baskısı (2013) olarak girilmişti; arXiv kaydında yayın bilgisi yok | ICLR 2014 konferans bildirisi (resmî ICLR arşivindeki kabul listesinden doğrulandı, 18 Kasım 2026); arXiv numarası notta bırakıldı |
 | Kullanılmayan iki kayıt | Agarwal vd. 2021 ve Dohare vd. 2023 metinde atıflı değildi | Kaynakçadan çıkarıldı |
 
 ## Kaynak kaynak doğrulama
@@ -83,7 +84,7 @@ kayıtları), Reinforcement Learning Journal sayfası, Crossref (DOI kayıtları
 
 | Kaynak | Künye kaynağı | İçerik kontrolü |
 |---|---|---|
-| Goodfellow vd. 2013, arXiv:1312.6211 | arXiv | Tam metin: piksel permütasyonlu MNIST görevleri |
+| Goodfellow vd. 2014, ICLR (arXiv:1312.6211) | ICLR 2014 resmî arşivi (iclr.cc/archive/2014/conference-proceedings: kabul edilen konferans bildirileri listesi, arXiv:1312.6211 bağlantısıyla) + arXiv | Tam metin: piksel permütasyonlu MNIST görevleri |
 | Zenke vd. 2017, ICML, PMLR 70:3987–3995 | PMLR | Tam metin: "permuted MNIST" |
 | LeCun vd. 1998, Proc. IEEE 86(11):2278–2324 | Crossref | Künye |
 | Krizhevsky 2009, teknik rapor | Rapor PDF'i (Toronto Üniversitesi) | Künye |

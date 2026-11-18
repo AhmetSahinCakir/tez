@@ -47,7 +47,7 @@ continual learning, loss of plasticity, weight reparameterization, weight clippi
 In continual learning a network is trained on an unending stream of tasks and is expected to learn the
 thousandth task as well as the first. Standard networks trained with backpropagation do not meet this
 expectation: after enough tasks they learn new tasks more slowly, and to a lower accuracy, than a freshly
-initialised network \cite{ash2020warm,dohare2021continual,lyle2023understanding,dohare2024loss}. This
+initialised network \cite{ash2020warm,lyle2023understanding,dohare2024loss}. This
 phenomenon is called \emph{loss of plasticity}. It differs from catastrophic forgetting, which concerns old
 tasks; loss of plasticity concerns the ability to acquire new knowledge.
 
@@ -79,7 +79,7 @@ does not propose a method that improves on weight clipping; the contribution is 
 \section{Related Work}
 
 Warm-started networks have been shown to generalise worse than networks trained from scratch \cite{ash2020warm},
-and this effect accumulates over long task sequences \cite{dohare2021continual,dohare2024loss}. Methods that
+and this effect accumulates over long task sequences \cite{dohare2024loss}. Methods that
 control the weight magnitude include regularisation towards the initial parameters \cite{kumar2023maintaining},
 norm projection after normalisation \cite{lyle2024normalization} and weight clipping \cite{elsayed2024weight}.
 Lyle et al. \cite{lyle2024disentangling} report that the mechanisms are largely independent and that combining

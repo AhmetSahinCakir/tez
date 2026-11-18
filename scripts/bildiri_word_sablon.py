@@ -316,7 +316,8 @@ for e in src:
 
 assert eq == 3 and fig == 3, (eq, fig)
 refs = [p for p in new if p.find("w:pPr/w:pStyle[@w:val='references']", NS) is not None]
-assert len(refs) == 22, len(refs)
+nref = len(re.findall(r"\\bibitem\{", open("bildiri/paper_en.bbl", encoding="utf-8").read()))
+assert len(refs) == nref, (len(refs), nref)   # LaTeX kaynakcasiyla ayni sayida kaynak
 refs[-1].find("w:pPr", NS).append(sect_body)           # iki sutunlu govde burada biter (son sayfada sutunlar dengelenir)
 tiny = etree.Element(w("rPr")); tiny.append(E("sz", val=2)); tiny.append(E("szCs", val=2))
 new.append(para(None, spacing=dict(before="0", after="0", line="20", lineRule="exact"), rPr=tiny))
