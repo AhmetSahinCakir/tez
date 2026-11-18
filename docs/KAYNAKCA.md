@@ -127,3 +127,13 @@ Bu kontrolün bildiride düzelttirdiği ifadeler: (1) "nedenler birlikte etki ed
 "nedenler ayrıdır, yalnızca birini gidermek her zaman yetmez"; (2) "Kaiming sınırı b=sqrt(6/n)" -> He vd. Gauss
 biçimini (varyans 2/n) verir; "aynı varyansı veren düzgün dağılım sınırı" olarak yazıldı; (3) ağırlık normalleştirme
 için "optimizasyon geometrisi" -> özetteki "koşullanma" ifadesi.
+
+**Yayımlanmış asıl metinlerden ikinci kontrol (18 Kasım 2026).** Aşağıdaki kaynakların yayıncı/bildiri sitesindeki PDF'i
+indirildi ve bildiride dayandırılan cümle o metinde bulundu: Ash ve Adams (NeurIPS), Lyle vd. 2023 ve Sokar vd. (PMLR 202),
+Abbas vd. (PMLR 232), Elsayed vd. (RLJ), Lyle vd. 2024 (NeurIPS), Lyle vd. ve Kumar vd. (PMLR 274), Lewandowski vd.
+(ICLR 2025), Lillo ve Cheney (ICLR 2026), Salimans ve Kingma (NeurIPS), Dai vd. (npj Comput. Mater.), He vd. (CVF açık
+erişim), Zenke vd. (PMLR 70), Roy ve Vetterli (EURASIP). Dohare vd. (Nature) Europe PMC'deki yayımlanmış tam metinden,
+Goodfellow vd. ICLR 2014 arşivinin bağlandığı arXiv metninden okundu. Otomatik erişime kapalı olduğu için asıl metni
+okunamayanlar: Lyle vd. 2022 (OpenReview), Chen ve Zhang (APS), LeCun vd. 1998 (IEEE Xplore), Schuirmann 1987 (Springer);
+ilk ikisinin arXiv sürümü okundu. Salimans ve Kingma cümlesindeki "ağın temsil edebildiği işlevler değişmez" eki kaynakta
+açıkça geçmediği için çıkarıldı.
