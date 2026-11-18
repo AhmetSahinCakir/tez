@@ -109,12 +109,23 @@ def fix_math(el):
             kids = [c for c in kids if etree.QName(c).localname != "sty"]
         for c in list(pr): pr.remove(c)
         for c in kids: pr.append(c)
+    for r in el.iter(f"{{{M}}}r"):                                    # denklem icindeki duz metin ("sine:" vb.)
+        mr = r.find("m:rPr", NS)
+        if mr is not None and mr.find("m:nor", NS) is not None:
+            for t in r.iter(f"{{{M}}}t"): t.text = t.text.replace("\u2001", "")    # ek bosluk gereksiz: sutun araligi yeter
+            if not text_of(r):
+                r.getparent().remove(r); continue
+            wr = etree.Element(w("rPr"))                              # "equation" stilinin Symbol yazi tipi Yunan harfi yapmasin
+            wr.append(E("rFonts", ascii="Times New Roman", hAnsi="Times New Roman", cs="Times New Roman"))
+            mr.addnext(wr)
     for r in el.iter(f"{{{M}}}r"):                                    # cift cizgili R: dogrudan U+211D karakteri
         scr = r.find("m:rPr/m:scr", NS)
         if scr is not None and scr.get(f"{{{M}}}val") == "double-struck":
             scr.getparent().remove(scr)
             for t in r.iter(f"{{{M}}}t"): t.text = t.text.replace("R", "\u211d")
     for mat in el.iter(f"{{{M}}}m"):                                  # hizali denklem: "f'(x)" ve "= ..." hucrelerini birlestir
+        for r in list(mat.iter(f"{{{M}}}r")):                         # etiketten sonraki ek bosluk: sutun araligi yeter
+            if text_of(r) and not text_of(r).strip("\u2001"): r.getparent().remove(r)
         rows = mat.findall("m:mr", NS)
         if all(len(r.findall("m:e", NS)) == 4 for r in rows):
             for r in rows:
