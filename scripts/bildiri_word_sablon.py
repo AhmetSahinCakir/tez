@@ -19,7 +19,7 @@ AUTHORS = [
     ("Ahmet \u015eahin \u00c7ak\u0131r", "Department of Computer Engineering", "S\u00fcleyman Demirel University",
      "Isparta, T\u00fcrkiye", "ORCID: 0009-0007-1035-6771"),
     ("Ecir U\u011fur K\u00fc\u00e7\u00fcksille", "Department of Computer Engineering", "S\u00fcleyman Demirel University",
-     "Isparta, T\u00fcrkiye", "ecirugur@gmail.com"),
+     "Isparta, T\u00fcrkiye", "ORCID: 0000-0002-3293-9878"),
 ]
 BLIND = len(sys.argv) > 1 and sys.argv[1] == "anon"
 if BLIND: OUT = f"{D}/iisec2027_paper_anonymous.docx"
