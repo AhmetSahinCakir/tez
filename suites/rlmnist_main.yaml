@@ -1,0 +1,16 @@
+# Second benchmark: Random Label MNIST (configs/rlmnist.yaml; Kumar et al., CoLLAs 2024) on the EVALUATION
+# streams (stream_seed_offset 0), ten paired seeds, the five models of the main comparison.  Learning rates
+# and bound widths come from suites/selected_rlmnist.yaml (written by scripts/select_hparams.py from
+# results/rlmnist_dev); the evaluation streams are never used for selection.
+name: rlmnist_main
+base_config: configs/rlmnist.yaml
+workers: 2
+stream_seed_offset: 0
+selected_hparams: suites/selected_rlmnist.yaml
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+runs:
+  - {label: baseline, overrides: {method.name: baseline}}
+  - {label: sin, overrides: {model.reparam.hidden: sin, model.reparam.output: sin}}
+  - {label: tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}}
+  - {label: tri, overrides: {model.reparam.hidden: tri, model.reparam.output: tri}}
+  - {label: weight_clipping, overrides: {method.name: weight_clipping}}

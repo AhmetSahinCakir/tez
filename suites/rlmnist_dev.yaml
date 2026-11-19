@@ -1,0 +1,29 @@
+# Hyper-parameter search for the second benchmark, Random Label MNIST (configs/rlmnist.yaml), on a DEVELOPMENT
+# stream (stream_seed_offset 1000: image subset and labels differ from the evaluation streams).  Same rule as
+# suites/pmnist_dev.yaml: equal budget per bounded method (4 learning rates x 2 widths of the bound = 8
+# configurations), 4 learning rates for the standard network, one seed, selection by AUC (mean task accuracy).
+name: rlmnist_dev
+base_config: configs/rlmnist.yaml
+workers: 2
+seeds: [0]
+stream_seed_offset: 1000
+common:
+  fresh_reference.every_n_tasks: 0
+  metrics.fisher: false
+  metrics.update_tracking_every: 0
+runs:
+  - label: baseline
+    overrides: {method.name: baseline}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03]}
+  - label: sin
+    overrides: {model.reparam.hidden: sin, model.reparam.output: sin}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03], model.gamma: [1.5, 2.5]}
+  - label: tanh
+    overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03], model.gamma: [1.5, 2.5]}
+  - label: tri
+    overrides: {model.reparam.hidden: tri, model.reparam.output: tri}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03], model.gamma: [1.0, 1.5]}
+  - label: weight_clipping
+    overrides: {method.name: weight_clipping}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03], method.kappa: [1.0, 2.0]}
