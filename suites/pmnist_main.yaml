@@ -18,7 +18,8 @@ runs:
   - {label: baseline, overrides: {method.name: baseline}, n_seeds: 10}
   - {label: sin, overrides: {model.reparam.hidden: sin, model.reparam.output: sin}, n_seeds: 10}
   - {label: tanh, overrides: {model.reparam.hidden: tanh, model.reparam.output: tanh}, n_seeds: 10}
-  - {label: weight_clipping, overrides: {method.name: weight_clipping}, n_seeds: 5}
+  # weight clipping extended to 10 seeds on 19 Nov 2026 (it is the main reference of the conference paper)
+  - {label: weight_clipping, overrides: {method.name: weight_clipping}, n_seeds: 10}
   - {label: l2_init, overrides: {method.name: l2_init}, n_seeds: 5}
   - {label: continual_backprop, overrides: {method.name: continual_backprop}, n_seeds: 5}
   - {label: nap, overrides: {method.name: nap, model.layer_norm: true, model.ln_affine: false}, n_seeds: 5}
