@@ -1,6 +1,6 @@
 # İstatistiksel denetim paketi
 
-Danışman raporu (16 Kasım 2026), teslim listesi madde 3. Bu klasördeki her sayı, koşuların `summary.json` dosyalarından `python3 scripts/denetim_paketi.py` komutuyla yeniden üretilir; başka rapordan kopyalanmış sayı yoktur. Üretildiği depo sürümü: `53b0af6`.
+Danışman raporu (16 Kasım 2026), teslim listesi madde 3. Bu klasördeki her sayı, koşuların `summary.json` dosyalarından `python3 scripts/denetim_paketi.py` komutuyla yeniden üretilir; başka rapordan kopyalanmış sayı yoktur. Üretildiği depo sürümü: `29fa0aa`.
 
 | Dosya | İçerik |
 |---|---|
@@ -52,7 +52,7 @@ Tek tek tohum değerleri `tohum_bazli.csv` dosyasındadır; aşağıda model ba�
 | tanh_refl | 5 | 0.7994 ± 0.0017 | 0.8305 ± 0.0019 | 0.7798 ± 0.0051 | 0.9390 ± 0.0052 | -0.0264 ± 0.0017 | +0.0144 ± 0.0127 | 0/5 |
 | tri | 10 | 0.8358 ± 0.0026 | 0.8256 ± 0.0020 | 0.8395 ± 0.0033 | 1.0168 ± 0.0043 | +0.0051 ± 0.0022 | -0.0800 ± 0.0103 | 10/10 |
 | upgd | 3 | 0.8000 ± 0.0012 | 0.8265 ± 0.0003 | 0.7859 ± 0.0024 | 0.9509 ± 0.0026 | -0.0213 ± 0.0009 | +0.0108 ± 0.0039 | 0/3 |
-| weight_clipping | 8 | 0.8365 ± 0.0009 | 0.8259 ± 0.0021 | 0.8394 ± 0.0029 | 1.0163 ± 0.0039 | +0.0058 ± 0.0015 | -0.0799 ± 0.0093 | 8/8 |
+| weight_clipping | 10 | 0.8365 ± 0.0009 | 0.8258 ± 0.0019 | 0.8397 ± 0.0027 | 1.0167 ± 0.0036 | +0.0059 ± 0.0014 | -0.0813 ± 0.0090 | 10/10 |
 
 ## 3. Eşdeğerlik testleri (TOST)
 
@@ -116,23 +116,23 @@ Eşleştirilmiş tohumlar üzerinde iki tek yönlü t-testi (Schuirmann, 1987; `
 | Koruma oranı | -0.0123 | 0.0042 | 0.00133 | -1.71 | 0.94 | -16.80 | 2.1e-08 | 0.94 | 0.94 | [-0.0147, -0.0098] | karar verilemez |
 | Taze model farkı | +0.0008 | 0.0074 | 0.00235 | 4.60 | 0.00064 | -3.92 | 0.0017 | 0.0017 | 0.0052 | [-0.0035, +0.0051] | eşdeğer |
 
-### pmnist_main: tri − weight_clipping, Δ = 0.005 (n = 8 ortak tohum)
+### pmnist_main: tri − weight_clipping, Δ = 0.005 (n = 10 ortak tohum)
 
 | Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| AUC (birincil) | -0.0004 | 0.0024 | 0.00085 | 5.41 | 0.0005 | -6.34 | 0.00019 | 0.0005 | 0.0017 | [-0.0020, +0.0012] | eşdeğer |
-| Son pencere | +0.0002 | 0.0024 | 0.00086 | 6.11 | 0.00024 | -5.55 | 0.00043 | 0.00043 | 0.0017 | [-0.0014, +0.0019] | eşdeğer |
-| Koruma oranı | +0.0008 | 0.0033 | 0.00118 | 4.90 | 0.00088 | -3.57 | 0.0045 | 0.0045 | 0.0091 | [-0.0015, +0.0030] | eşdeğer |
-| Taze model farkı | +0.0026 | 0.0061 | 0.00215 | 3.53 | 0.0048 | -1.13 | 0.15 | 0.15 | 0.15 | [-0.0015, +0.0066] | karar verilemez |
+| AUC (birincil) | -0.0007 | 0.0022 | 0.00070 | 6.12 | 8.8e-05 | -8.12 | 9.8e-06 | 8.8e-05 | 0.00035 | [-0.0020, +0.0006] | eşdeğer |
+| Son pencere | -0.0002 | 0.0025 | 0.00080 | 6.03 | 9.8e-05 | -6.53 | 5.4e-05 | 9.8e-05 | 0.00035 | [-0.0017, +0.0013] | eşdeğer |
+| Koruma oranı | +0.0001 | 0.0034 | 0.00107 | 4.73 | 0.00054 | -4.59 | 0.00066 | 0.00066 | 0.0013 | [-0.0019, +0.0020] | eşdeğer |
+| Taze model farkı | +0.0013 | 0.0063 | 0.00199 | 3.17 | 0.0057 | -1.86 | 0.048 | 0.048 | 0.048 | [-0.0023, +0.0049] | eşdeğer |
 
-### pmnist_main: tri − weight_clipping, Δ = 0.01 (n = 8 ortak tohum)
+### pmnist_main: tri − weight_clipping, Δ = 0.01 (n = 10 ortak tohum)
 
 | Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| AUC (birincil) | -0.0004 | 0.0024 | 0.00085 | 11.29 | 4.8e-06 | -12.22 | 2.8e-06 | 4.8e-06 | 1.8e-05 | [-0.0020, +0.0012] | eşdeğer |
-| Son pencere | +0.0002 | 0.0024 | 0.00086 | 11.94 | 3.3e-06 | -11.38 | 4.5e-06 | 4.5e-06 | 1.8e-05 | [-0.0014, +0.0019] | eşdeğer |
-| Koruma oranı | +0.0008 | 0.0033 | 0.00118 | 9.13 | 1.9e-05 | -7.80 | 5.3e-05 | 5.3e-05 | 0.00011 | [-0.0015, +0.0030] | eşdeğer |
-| Taze model farkı | +0.0026 | 0.0061 | 0.00215 | 5.85 | 0.00031 | -3.46 | 0.0053 | 0.0053 | 0.0053 | [-0.0015, +0.0066] | eşdeğer |
+| AUC (birincil) | -0.0007 | 0.0022 | 0.00070 | 13.24 | 1.7e-07 | -15.25 | 4.9e-08 | 1.7e-07 | 6.7e-07 | [-0.0020, +0.0006] | eşdeğer |
+| Son pencere | -0.0002 | 0.0025 | 0.00080 | 12.30 | 3.1e-07 | -12.80 | 2.2e-07 | 3.1e-07 | 9.3e-07 | [-0.0017, +0.0013] | eşdeğer |
+| Koruma oranı | +0.0001 | 0.0034 | 0.00107 | 9.39 | 3e-06 | -9.25 | 3.4e-06 | 3.4e-06 | 6.8e-06 | [-0.0019, +0.0020] | eşdeğer |
+| Taze model farkı | +0.0013 | 0.0063 | 0.00199 | 5.68 | 0.00015 | -4.38 | 0.00089 | 0.00089 | 0.00089 | [-0.0023, +0.0049] | eşdeğer |
 
 ### pmnist_main: sin − tanh, Δ = 0.005 (n = 10 ortak tohum)
 

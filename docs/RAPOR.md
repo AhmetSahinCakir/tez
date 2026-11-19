@@ -797,7 +797,13 @@ marjında **eşdeğerdir**; %90 güven aralıklarının tamamı ±0.003'ün içi
 karar değişmez. 200 görevlik protokolde (5 ortak tohum) AUC ve son pencerede eşdeğerlik vardır, koruma oranında
 5 tohum Δ = 0.005 için yeterli güç vermez (Δ = 0.01'de eşdeğer). Bu nedenle metinde 800 görevlik sonuç için
 "TOST-eşdeğer (Δ = 0.005, 10 tohum)", 200 görevlik sonuç için "ayırt edilemeyecek kadar yakın" ifadesi
-kullanılır. Eşdeğerlik iddiası bu protokol ve bu eniyileyici (SGD) içindir; Adam altında iki yöntem ayrışır
+kullanılır.
+_Güncelleme (19 Kasım 2026):_ 200 görevlik pakette Weight Clipping 5 tohumdan 10 tohuma çıkarıldı (tohum 0–4
+yeniden koşulmadı; yukarıdaki 5 tohumluk satırlar sürüm kaydı olarak bırakıldı). 10 ortak tohumla fark (üçgen −
+kırpma) ve %90 GA: AUC −0.0007 [−0.0020, +0.0006], p_TOST < 0.001; son pencere −0.0002 [−0.0017, +0.0013],
+p_TOST < 0.001; koruma oranı +0.0001 [−0.0019, +0.0020], p_TOST < 0.001; taze model farkı +0.0013
+[−0.0023, +0.0049], p_TOST = 0.048. Yani 200 görevde de dört ölçütün dördünde Δ = 0.005 marjında eşdeğerlik
+vardır; taze model farkında sonuç sınırdadır (Holm düzeltmesiyle p = 0.048). Kaynak: `reports/denetim/DENETIM.md`. Eşdeğerlik iddiası bu protokol ve bu eniyileyici (SGD) içindir; Adam altında iki yöntem ayrışır
 (§14.1).
 
 
