@@ -124,6 +124,7 @@ def _train_on_task(
     need_feats = bool(getattr(method, "requires_features", False))
     first_correct, first_loss = 0, 0.0
     last_correct, last_loss = 0, 0.0
+    all_correct = 0
     track_every = step_stats.every if step_stats is not None else 0
     for ep in range(epochs):
         if ep == 0:
@@ -164,6 +165,7 @@ def _train_on_task(
         if ep == 0:
             first_correct, first_loss = correct, loss_sum
         last_correct, last_loss = correct, loss_sum
+        all_correct += correct
     res = {
         "online_accuracy": first_correct / N,
         "online_loss": first_loss / N,
@@ -173,6 +175,8 @@ def _train_on_task(
     if epochs > 1:
         res["train_accuracy_last_epoch"] = last_correct / N
         res["train_loss_last_epoch"] = last_loss / N
+        # average online task accuracy (Kumar et al., 2025): mean over every batch of every epoch, before its update
+        res["task_accuracy"] = all_correct / (N * epochs)
     if task.x_test is not None:
         res["test_accuracy"] = evaluate(model, torch.from_numpy(task.x_test), torch.from_numpy(task.y_test))
     return res
@@ -256,7 +260,10 @@ def run_stream(cfg: Dict[str, Any], out_dir: Path) -> Dict[str, Any]:
             fresh_method = build_method(cfg.get("method", {"name": "baseline"}), fresh_model, cfg["optimizer"], generator=_method_generator(seed))
             fresh_opt = fresh_method.build_optimizer()
             fr = _train_on_task(fresh_model, fresh_method, fresh_opt, task, train_cfg, 0, None, np.random.default_rng(seed))
-            row["fresh_accuracy"] = fr.get("test_accuracy", fr["online_accuracy"]) if stream.metric == "test_accuracy" else fr["online_accuracy"]
+            if stream.metric == "test_accuracy":
+                row["fresh_accuracy"] = fr.get("test_accuracy", fr["online_accuracy"])
+            else:
+                row["fresh_accuracy"] = fr.get(stream.metric, fr["online_accuracy"])
         rows.append(row)
         append_jsonl(row, log_path)
         if log_every and (t % log_every == 0 or t == n_tasks - 1):

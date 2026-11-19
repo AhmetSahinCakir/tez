@@ -13,6 +13,8 @@ Protocols
 ``CIFAR100BinaryStream`` -- Sequential binary classification (Chen & Zhang, 2026). Each task picks two
     distinct CIFAR-100 classes; images are grey-scaled and flattened to 1024-d vectors. Training uses
     the training images of the two classes; performance is the test accuracy on the two classes.
+``RandomLabelMNISTStream`` -- Random Label MNIST (Kumar et al., 2025). A fixed subset of MNIST images is
+    given new uniformly random labels in every task and is trained on for many epochs (memorisation).
 ``StationaryDataset``    -- plain i.i.d. MNIST / CIFAR-100 (100-way) for the capacity control.
 """
 from __future__ import annotations
@@ -188,6 +190,62 @@ class CIFAR100BinaryStream:
             yield self.task(t)
 
 
+class RandomLabelMNISTStream:
+    """Random Label MNIST stream (Kumar, Marklund and Van Roy, CoLLAs 2024, Section 4.2 and Table 1).
+
+    A fixed subset of ``samples_per_task`` MNIST training images is drawn once per stream seed.  Every task
+    assigns a new label, drawn uniformly from the ten classes, to each image; the inputs never change
+    ("concept shift").  The network is trained for ``train.epochs_per_task`` epochs on each task (400 in the
+    source protocol, batch size 16, 50 tasks) and performance is the *average online task accuracy*: the mean
+    accuracy over all batches seen during the task, computed before each update (key ``task_accuracy``).
+    """
+
+    name = "random_label_mnist"
+    input_dim = 784
+    n_classes = 10
+    metric = "task_accuracy"
+
+    def __init__(
+        self,
+        n_tasks: int = 50,
+        samples_per_task: int = 1200,
+        seed: int = 0,
+        normalize: str = "unit",
+        data_dir: Optional[str] = None,
+    ) -> None:
+        self.n_tasks = int(n_tasks)
+        self.samples_per_task = int(samples_per_task)
+        self.seed = int(seed)
+        d = load_mnist(data_dir)
+        x = d["x_train"].astype(np.float32) / 255.0
+        if normalize == "standard":
+            x = (x - 0.1307) / 0.3081
+        elif normalize != "unit":
+            raise ValueError(f"unknown normalize={normalize!r}")
+        if self.samples_per_task > x.shape[0]:
+            raise ValueError("samples_per_task cannot exceed 60000")
+        subset = _task_rng(self.seed, 0, salt=31).permutation(x.shape[0])[: self.samples_per_task]
+        self._x = np.ascontiguousarray(x[subset])
+        self.subset = subset
+
+    def labels(self, task_index: int) -> np.ndarray:
+        return _task_rng(self.seed, task_index, salt=32).integers(0, self.n_classes, size=self.samples_per_task).astype(np.int64)
+
+    def task(self, task_index: int) -> Task:
+        if not 0 <= task_index < self.n_tasks:
+            raise IndexError(task_index)
+        order = _task_rng(self.seed, task_index, salt=33).permutation(self.samples_per_task)
+        y = self.labels(task_index)
+        return Task(index=task_index, x_train=self._x[order], y_train=y[order], info={"label_seed": self.seed})
+
+    def __len__(self) -> int:
+        return self.n_tasks
+
+    def __iter__(self) -> Iterator[Task]:
+        for t in range(self.n_tasks):
+            yield self.task(t)
+
+
 class StationaryDataset:
     """i.i.d. control: MNIST (10-way) or CIFAR-100 grey-scale (100-way)."""
 
@@ -226,6 +284,8 @@ def build_stream(cfg: Dict[str, Any], seed: int):
         return PermutedMNISTStream(seed=seed, **kw)
     if kind == "cifar100_binary":
         return CIFAR100BinaryStream(seed=seed, **kw)
+    if kind == "random_label_mnist":
+        return RandomLabelMNISTStream(seed=seed, **kw)
     if kind == "stationary":
         return StationaryDataset(seed=seed, **kw)
     raise ValueError(f"unknown stream {kind!r}")

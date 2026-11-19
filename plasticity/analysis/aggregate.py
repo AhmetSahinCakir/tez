@@ -58,7 +58,7 @@ _MANIFEST = "config.json"
 _CACHE_MANIFEST = "suite_manifest.json"  # sidecar of the cached tables (see load_suite)
 _CACHE_VERSION = 1
 
-PERFORMANCE_KEYS = ("online_accuracy", "test_accuracy", "online_loss", "fresh_accuracy")
+PERFORMANCE_KEYS = ("online_accuracy", "test_accuracy", "task_accuracy", "online_loss", "fresh_accuracy")
 MECHANISM_KEYS = ("dead_frac/all", "inactive_frac/all", "w_abs_mean/all", "w_fro_norm/all", "stable_rank/last",
                   "effective_rank/last", "stable_rank_c/last", "effective_rank_c/last", "jac_sq_mean/all",
                   "w_over_A_mean/all", "sat_frac/all", "grad_norm_theta", "grad_norm_w", "fisher_trace_theta",

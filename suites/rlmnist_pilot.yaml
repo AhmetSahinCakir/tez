@@ -1,0 +1,15 @@
+# Pilot for a second benchmark (19 Nov 2026): does the standard network lose plasticity on Random Label MNIST
+# (configs/rlmnist.yaml; Kumar et al., CoLLAs 2024) in this code base, and with which optimizer and step size?
+# One seed on a DEVELOPMENT stream (stream_seed_offset 1000); nothing here is used as a result.
+name: rlmnist_pilot
+base_config: configs/rlmnist.yaml
+workers: 2
+seeds: [0]
+stream_seed_offset: 1000
+runs:
+  - label: sgd
+    overrides: {method.name: baseline}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03]}
+  - label: adam
+    overrides: {method.name: baseline, optimizer.name: adam}
+    sweep: {optimizer.lr: [0.0001, 0.001]}

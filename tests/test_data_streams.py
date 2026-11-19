@@ -262,3 +262,19 @@ def test_build_stream_unknown_name_raises():
         build_stream({"name": "imagenet"}, seed=0)
     with pytest.raises(KeyError):
         build_stream({}, seed=0)
+
+
+def test_random_label_mnist_stream_is_deterministic_and_keeps_inputs():
+    from plasticity.data import RandomLabelMNISTStream
+
+    a = RandomLabelMNISTStream(n_tasks=3, samples_per_task=200, seed=5)
+    b = RandomLabelMNISTStream(n_tasks=3, samples_per_task=200, seed=5)
+    c = RandomLabelMNISTStream(n_tasks=3, samples_per_task=200, seed=6)
+    t0, t1 = a.task(0), a.task(1)
+    assert t0.x_train.shape == (200, 784) and t0.y_train.shape == (200,)
+    assert np.array_equal(t0.x_train, b.task(0).x_train) and np.array_equal(t0.y_train, b.task(0).y_train)
+    # same image set in every task (only order and labels change), different labels across tasks
+    assert np.allclose(np.sort(t0.x_train.sum(1)), np.sort(t1.x_train.sum(1)))
+    assert not np.array_equal(a.labels(0), a.labels(1))
+    assert set(np.unique(a.labels(0))) <= set(range(10))
+    assert not np.array_equal(a.subset, c.subset)
