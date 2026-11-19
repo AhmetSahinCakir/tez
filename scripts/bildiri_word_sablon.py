@@ -96,6 +96,14 @@ def content(p):
             if rPr.find("w:lang", NS) is None: rPr.append(E("lang", val="en-US"))
             for t in c.iter(w("t")):                  # "(ii-iv)" gibi parantezlerden sonraki bolunmez bosluk: iki yana yasli satiri germesin
                 if t.text: t.text = t.text.replace(")\u00a0", ") ")
+            for t in list(c.iter(w("t"))):            # "Section III-C": bolunmez tire (satir sonunda "III-" / "C" diye ayrilmasin)
+                m = re.search(r"(?<=\b[IVX])-(?=[A-Z]\b)|(?<=[IVX][IVX])-(?=[A-Z]\b)", t.text or "")
+                if m:
+                    tail_t = etree.Element(w("t")); tail_t.text = t.text[m.end():]
+                    tail_t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+                    t.text = t.text[:m.start()]
+                    t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+                    t.addnext(tail_t); t.addnext(etree.Element(w("noBreakHyphen")))
             out.append(c)
         elif tag == "oMath" and text_of(c).strip() == "\u00b1":
             out.append(run("\u00b1"))                                 # tek basina arti-eksi: duz metin
