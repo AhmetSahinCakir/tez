@@ -24,7 +24,7 @@ A Preliminary Study of Sine, Tanh and Triangle-Wave Maps}
 
 \begin{abstract}
 Neural networks trained on a long sequence of tasks gradually lose the ability to learn new ones. This is called loss of plasticity. Growth of the weight magnitude is one known cause, and keeping the weights inside a fixed interval is known to help. This preliminary study tests whether keeping the weights bounded is enough. Each weight is written as a bounded function of a free parameter. A smooth periodic map (sine), a smooth nonperiodic map (tanh) and a piecewise-linear periodic map (triangle wave) are compared with the standard network and with
-weight clipping. On Online Permuted MNIST with a 200-task stream and up to ten paired seeds, the smooth maps are
+weight clipping. On Online Permuted MNIST with a 200-task stream and ten paired seeds, the smooth maps are
 slightly better than the standard network but do not preserve plasticity (retention ratio 0.93 versus 0.91).
 Their weights move toward the bound, where the derivative of the map goes to zero, and the mean step
 multiplier falls from 0.85 to 0.56 for sine and from 0.74 to 0.47 for tanh. The triangle wave, whose derivative has magnitude one except at its corner points, shows no loss (retention ratio 1.02). Its results did not differ from those of weight clipping, and it was not better. The findings are limited to one
@@ -163,8 +163,7 @@ measures we record the mean step multiplier $\langle f'^2\rangle$, the fraction 
 ($|f'|<0.1$), the mean weight magnitude, the norm of the actual weight step and the effective rank
 \cite{roy2007effective} of the last hidden-layer representation.
 
-\textbf{Seeds and statistics.} Ten seeds were run for the standard network and the three maps, and five for
-weight clipping. A seed determines both the initialization and the permutation sequence; since the models are
+\textbf{Seeds and statistics.} Ten seeds were run for each of the five models. A seed determines both the initialization and the permutation sequence; since the models are
 compared on identical streams, all differences are paired. Means are reported with 95\% $t$-intervals over
 seeds and differences with paired $t$-tests. Because the absence of a significant difference between the
 triangle wave and weight clipping is not evidence of equality, two one-sided tests (TOST)
@@ -185,7 +184,7 @@ triangle wave and weight clipping is not evidence of equality, two one-sided tes
 
 \begin{table}[t]
   \centering
-  \caption{Results on the 200-task stream (mean $\pm$ 95\% interval over ten seeds; five seeds for weight clipping).}
+  \caption{Results on the 200-task stream (mean $\pm$ 95\% interval over ten seeds).}
   \label{tab:results}
   \setlength{\tabcolsep}{2.5pt}\footnotesize
   \resizebox{\linewidth}{!}{%
@@ -211,10 +210,10 @@ the standard network and $+0.0506$ ($[+0.0486,+0.0525]$) relative to sine, posit
 comparisons. On the last task the continually trained triangle-wave network is 0.080 better than a freshly
 initialized one, which suggests positive transfer from earlier tasks.
 
-The differences between the triangle wave and weight clipping, on the five common seeds, are $+0.0004$
-($[-0.0025,+0.0034]$) for AUC and $+0.0007$ ($[-0.0029,+0.0043]$) for the final window. With a margin of 0.005,
-TOST indicates equivalence for AUC ($p=0.006$) and the final window ($p=0.015$) but not for the retention ratio
-($p=0.052$). The two methods could not be distinguished in this experiment; there is no evidence that the
+The differences between the triangle wave and weight clipping are $-0.0007$
+($[-0.0023,+0.0009]$) for AUC and $-0.0002$ ($[-0.0020,+0.0016]$) for the final window. With a margin of 0.005,
+TOST indicates equivalence for AUC, the final window and the retention ratio ($p<0.001$ for each). Within this
+margin the two methods gave the same result; there is no evidence that the
 triangle wave improves on weight clipping.
 
 \subsection{Mechanism}
@@ -265,7 +264,7 @@ they keep the bound without shrinking the update. The small advantage of the smo
 network may be explained by the bound slowing the growth of the weights; the same bound, however, also shrinks
 the steps.
 
-That the triangle wave and weight clipping could not be distinguished agrees with the expectation of
+That the triangle wave and weight clipping gave equivalent results agrees with the expectation of
 Section~\ref{sec:reflection}: for small steps the difference between reflection and projection does not exceed
 the size of a single step. The possible advantage of the triangle wave lies not in performance but in the
 constraint being part of the model; whether this brings any practical benefit was not tested in this study.
@@ -274,8 +273,7 @@ The study has the following limitations. (i)~A single dataset and a small fully 
 (ii)~The stream is short (200 tasks, 5,000 samples per task); longer streams are needed to see a loss that builds up slowly. (iii)~Only stochastic gradient descent is tried; with adaptive optimizers the step
 may be large relative to the interval, so the results may differ. (iv)~The width of the bound differs between
 the models (it was selected separately for each model on the development stream); the effects of the shape of
-the map and of the width of the bound are therefore not fully separated in this experiment. (v)~Weight clipping
-was run with five seeds. (vi)~That the damping is the \emph{cause} of the loss is not tested directly here; the
+the map and of the width of the bound are therefore not fully separated in this experiment. (v)~That the damping is the \emph{cause} of the loss is not tested directly here; the
 measurements are only consistent with this explanation. An intervention experiment that changes only the
 backward derivative while leaving the forward map unchanged, and experiments on longer streams, are in progress.
 
