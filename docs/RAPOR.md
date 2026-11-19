@@ -776,7 +776,7 @@ geçişi sayısı) sonraki koşularda ölçüt olarak eklenecektir (`docs/YAPILA
 ### 13.3 Üçgen dalga – Weight Clipping eşdeğerlik testi (TOST)
 
 "Eşit" iddiası için ortalama farkın küçük olması yeterli değildir; önceden belirlenmiş bir eşdeğerlik marjı
-gerekir. Marj Δ = 0.005 (normalize AUC ve son pencere doğruluğunda beş binde bir; ikincil olarak Δ = 0.01),
+gerekir. Marj Δ = 0.005 (normalize AUC ve son pencere doğruluğunda binde beş, yani yarım yüzde puanı; ikincil olarak Δ = 0.01),
 eşleştirilmiş tohumlar, iki tek yönlü t-testi (TOST, Schuirmann 1987; `plasticity.metrics.stats.tost_paired`,
 `scripts/equivalence.py`). Eşdeğerlik, farkın %90 güven aralığı (−Δ, +Δ) içinde kaldığında (p_TOST < 0.05)
 ilan edilir.

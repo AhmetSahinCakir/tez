@@ -9,8 +9,8 @@ silinmez; yeni sonuçlar sürüm notuyla eklenir.
 | # | İstenen çıktı | Durum | Nerede |
 |---|---|---|---|
 | 1 | Tek etkenli yansımalı sinüs deneyi (800 görev, 10 eşleştirilmiş tohum, aynı γ, lr, başlangıç ve akış) | ⏳ 16 Kasım'da başladı; yaklaşık 3 gün | `suites/pmnist_fullstream.yaml` → `sin_refl_matched`; `results/pmnist_fullstream/sin_refl_matched/` |
-| 2 | Matematiksel yöntem ve kod eki | ◐ büyük bölümü hazır | aşağıda "Madde 2" |
-| 3 | İstatistiksel denetim paketi (tohum bazlı CSV, TOST kodu ve gerekçesi) | ◐ veriler ve kod var; tek paket hâline getirilecek | `reports/pmnist_fullstream/` (`runs.csv`, `scaleup_tables.md`, `equivalence.md`), `scripts/equivalence.py` |
+| 2 | Matematiksel yöntem ve kod eki | ✔ 19 Kasım'da ayrı ek olarak yazıldı | `docs/EK_MATEMATIK_VE_KOD.md`; özet aşağıda "Madde 2" |
+| 3 | İstatistiksel denetim paketi (tohum bazlı CSV, TOST kodu ve gerekçesi) | ✔ 19 Kasım'da tek paket hâline getirildi; süren koşular bitince yeniden üretilecek | `reports/denetim/` (`DENETIM.md`, `tohum_bazli.csv`, `tost.csv`), `scripts/denetim_paketi.py` |
 | 4 | Genelleme ve sınırlılıklar eki (CIFAR-100, Adam, geniş ağ, γ) | ✔ raporda var; tezde ayrı bölüm olacak | RAPOR §7.4, §13.4, §14.1, §14.3; makale ekleri C–F |
 | 5 | Tez taslağı | ✗ sırada | — |
 | 6 | Makale iskeleti | ✔ ilk tam taslak | `paper/main.tex`, `paper/main.pdf` |
@@ -68,7 +68,7 @@ değil, düz-geçişli (surrogate) bir gradyandır (Bengio vd., 2013; Yin vd., 2
   `tests/test_reparam_nondamped.py::test_tri_closed_form_matches_reference_bitwise`.
 * "Türevi her yerde birdir" ifadesi makalede "köşe noktaları dışında birim büyüklükte" olarak düzeltildi.
 
-## Madde 3 için yapılacaklar (hesap gerektirmez)
+## Madde 3: yapılanlar (19 Kasım 2026, `reports/denetim/`)
 
 1. Tohum bazlı tek CSV: model × tohum × (AUC, erken/son pencere, koruma, eğim, taze model farkı, ölçüt 1/2/3).
 2. TOST: iki tek yönlü testin t istatistikleri ve p değerleri ayrı ayrı; %90 GA; Δ = 0.005 ve 0.01.
@@ -84,3 +84,4 @@ değil, düz-geçişli (surrogate) bir gradyandır (Bengio vd., 2013; Yin vd., 2
 | 14.11.2026 | 800 görevlik paket 3 → 10 tohum; LN + WD (10) ve yansımalı sinüs (3) eklendi | 31 Ekim raporu, C paketi |
 | 16.11.2026 | `sin_refl_matched` (10 tohum) eklendi; mevcut koşulara dokunulmadı | 16 Kasım raporu, madde 2.1 |
 | 16.11.2026 | Makalede yansımalı sinüsün matematiksel tanımı düzeltildi (ağırlık adımı \|cos\| ile ölçeklenir) | 16 Kasım raporu, madde 2.2 |
+| 19.11.2026 | 200 görevlik pakette bütün karşılaştırma yöntemleri 10 tohuma çıkarılıyor (eski tohumlar yeniden koşulmadı); girdi standardizasyonu testi ve Random Label MNIST pilotu eklendi | Makale sınırlılıkları; ikinci veri akışı |

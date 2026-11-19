@@ -3,7 +3,7 @@
 Reference
 ---------
 M. Elsayed, Q. Lan, C. Lyle, A. R. Mahmood (2024). *Weight Clipping for Deep Continual and
-Reinforcement Learning*. Reinforcement Learning Journal (RLJ), vol. 1.
+Reinforcement Learning*. Reinforcement Learning Journal (RLJ), vol. 5, pp. 2198-2217.
 
 Formulation implemented
 -----------------------
