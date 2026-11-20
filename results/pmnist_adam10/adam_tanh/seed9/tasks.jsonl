@@ -97,3 +97,4 @@
 {"task": 96, "time": 28.256173849105835, "online_accuracy": 0.791, "online_loss": 0.645981689453125, "n_train": 5000, "step_grad_norm_theta": 4.8081548556714555, "step_dw_norm": 0.021816939310599692, "step_dtheta_norm": 0.04488657862436398}
 {"task": 97, "time": 27.390900135040283, "online_accuracy": 0.7878, "online_loss": 0.63293056640625, "n_train": 5000, "step_grad_norm_theta": 3.8039608173717294, "step_dw_norm": 0.0211516857257773, "step_dtheta_norm": 0.04471022432278949}
 {"task": 98, "time": 31.884108781814575, "online_accuracy": 0.8114, "online_loss": 0.563312548828125, "n_train": 5000, "step_grad_norm_theta": 4.906367661308425, "step_dw_norm": 0.02018755431833229, "step_dtheta_norm": 0.04221719729094594}
+{"task": 99, "time": 29.846414804458618, "online_accuracy": 0.8096, "online_loss": 0.577787841796875, "n_train": 5000, "step_grad_norm_theta": 3.4363284543507335, "step_dw_norm": 0.021842860168637873, "step_dtheta_norm": 0.04614897933692829}
