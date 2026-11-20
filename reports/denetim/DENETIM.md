@@ -1,6 +1,6 @@
 # İstatistiksel denetim paketi
 
-Danışman raporu (16 Kasım 2026), teslim listesi madde 3. Bu klasördeki her sayı, koşuların `summary.json` dosyalarından `python3 scripts/denetim_paketi.py` komutuyla yeniden üretilir; başka rapordan kopyalanmış sayı yoktur. Üretildiği depo sürümü: `e145641`.
+Danışman raporu (16 Kasım 2026), teslim listesi madde 3. Bu klasördeki her sayı, koşuların `summary.json` dosyalarından `python3 scripts/denetim_paketi.py` komutuyla yeniden üretilir; başka rapordan kopyalanmış sayı yoktur. Üretildiği depo sürümü: `355b3d7`.
 
 | Dosya | İçerik |
 |---|---|
@@ -53,6 +53,16 @@ Tek tek tohum değerleri `tohum_bazli.csv` dosyasındadır; aşağıda model ba�
 | tri | 10 | 0.8358 ± 0.0026 | 0.8256 ± 0.0020 | 0.8395 ± 0.0033 | 1.0168 ± 0.0043 | +0.0051 ± 0.0022 | -0.0800 ± 0.0103 | 10/10 |
 | upgd | 10 | 0.8001 ± 0.0015 | 0.8255 ± 0.0015 | 0.7857 ± 0.0033 | 0.9518 ± 0.0040 | -0.0205 ± 0.0018 | +0.0063 ± 0.0109 | 0/10 |
 | weight_clipping | 10 | 0.8365 ± 0.0009 | 0.8258 ± 0.0019 | 0.8397 ± 0.0027 | 1.0167 ± 0.0036 | +0.0059 ± 0.0014 | -0.0813 ± 0.0090 | 10/10 |
+
+### pmnist_adam10 (200 görev × 5.000 örnek, Adam (lr 10⁻³; ayarlar SGD'den aktarıldı))
+
+| Model | n | AUC | Erken pencere | Son pencere | Koruma oranı | Eğim / 100 görev | Taze model farkı | Üç ölçüt |
+|---|---:|---|---|---|---|---|---|---|
+| adam_sin | 10 | 0.8256 ± 0.0018 | 0.8285 ± 0.0028 | 0.8264 ± 0.0034 | 0.9975 ± 0.0049 | -0.0003 ± 0.0021 | -0.0023 ± 0.0101 | 6/10 |
+| adam_std | 10 | 0.7413 ± 0.0071 | 0.8063 ± 0.0028 | 0.7059 ± 0.0071 | 0.8754 ± 0.0105 | -0.0532 ± 0.0063 | +0.1215 ± 0.0158 | 0/10 |
+| adam_tanh | 10 | 0.8110 ± 0.0020 | 0.8286 ± 0.0021 | 0.8049 ± 0.0051 | 0.9714 ± 0.0047 | -0.0109 ± 0.0027 | +0.0274 ± 0.0112 | 0/10 |
+| adam_tri | 10 | 0.7916 ± 0.0050 | 0.8060 ± 0.0063 | 0.7860 ± 0.0128 | 0.9753 ± 0.0176 | -0.0080 ± 0.0047 | +0.0281 ± 0.0374 | 0/10 |
+| adam_weight_clipping | 10 | 0.7914 ± 0.0064 | 0.8077 ± 0.0051 | 0.7841 ± 0.0232 | 0.9707 ± 0.0289 | -0.0109 ± 0.0101 | +0.0383 ± 0.0537 | 1/10 |
 
 ## 3. Eşdeğerlik testleri (TOST)
 
@@ -151,6 +161,60 @@ Eşleştirilmiş tohumlar üzerinde iki tek yönlü t-testi (Schuirmann, 1987; `
 | Son pencere | -0.0008 | 0.0060 | 0.00190 | 4.87 | 0.00044 | -5.67 | 0.00015 | 0.00044 | 0.0013 | [-0.0042, +0.0027] | eşdeğer |
 | Koruma oranı | -0.0043 | 0.0083 | 0.00264 | 2.16 | 0.029 | -5.41 | 0.00021 | 0.029 | 0.059 | [-0.0091, +0.0005] | eşdeğer |
 | Taze model farkı | +0.0115 | 0.0119 | 0.00376 | 5.72 | 0.00014 | 0.41 | 0.65 | 0.65 | 0.65 | [+0.0046, +0.0184] | karar verilemez |
+
+### pmnist_adam10: adam_tri − adam_weight_clipping, Δ = 0.005 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0001 | 0.0089 | 0.00282 | 1.82 | 0.051 | -1.73 | 0.059 | 0.059 | 0.24 | [-0.0050, +0.0053] | karar verilemez |
+| Son pencere | +0.0019 | 0.0235 | 0.00742 | 0.94 | 0.19 | -0.41 | 0.35 | 0.35 | 1 | [-0.0117, +0.0156] | karar verilemez |
+| Koruma oranı | +0.0046 | 0.0319 | 0.01009 | 0.95 | 0.18 | -0.04 | 0.48 | 0.48 | 1 | [-0.0139, +0.0231] | karar verilemez |
+| Taze model farkı | -0.0101 | 0.0444 | 0.01404 | -0.37 | 0.64 | -1.08 | 0.15 | 0.64 | 1 | [-0.0359, +0.0156] | karar verilemez |
+
+### pmnist_adam10: adam_tri − adam_weight_clipping, Δ = 0.01 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0001 | 0.0089 | 0.00282 | 3.59 | 0.0029 | -3.50 | 0.0034 | 0.0034 | 0.014 | [-0.0050, +0.0053] | eşdeğer |
+| Son pencere | +0.0019 | 0.0235 | 0.00742 | 1.61 | 0.071 | -1.08 | 0.15 | 0.15 | 0.46 | [-0.0117, +0.0156] | karar verilemez |
+| Koruma oranı | +0.0046 | 0.0319 | 0.01009 | 1.44 | 0.092 | -0.54 | 0.3 | 0.3 | 0.6 | [-0.0139, +0.0231] | karar verilemez |
+| Taze model farkı | -0.0101 | 0.0444 | 0.01404 | -0.01 | 0.5 | -1.43 | 0.093 | 0.5 | 0.6 | [-0.0359, +0.0156] | karar verilemez |
+
+### pmnist_adam10: adam_sin − adam_weight_clipping, Δ = 0.005 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0342 | 0.0065 | 0.00206 | 19.05 | 7e-09 | 14.18 | 1 | 1 | 1 | [+0.0304, +0.0379] | farklı (GA marjın dışında) |
+| Son pencere | +0.0423 | 0.0225 | 0.00713 | 6.64 | 4.7e-05 | 5.24 | 1 | 1 | 1 | [+0.0293, +0.0554] | farklı (GA marjın dışında) |
+| Koruma oranı | +0.0268 | 0.0295 | 0.00932 | 3.41 | 0.0039 | 2.34 | 0.98 | 0.98 | 1 | [+0.0097, +0.0438] | farklı (GA marjın dışında) |
+| Taze model farkı | -0.0406 | 0.0517 | 0.01634 | -2.18 | 0.97 | -2.79 | 0.011 | 0.97 | 1 | [-0.0705, -0.0106] | farklı (GA marjın dışında) |
+
+### pmnist_adam10: adam_sin − adam_weight_clipping, Δ = 0.01 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0342 | 0.0065 | 0.00206 | 21.48 | 2.4e-09 | 11.75 | 1 | 1 | 1 | [+0.0304, +0.0379] | farklı (GA marjın dışında) |
+| Son pencere | +0.0423 | 0.0225 | 0.00713 | 7.34 | 2.2e-05 | 4.53 | 1 | 1 | 1 | [+0.0293, +0.0554] | farklı (GA marjın dışında) |
+| Koruma oranı | +0.0268 | 0.0295 | 0.00932 | 3.95 | 0.0017 | 1.80 | 0.95 | 0.95 | 1 | [+0.0097, +0.0438] | karar verilemez |
+| Taze model farkı | -0.0406 | 0.0517 | 0.01634 | -1.87 | 0.95 | -3.09 | 0.0064 | 0.95 | 1 | [-0.0705, -0.0106] | farklı (GA marjın dışında) |
+
+### pmnist_adam10: adam_sin − adam_tri, Δ = 0.005 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0340 | 0.0045 | 0.00143 | 27.22 | 3e-10 | 20.24 | 1 | 1 | 1 | [+0.0314, +0.0366] | farklı (GA marjın dışında) |
+| Son pencere | +0.0404 | 0.0134 | 0.00425 | 10.68 | 1e-06 | 8.33 | 1 | 1 | 1 | [+0.0326, +0.0482] | farklı (GA marjın dışında) |
+| Koruma oranı | +0.0222 | 0.0191 | 0.00605 | 4.49 | 0.00075 | 2.84 | 0.99 | 0.99 | 1 | [+0.0111, +0.0333] | farklı (GA marjın dışında) |
+| Taze model farkı | -0.0304 | 0.0338 | 0.01069 | -2.38 | 0.98 | -3.31 | 0.0045 | 0.98 | 1 | [-0.0500, -0.0108] | farklı (GA marjın dışında) |
+
+### pmnist_adam10: adam_sin − adam_tri, Δ = 0.01 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0340 | 0.0045 | 0.00143 | 30.70 | 1e-10 | 16.75 | 1 | 1 | 1 | [+0.0314, +0.0366] | farklı (GA marjın dışında) |
+| Son pencere | +0.0404 | 0.0134 | 0.00425 | 11.86 | 4.2e-07 | 7.15 | 1 | 1 | 1 | [+0.0326, +0.0482] | farklı (GA marjın dışında) |
+| Koruma oranı | +0.0222 | 0.0191 | 0.00605 | 5.32 | 0.00024 | 2.02 | 0.96 | 0.96 | 1 | [+0.0111, +0.0333] | farklı (GA marjın dışında) |
+| Taze model farkı | -0.0304 | 0.0338 | 0.01069 | -1.91 | 0.96 | -3.78 | 0.0022 | 0.96 | 1 | [-0.0500, -0.0108] | farklı (GA marjın dışında) |
 
 ## 4. Marjın gerekçesi
 
