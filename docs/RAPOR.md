@@ -945,6 +945,40 @@ permütasyon testinin en küçük p'si 0,25'tir; §6'daki gibi iki test birlikte
   §6) ancak sınırda geçer, Adam'daki sinüs + CBP'nin 0.015 [0.012, 0.019] gerisindedir. §8'deki "etki çıkış
   katmanından gelir" bulgusu CBP ile birleşince ek bir kazanç sağlamaz.
 
+**Güncelleme (20 Kasım 2026): beş temel model 10 eşleştirilmiş tohumla tekrarlandı**
+(`suites/pmnist_adam10.yaml`; `reports/pmnist_adam10/`, `reports/pmnist_adam10/adam10_tables.md`,
+`reports/denetim/DENETIM.md`). Danışman raporundaki "temel yöntemler en az 10 tohum olsun" maddesi için standart ağ,
+sinüs, tanh, üçgen dalga ve Weight Clipping aynı kurulumla (Adam, lr = 10⁻³, ayarlar SGD'den aktarıldı) 0–9
+tohumlarında yeniden koşuldu; 50 koşunun hepsi hatasız bitti. Yukarıdaki 3 tohumluk tablo ilk sürüm olarak
+korunmuştur; NaP, CBP, L2 Init ve Sinüs + CBP satırları hâlâ 3 tohumludur.
+
+| Yöntem (Adam, lr 10⁻³) | n | AUC | Son pencere | Koruma | Taze fark | Ölü birim | İlk katman ölü oranı | Ölçütü sağlayan tohum |
+|---|---:|---|---|---|---|---|---|---:|
+| Sinüs | 10 | 0.826 ± 0.001 | 0.826 ± 0.002 | 0.997 ± 0.004 | −0.002 ± 0.007 | 0.350 | 0.57 | 6/10 |
+| Tanh | 10 | 0.811 ± 0.001 | 0.805 ± 0.004 | 0.971 ± 0.003 | +0.027 ± 0.008 | 0.262 | 0.20 | 0/10 |
+| Üçgen dalga (γ = 1) | 10 | 0.792 ± 0.004 | 0.786 ± 0.009 | 0.975 ± 0.013 | +0.028 ± 0.027 | 0.342 | 0.93 | 0/10 |
+| Weight Clipping (κ = 1) | 10 | 0.791 ± 0.005 | 0.784 ± 0.017 | 0.971 ± 0.021 | +0.038 ± 0.038 | 0.346 | 0.92 | 1/10 |
+| Standart | 10 | 0.741 ± 0.005 | 0.706 ± 0.005 | 0.875 ± 0.008 | +0.122 ± 0.011 | 0.686 | 0.46 | 0/10 |
+
+_ortalama ± %95 GA (t-dağılımı, 10 tohum); ilk katman ölü oranı son görevdeki `dead_frac/L0` ortalamasıdır._
+
+* **3 tohumluk sonuç doğrulandı, sayılar çok az değişti.** Sinüs − Weight Clipping AUC farkı +0.034 [+0.031,
+  +0.038], sinüs − üçgen dalga +0.034 [+0.032, +0.037]; ikisi de 10 tohumun 10'unda pozitif (eşleştirilmiş
+  t-testi p < 0.001; 10 çiftle permütasyon testinin en küçük p'si 0.002). Sinüs − tanh +0.015 [+0.013, +0.016];
+  sinüs − standart +0.084 [+0.081, +0.088]; üçgen dalga − standart +0.050 [+0.046, +0.055].
+* **Düzeltme: üçgen dalga ile kırpma Adam'da da ortalamada ayırt edilemiyor.** 3 tohumda son pencerede görülen
+  fark (0.771'e karşı 0.793) 10 tohumda kayboldu: AUC farkı +0.000 [−0.005, +0.005], son pencere +0.002 [−0.009,
+  +0.017]. Yine de SGD'deki "eşdeğer" ifadesi buraya taşınamaz: TOST yalnızca AUC için ve yalnızca geniş marjda
+  (Δ = 0.01) geçiyor; Δ = 0.005'te hiçbir ölçütte geçmiyor. Sebep tohumlar arası değişkenlik: son pencere standart
+  sapması üçgen dalgada 0.013, kırpmada 0.023, sinüste 0.003.
+* **Esneklik ölçütü (§6):** sinüs 10 tohumun 6'sında, kırpma 1'inde sağlıyor; üçgen dalga, tanh ve standart ağ
+  hiçbirinde sağlamıyor. Yani Adam'da sinüs en iyi sınırlı modeldir ama "her tohumda esnekliği korur" denemez.
+* **İlk katman ölümü doğrulandı.** Son görevde ilk gizli katmanın ölü oranı üçgen dalgada 0.93, kırpmada 0.92,
+  sinüste 0.57, tanh'ta 0.20; sert sınırlarda 10. görevde zaten 0.82 (sinüste 0.56). Bunun girdilerin [0, 1]
+  aralığında olmasından kaynaklanıp kaynaklanmadığı girdi standardizasyonu testiyle (`suites/pmnist_inputnorm.yaml`)
+  ayrıca sınanmaktadır.
+* **Sınırlar aynı:** ayarlar Adam için yeniden aranmadı (aktarım testi), tek veri akışı, küçük ağ.
+
 ### 14.2 Tam akış uzunluğu: 800 görev × 60.000 örnek, 3×100 ağ (`suites/pmnist_fullstream.yaml`; `reports/pmnist_fullstream/`)
 
 Dohare vd. (2024)'nin kanonik akış uzunluğu: her görevde 60.000 MNIST görüntüsü, tek geçiş, yığın boyutu 1,

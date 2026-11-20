@@ -19,11 +19,14 @@ sys.path.insert(0, ROOT)
 from plasticity.metrics.stats import tost_paired, holm_correction  # noqa: E402
 
 OUT = os.path.join(ROOT, "reports", "denetim")
-SUITES = [("pmnist_fullstream", "800 görev × 60.000 örnek"), ("pmnist_main", "200 görev × 5.000 örnek")]
+SUITES = [("pmnist_fullstream", "800 görev × 60.000 örnek"), ("pmnist_main", "200 görev × 5.000 örnek"),
+          ("pmnist_adam10", "200 görev × 5.000 örnek, Adam (lr 10⁻³; ayarlar SGD'den aktarıldı)")]
 METRICS = [("auc_norm", "AUC (birincil)"), ("final_window_mean", "Son pencere"),
            ("retention_ratio", "Koruma oranı"), ("fresh_gap_final", "Taze model farkı")]
 PAIRS = {"pmnist_fullstream": [("tri", "weight_clipping"), ("sin_refl_matched", "sin"), ("tanh", "baseline")],
-         "pmnist_main": [("tri", "weight_clipping"), ("sin", "tanh")]}
+         "pmnist_main": [("tri", "weight_clipping"), ("sin", "tanh")],
+         "pmnist_adam10": [("adam_tri", "adam_weight_clipping"), ("adam_sin", "adam_weight_clipping"),
+                           ("adam_sin", "adam_tri")]}
 DELTAS = [0.005, 0.01]
 TOL_RET, TOL_SLOPE, TOL_FRESH = 0.01, 0.002, 0.01  # as in scripts/plasticity_criterion.py
 

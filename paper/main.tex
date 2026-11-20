@@ -556,11 +556,12 @@ between damping and reflection therefore reappears where the overall effect of b
 that target dead units, such as continual backpropagation \citep{dohare2024loss}, are better than any bounded
 model on this stream.
 
-\paragraph{Adam.} With Adam at learning rate $10^{-3}$ the ranking reverses (Appendix~\ref{app:adam}; three
-seeds, hyperparameters transferred from SGD without re-tuning). The standard network collapses (AUC
-$0.737$), every method improves on it, but the sine map ($0.824$) is now ahead of weight clipping ($0.794$)
-and the triangle wave ($0.787$), which are also no longer close to each other in the final window. Under the
-hard bounds almost the whole first hidden layer dies ($92$--$95\%$ of its units). Adam normalizes the step
+\paragraph{Adam.} With Adam at learning rate $10^{-3}$ the ranking reverses (Appendix~\ref{app:adam}; ten
+paired seeds, hyperparameters transferred from SGD without re-tuning). The standard network collapses (AUC
+$0.741$), every method improves on it, but the sine map ($0.826$) is now ahead of weight clipping ($0.791$)
+and the triangle wave ($0.792$). The two hard bounds still cannot be told apart on average, but their accuracy
+varies much more between seeds than under SGD, and neither keeps plasticity by our criterion. Under the
+hard bounds almost the whole first hidden layer dies ($92$--$93\%$ of its units). Adam normalizes the step
 size, so steps are not small relative to the interval and the argument of Section~\ref{sec:method} for
 ``reflection $\approx$ projection'' does not apply; and the damping of the smooth map, harmful under SGD,
 acts as a per-parameter step-size reduction that Adam otherwise lacks. Our conclusion is thus specific to
@@ -788,32 +789,40 @@ been reflected without any loss of accuracy.
 \begin{table}[h]
   \centering\small
   \caption{Online Permuted MNIST, 200 tasks $\times$ 5{,}000 examples, Adam with learning rate $10^{-3}$
-  (three seeds; method hyperparameters transferred from SGD). NaP: normalize-and-project
-  \citep{lyle2024normalization}; CBP: continual backpropagation; L2 Init: \citet{kumar2023maintaining}.}
+  (method hyperparameters transferred from SGD; mean $\pm$ 95\% interval over $n$ seeds). The five basic
+  models have ten paired seeds; the other rows have three and come from an earlier run on seeds 0--2 of the
+  same streams. NaP: normalize-and-project \citep{lyle2024normalization}; CBP: continual backpropagation;
+  L2 Init: \citet{kumar2023maintaining}.}
   \label{tab:adam}
   \resizebox{\linewidth}{!}{%
-  \begin{tabular}{@{}lcccc@{}}
+  \begin{tabular}{@{}lccccc@{}}
     \toprule
-    Model & AUC & Final window & Retention & Dead units\\
+    Model & $n$ & AUC & Final window & Retention & Dead units\\
     \midrule
-    NaP                    & $0.845\pm0.001$ & $0.846\pm0.005$ & $1.005\pm0.009$ & $0.020$\\
-    Sine + CBP             & $0.840\pm0.002$ & $0.842\pm0.006$ & $1.009\pm0.007$ & $0.023$\\
-    Sine                   & $0.824\pm0.004$ & $0.826\pm0.010$ & $0.997\pm0.022$ & $0.354$\\
-    CBP                    & $0.822\pm0.002$ & $0.824\pm0.005$ & $1.000\pm0.006$ & $0.036$\\
-    Tanh                   & $0.812\pm0.002$ & $0.808\pm0.008$ & $0.974\pm0.008$ & $0.260$\\
-    L2 Init                & $0.809\pm0.002$ & $0.809\pm0.002$ & $1.002\pm0.011$ & $0.012$\\
-    Weight clipping        & $0.794\pm0.009$ & $0.793\pm0.021$ & $0.981\pm0.030$ & $0.345$\\
-    Triangle wave          & $0.787\pm0.006$ & $0.771\pm0.058$ & $0.961\pm0.086$ & $0.340$\\
-    Standard               & $0.737\pm0.021$ & $0.707\pm0.020$ & $0.877\pm0.032$ & $0.678$\\
+    NaP                    & 3  & $0.845\pm0.001$ & $0.846\pm0.005$ & $1.005\pm0.009$ & $0.020$\\
+    Sine + CBP             & 3  & $0.840\pm0.002$ & $0.842\pm0.006$ & $1.009\pm0.007$ & $0.023$\\
+    Sine                   & 10 & $0.826\pm0.001$ & $0.826\pm0.002$ & $0.997\pm0.004$ & $0.350$\\
+    CBP                    & 3  & $0.822\pm0.002$ & $0.824\pm0.005$ & $1.000\pm0.006$ & $0.036$\\
+    Tanh                   & 10 & $0.811\pm0.001$ & $0.805\pm0.004$ & $0.971\pm0.003$ & $0.262$\\
+    L2 Init                & 3  & $0.809\pm0.002$ & $0.809\pm0.002$ & $1.002\pm0.011$ & $0.012$\\
+    Triangle wave          & 10 & $0.792\pm0.004$ & $0.786\pm0.009$ & $0.975\pm0.013$ & $0.342$\\
+    Weight clipping        & 10 & $0.791\pm0.005$ & $0.784\pm0.017$ & $0.971\pm0.021$ & $0.346$\\
+    Standard               & 10 & $0.741\pm0.005$ & $0.706\pm0.005$ & $0.875\pm0.008$ & $0.686$\\
     \bottomrule
   \end{tabular}}
 \end{table}
 
-Under Adam the sine map is ahead of weight clipping by $0.030$ $[0.024,0.035]$ and of the triangle wave by
-$0.037$ $[0.026,0.047]$ in AUC (paired, three seeds). The total dead-unit fraction is similar for the three
-($0.34$--$0.35$), but its distribution over layers is not: the first hidden layer loses $95\%$ (triangle
-wave) and $92\%$ (clipping) of its units against $58\%$ for the sine map, and this loss is already about
-$81\%$ after ten tasks. Combining the sine map with continual backpropagation improves on either alone
+Under Adam the sine map is ahead of weight clipping by $0.034$ $[0.031,0.038]$ and of the triangle wave by
+$0.034$ $[0.032,0.037]$ in AUC (ten paired seeds; the difference is positive in every seed). The triangle wave
+and weight clipping do not differ on average (AUC difference $0.000$ $[-0.005,+0.005]$), but the statement of
+equivalence made for SGD does not carry over: the two-sided test passes only for the AUC at the wider margin
+of $0.01$, and the standard deviation of the final-window accuracy over seeds is $0.013$ and $0.023$ against
+$0.003$ for the sine map. The retention criterion of Section~\ref{sec:setup} is met by six of ten seeds of
+the sine map, one of ten for weight clipping and none for the triangle wave, tanh and the standard network.
+The total dead-unit fraction is similar for the three bounded models ($0.34$--$0.35$), but its distribution
+over layers is not: the first hidden layer loses $93\%$ (triangle wave) and $92\%$ (clipping) of its units
+against $57\%$ for the sine map, and under the hard bounds this loss is already $82\%$ after ten tasks. In the
+earlier three-seed run, combining the sine map with continual backpropagation improved on either alone
 ($+0.017$ and $+0.016$), which suggests that a bounded map and unit reinitialization address different
 symptoms. Because the hyperparameters were not re-tuned for Adam, this table is a transfer test and not a
 tuned comparison.
