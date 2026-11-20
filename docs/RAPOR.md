@@ -658,6 +658,7 @@ Aynı test kanonik uzunlukta da yapılmıştır (C3; 800 görev × 60.000 örnek
 |---|---:|---|---|---|---|---|
 | Pürüzsüz sinüs (γ = 1.5, lr = 0.003) | 10 | 0.818 | 0.720 | 0.792 | +0.212 | 0.78 |
 | Sinüs + tam yansıma (ε = 1; γ = 1, lr = 0.01) | 3 | 0.924 | 0.920 | 0.994 | +0.005 | 0.14 |
+| Sinüs + tam yansıma, tek etkenli (ε = 1; γ = 1.5, lr = 0.003; 20.11.2026) | 10 | 0.922 | 0.921 | 0.997 | −0.002 | 0.08 |
 | Üçgen dalga (γ = 1, lr = 0.003) | 10 | 0.939 | 0.940 | 1.005 | −0.023 | 0.00 |
 | Standart | 10 | 0.856 | 0.835 | 0.924 | +0.084 | — |
 
@@ -1045,6 +1046,44 @@ aynı düzeydedir (AUC farkı −0.001, Δ = 0.005 marjında TOST-eşdeğer): si
 sürdüğü için ağırlıklar sınıra daha yakın durur (|W|/A 0.68'e karşı 0.56) ve ilk gizli katmanın %83'ü ölür
 (üçgen dalgada %54).
 
+**Güncelleme (20 Kasım 2026): tek etkenli tekrar, 10 eşleştirilmiş tohum** (`sin_refl_matched`;
+`reports/pmnist_fullstream/causal_tables.md`, `criterion.md`). Yukarıdaki iki sınırlamayı gidermek için deney
+yeniden yapılmıştır: yansımalı sinüs, pürüzsüz sinüsle **aynı** γ = 1.5, **aynı** öğrenme oranı (0.003), aynı
+başlangıç ağırlıkları ve aynı görev akışlarıyla (tohum 0–9) koşulmuştur. İki model arasındaki tek fark geri
+geçişte kullanılan türevdir (cos yerine sign(cos)). Yukarıdaki 3 tohumluk tablo karşılaştırma için korunmuştur.
+
+| Ölçüt (800 görev, tohum 0–9) | Pürüzsüz sinüs | Yansımalı sinüs (aynı ayar) | Fark (eşleştirilmiş, %95 GA) | Üçgen dalga |
+|---|---|---|---|---|
+| Normalize AUC | 0.818 | 0.922 | **+0.1045** [+0.1027, +0.1063] | 0.939 |
+| Son pencere | 0.720 | 0.921 | +0.201 [+0.192, +0.211] | 0.940 |
+| Koruma oranı | 0.792 | 0.997 | +0.205 [+0.195, +0.216] | 1.005 |
+| Taze model farkı | +0.212 | −0.002 | −0.214 [−0.227, −0.201] | −0.023 |
+| Doyma payı (son) | 0.78 | 0.08 | — | 0.00 |
+| ⟨cos²⟩ (ileri harita, son) | 0.12 | 0.55 | — | 1.00 |
+| Sınıra yığılma \|W\|/A (son) | 0.92 | 0.60 | — | 0.56 |
+| Etkin kerte (son) | 6.9 | 47.4 | +40.5 [+39.3, +41.6] | 54.8 |
+| Ölü birim oranı (son, tüm katmanlar) | 0.43 | 0.23 | −0.19 [−0.20, −0.18] | 0.18 |
+| Koruma ölçütünü sağlayan tohum | 0/10 | 10/10 | — | 10/10 |
+
+* AUC farkı on tohumun onunda da pozitiftir (en küçük +0.0997, en büyük +0.1099). Eşleştirilmiş t-testi
+  p < 0.001; işaret değiştirme permütasyon testi p = 0.002 (10 çiftle ulaşılabilecek en küçük değer).
+* Doğruluk akış boyunca düzdür: 100 görevlik bloklarda 0.924 → 0.922 → 0.922 → 0.923 → 0.922 → 0.922 → 0.922 →
+  0.922 (pürüzsüz sinüs: 0.905 → 0.724). Doyma payı 0.07–0.08'de durağandır (pürüzsüz sinüste 0.79'a kadar
+  tek yönlü artar).
+* Yansımalı sinüs üçgen dalganın 0.0166 [0.0164, 0.0169], Weight Clipping'in 0.0163 [0.0160, 0.0166] altında
+  kalır. Sinüs ile üçgen dalga arasındaki 0.121'lik AUC farkının 0.105'i yalnızca geri türev değiştirilerek
+  kapanmıştır. Kalan fark tek etkenli değildir (üçgen dalgada γ = 1 ve harita doğrusaldır; yansımalı sinüste
+  ağırlık adımı hâlâ |cos| ile çarpılır).
+* Ölü birimlerin dağılımı farklıdır: yansımalı sinüste ilk / ikinci / üçüncü gizli katmanda 0.43 / 0.19 / 0.09,
+  üçgen dalgada 0.54 / 0.00 / 0.00, pürüzsüz sinüste 0.04 / 0.61 / 0.63.
+
+Yorum: aynı ayarlarda, on tohumda, yalnızca geri türev değiştirildiğinde plastisite kaybı ortadan kalkmıştır.
+Bu, pürüzsüz sinüsteki kaybın başlıca nedeninin sınırda sıfırlanan türev olduğunu bu deney düzeninde
+destekler. Kalan sınırlar: (i) kural gerçek türev değil, düz-geçişli türden bir vekil gradyandır; (ii) γ ve
+öğrenme oranı pürüzsüz sinüs için seçilmiş değerlerdir, yansımalı model için ayrıca ayarlanmamıştır;
+(iii) sonuç tek veri akışı, küçük ağ ve SGD içindir. On koşu koşu başına ortalama 27 saat sürmüştür (dört
+koşu aynı anda, 4 çekirdekte).
+
 **Mekanizma** (görev 0 → 100 → 200 → 400 → 600 → 799, tohum ortalaması; `reports/pmnist_fullstream/mechanism.pdf`):
 
 * Doyma payı (|∂W/∂Θ|/A < 0.1): sinüs 0.00 → 0.30 → 0.50 → 0.66 → 0.74 → **0.79** (giriş katmanı 0.92); tanh
@@ -1085,6 +1124,7 @@ görevde performansı düşürmemiştir, ancak §14.1'deki Adam rejiminde aynı 
 | Üçgen dalga | +0.062 (0.836 vs 0.774) | **+0.083** (0.939 vs 0.856) |
 | Weight Clipping | +0.062 (0.836 vs 0.774) | +0.082 (0.939 vs 0.856) |
 | Yansımalı sinüs | +0.052 (0.826 vs 0.774) | +0.067 (0.924 vs 0.857; 3 tohum) |
+| Yansımalı sinüs, sinüsle aynı ayar (20.11.2026) | — | +0.066 (0.922 vs 0.856; 10 tohum) |
 | Koruma oranı: standart / üçgen / kırpma | 0.906 / 1.017 / 1.017 | 0.924 / 1.005 / 1.006 |
 
 (Mutlak AUC değerleri uzun protokolde daha yüksektir çünkü görev başına 12 kat daha fazla örnek vardır ve

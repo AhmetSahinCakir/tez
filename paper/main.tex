@@ -46,8 +46,8 @@ weight clipping under a pre-specified margin of $0.005$ on the four metrics we t
 weight clipping.
 An intervention supports this explanation: keeping the sine map in the forward pass but using the sign of
 its derivative as a surrogate gradient in the backward pass, so that parameters are no longer trapped at the
-bound, raises performance from $0.818$ to $0.924$ (three seeds, each variant with its own tuned
-hyperparameters; a single-factor replication with ten seeds is in progress).
+bound, raises performance from $0.818$ to $0.922$ with the same hyperparameters, initial weights and task
+streams (ten paired seeds; difference $0.105$, 95\% interval $[0.103,0.106]$).
 In this setting, element-wise boundedness alone was not sufficient; the map also had to keep the update
 magnitude away from zero. The study is limited to one main benchmark and small networks, and we report
 where the conclusion does not hold: under Adam the ranking of hard and smooth bounds reverses, and in a wide
@@ -98,7 +98,7 @@ the interval it is the identity, and at the bound the parameter is \emph{reflect
   \item We provide evidence that the cause is Jacobian damping at the bound: we measure it (saturated
         fraction, step multiplier, distance to the bound; Section~\ref{sec:mechanism}) and test it with an
         intervention that removes the damping while leaving the forward map unchanged
-        (Section~\ref{sec:causal}; three seeds).
+        (Section~\ref{sec:causal}; ten paired seeds).
   \item We find that a non-saturating periodic map, the triangle wave, shows no loss of plasticity over 800
         tasks and is statistically equivalent to weight clipping under a pre-specified margin (two one-sided
         tests), and that both are ahead of layer normalization with weight decay (Sections~\ref{sec:main}--\ref{sec:lnwd}).
@@ -279,13 +279,15 @@ Section~\ref{sec:scope}.
 \paragraph{Models.} (i)~The standard network. (ii--iv)~Sine, tanh and triangle-wave reparameterization of all
 weights and biases. (v)~Weight clipping with $\kappa=1$ \citep{elsayed2024weight}. (vi)~Layer normalization
 \citep{ba2016layer} with weight decay \citep{lyle2024disentangling}. (vii)~The reflected sine
-of Section~\ref{sec:floor}.
+of Section~\ref{sec:floor}, run at the settings of the sine model (the single-factor comparison of
+Section~\ref{sec:causal}) and, in an earlier run, at settings tuned for it.
 
 \paragraph{Hyperparameters.} All hyperparameters were selected on separate development streams of 100 to 200
 tasks with 5{,}000 examples per task and were \emph{not} re-tuned for the 800-task stream, for any method
 (Appendix~\ref{app:hparams}). The selected values are a learning rate of $0.003$ for all models except the
-reflected sine ($0.01$); $\gamma=1.5$ for sine and tanh; $\gamma=1$ for the triangle wave and the reflected
-sine; $\kappa=1$ for clipping; and a weight-decay coefficient of $10^{-3}$.
+tuned reflected sine ($0.01$); $\gamma=1.5$ for sine and tanh; $\gamma=1$ for the triangle wave and the tuned
+reflected sine; $\kappa=1$ for clipping; and a weight-decay coefficient of $10^{-3}$. The single-factor
+reflected sine uses the values of the sine model ($\gamma=1.5$, learning rate $0.003$).
 
 \paragraph{Metrics.} The \emph{normalized AUC} is the mean online accuracy over all tasks. The \emph{early} and
 \emph{final windows} are the mean over the first and last 40 tasks, and the \emph{retention ratio} is their
@@ -302,8 +304,8 @@ were fixed before the 800-task runs were analysed. As mechanism measures we reco
 the bound $\langle|W|\rangle/A$, the fraction of dead ReLU units, and the effective rank \citep{roy2007effective}
 of the last hidden representation.
 
-\paragraph{Seeds and statistics.} We run ten seeds for models (i)--(vi) and three for the reflected sine, 63 runs
-in total. A seed fixes the initialization and the sequence of permutations, so models are compared on
+\paragraph{Seeds and statistics.} We run ten seeds for models (i)--(vi) and for the single-factor reflected sine, and three for the tuned
+reflected sine, 73 runs in total. A seed fixes the initialization and the sequence of permutations, so models are compared on
 identical streams and all differences are paired. We report means with 95\% $t$-intervals over seeds, paired
 differences with 95\% bootstrap intervals \citep{efron1993introduction}, paired $t$-tests, and sign-flip
 permutation tests with Holm correction \citep{holm1979simple}. With ten pairs the smallest attainable
@@ -322,7 +324,7 @@ confidence interval of the paired difference lies inside $(-\Delta,\Delta)$.
   \centering
   \includegraphics[width=0.92\linewidth]{figures/fig_curves.pdf}
   \caption{Online accuracy on Online Permuted MNIST over 800 tasks of 60{,}000 examples
-  (mean over ten seeds, three for the reflected sine; 10-task moving average; bands are 95\% intervals).
+  (mean over ten seeds, three for the tuned reflected sine; 10-task moving average; bands are 95\% intervals).
   The triangle wave and weight clipping coincide.}
   \label{fig:curves}
 \end{figure}
@@ -467,45 +469,52 @@ with sine and $10$ with tanh, and \emph{rises} from $40$ to $55$ with the triang
 
 The comparison between sine and triangle wave changes two things at once, the shape of the map and its
 derivative. The reflected sine of Section~\ref{sec:floor} changes only the derivative used in the backward pass.
-Table~\ref{tab:causal} shows the outcome on seeds 0--2. Letting the parameters pass the crest restores almost
-all of the lost performance: the AUC rises by $0.106$ $[0.102,0.109]$, the retention ratio from $0.79$ to $0.99$, and the
-retention criterion is met in all three seeds. The saturated fraction no longer ratchets upward (it settles
-near $0.13$), and the effective rank rises to $59$ instead of collapsing to $6.5$. This indicates that the failure of the smooth
-bound is mainly due to the vanishing derivative and not to boundedness, periodicity or the particular
-values of the sine map. Given the two caveats below, we regard it as strong but not conclusive evidence.
+We ran it with the same $\gamma$ ($1.5$), learning rate ($0.003$), initial weights and task streams as the sine
+model, on ten paired seeds, so that the backward rule is the only difference between the two models
+(Table~\ref{tab:causal}). The AUC rises by $0.105$ $[0.103,0.106]$, and it rises in every one of the ten seeds
+(smallest difference $0.100$, largest $0.110$; paired $t$-test $p<0.001$, sign-flip permutation $p=0.002$).
+The retention ratio rises from $0.792$ to $0.997$, and the retention criterion is met in all ten seeds. The
+accuracy is flat over the stream ($0.924$ in the first block of 100 tasks, $0.922$ in the last). The saturated
+fraction no longer ratchets upward (it settles near $0.08$), and the effective rank stays at $47$ instead of
+collapsing to $7$. In this setting the loss of plasticity of the sine model disappeared when only the backward
+derivative was changed. This indicates that the failure of the smooth bound is mainly due to the vanishing
+derivative and not to boundedness, periodicity or the particular values of the sine map.
 
 \begin{table}[t]
   \centering\small
-  \caption{Causal test on the 800-task stream (seeds 0--2). The reflected sine has the same forward map as the
+  \caption{Causal test on the 800-task stream. The reflected sine has the same forward map as the
   sine model; only the backward derivative is replaced by its sign (Eq.~\ref{eq:floor}, $\varepsilon=1$).
-  In this table the two models also differ in $\gamma$ and learning rate (see text).}
+  ``Same settings'': $\gamma$, learning rate, initial weights and streams of the sine model, ten paired seeds;
+  differences are paired, with 95\% bootstrap intervals. ``Tuned'': an earlier run with $\gamma=1$ and
+  learning rate $0.01$ on seeds 0--2. The last row counts the seeds that meet the retention criterion.}
   \label{tab:causal}
   \resizebox{\linewidth}{!}{%
-  \begin{tabular}{@{}lcccc@{}}
+  \begin{tabular}{@{}lccccc@{}}
     \toprule
-    & Sine & Reflected sine & Difference (paired) & Triangle wave\\
+    & Sine & \shortstack{Reflected sine\\(same settings)} & Difference (paired) &
+      \shortstack{Reflected sine\\(tuned)} & Triangle wave\\
     \midrule
-    Normalized AUC        & $0.818$ & $0.924$ & $+0.106\;[+0.102,+0.109]$, $p<0.001$ & $0.939$\\
-    Final window          & $0.716$ & $0.920$ & $+0.204\;[+0.186,+0.223]$, $p=0.003$ & $0.939$\\
-    Retention ratio       & $0.788$ & $0.994$ & $+0.206\;[+0.186,+0.227]$, $p=0.003$ & $1.005$\\
-    Fresh-model gap       & $+0.214$ & $+0.005$ & $-0.210\;[-0.235,-0.193]$, $p=0.004$ & $-0.022$\\
-    Saturated fraction    & $0.78$ & $0.14$ & & $0.00$\\
-    $\langle|W|\rangle/A$ & $0.92$ & $0.68$ & & $0.56$\\
-    Effective rank        & $6.5$  & $58.7$ & & $54.7$\\
+    Normalized AUC        & $0.818$ & $0.922$ & $+0.105\;[+0.103,+0.106]$ & $0.924$ & $0.939$\\
+    Final window          & $0.720$ & $0.921$ & $+0.201\;[+0.192,+0.211]$ & $0.920$ & $0.940$\\
+    Retention ratio       & $0.792$ & $0.997$ & $+0.205\;[+0.195,+0.216]$ & $0.994$ & $1.005$\\
+    Fresh-model gap       & $+0.212$ & $-0.002$ & $-0.214\;[-0.227,-0.201]$ & $+0.005$ & $-0.023$\\
+    Saturated fraction    & $0.78$ & $0.08$ & & $0.14$ & $0.00$\\
+    $\langle|W|\rangle/A$ & $0.92$ & $0.60$ & & $0.68$ & $0.56$\\
+    Effective rank        & $6.9$  & $47.4$ & & $58.7$ & $54.8$\\
+    Criterion met         & $0/10$ & $10/10$ & & $3/3$ & $10/10$\\
     \bottomrule
   \end{tabular}}
 \end{table}
 
-Two caveats apply, and a replication that addresses both (ten paired seeds, identical $\gamma$, learning rate,
-initial weights and task stream, differing only in the backward rule) is in progress; the numbers in
-Table~\ref{tab:causal} should be read as preliminary until it is complete. The test uses three seeds; the paired $t$-tests are significant, but the smallest
-permutation $p$-value attainable with three pairs is $0.25$. And each model runs with the hyperparameters
-selected for it on the development stream (sine: $\gamma=1.5$, learning rate $0.003$; reflected sine:
-$\gamma=1$, learning rate $0.01$), so the comparison is between the best-tuned smooth and the best-tuned
-reflected variant; a single-factor comparison at identical settings exists only on the 200-task development
-grid (Appendix~\ref{app:short}). The reflected sine remains $0.015$ below the triangle wave. Its forward map is
-still flat near the crest, so its weights sit closer to the bound ($0.68$ versus $0.56$) and more of its
-first hidden layer dies ($83\%$ versus $54\%$ of the units).
+Three caveats remain. First, the backward rule is a surrogate gradient and not the gradient of the loss with
+respect to $\Theta$; the test shows what happens when the parameter step is no longer damped, and it is not a
+proposal for a new method. Second, $\gamma$ and the learning rate are those selected for the sine model and
+were not tuned for the reflected variant; in the earlier run with settings tuned for it (three seeds) the
+reflected sine reached an AUC of $0.924$. Third, the reflected sine remains $0.017$ $[0.016,0.017]$ below the
+triangle wave. This remaining difference is not a single-factor comparison: the triangle wave uses $\gamma=1$
+and a piecewise linear map, and in the reflected sine the weight step is still multiplied by $|\cos|$. Dead
+units are also distributed differently: $43\%$, $19\%$ and $9\%$ of the units of the three hidden layers with
+the reflected sine, against $54\%$, $0\%$ and $0\%$ with the triangle wave.
 
 A different intervention, which compensates the magnitude of the damping without freeing the parameter,
 fails, and the failure is informative. Multiplying the gradient by
@@ -564,7 +573,7 @@ unconstrained network loses plasticity and is neutral where it does not. The com
 with the 800-task stream was beyond our computational budget.
 
 \paragraph{Limitations.} The canonical-length result is for a single benchmark with permuted inputs and a small
-fully connected network. The causal test uses three seeds and tuned-versus-tuned settings. Hyperparameters were
+fully connected network. The causal test uses a surrogate gradient and the hyperparameters selected for the sine model. Hyperparameters were
 selected on short development streams for all methods; a search at full length could change absolute values,
 although the large gaps between groups of methods make a change of ranking unlikely. Under the hard bounds
 dead units concentrate in the first hidden layer (about half of its units after 800 tasks) without harming
@@ -580,7 +589,7 @@ accumulate, and over a long stream this freezes the network; with the sine map t
 constraint at all. A bounded periodic map whose derivative has unit magnitude away from its corner points, the triangle wave,
 avoids the damping, shows no loss of plasticity over 800 tasks, and is statistically equivalent to weight clipping while
 expressing the constraint as part of the model. Replacing the derivative of the sine map by its sign in the backward pass, without changing the forward
-pass, recovers most of the loss in a preliminary three-seed test, which points to the vanishing derivative,
+pass, removed the loss of plasticity in a single-factor comparison with ten paired seeds, which points to the vanishing derivative,
 and the trapping of parameters it produces, as the main cause. For the design of
 bounded parameterizations our results suggest that boundedness should be paired with a non-vanishing update.
 These conclusions rest on one main benchmark, small fully connected networks and SGD; they should be tested
@@ -607,7 +616,8 @@ values are those listed in Section~\ref{sec:setup}. No value was changed for the
 
 The 63 runs of the 800-task study took about 1{,}130 core-hours on CPU (single thread per run). Mean wall time
 per run: standard 10\,h, weight clipping 9\,h, layer normalization with weight decay 13\,h, tanh 23\,h,
-triangle wave 24\,h, sine 26\,h, reflected sine 28\,h. The reparameterized models are slower in our
+triangle wave 24\,h, sine 26\,h, reflected sine 28\,h. The ten single-factor reflected-sine runs took a further
+275 core-hours (27\,h per run). The reparameterized models are slower in our
 implementation because the map and its derivative are evaluated for every parameter at every step with batch
 size one; the overhead is a property of the implementation and not of the method.
 

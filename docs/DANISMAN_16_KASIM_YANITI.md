@@ -8,7 +8,7 @@ silinmez; yeni sonuçlar sürüm notuyla eklenir.
 
 | # | İstenen çıktı | Durum | Nerede |
 |---|---|---|---|
-| 1 | Tek etkenli yansımalı sinüs deneyi (800 görev, 10 eşleştirilmiş tohum, aynı γ, lr, başlangıç ve akış) | ⏳ 16 Kasım'da başladı; yaklaşık 3 gün | `suites/pmnist_fullstream.yaml` → `sin_refl_matched`; `results/pmnist_fullstream/sin_refl_matched/` |
+| 1 | Tek etkenli yansımalı sinüs deneyi (800 görev, 10 eşleştirilmiş tohum, aynı γ, lr, başlangıç ve akış) | ✔ 20 Kasım'da bitti (10/10 tohum, hata yok); sonuç aşağıda "Madde 1" | `suites/pmnist_fullstream.yaml` → `sin_refl_matched`; `results/pmnist_fullstream/sin_refl_matched/`; `reports/pmnist_fullstream/causal_tables.md`; RAPOR §14.2 |
 | 2 | Matematiksel yöntem ve kod eki | ✔ 19 Kasım'da ayrı ek olarak yazıldı | `docs/EK_MATEMATIK_VE_KOD.md`; özet aşağıda "Madde 2" |
 | 3 | İstatistiksel denetim paketi (tohum bazlı CSV, TOST kodu ve gerekçesi) | ✔ 19 Kasım'da tek paket hâline getirildi; süren koşular bitince yeniden üretilecek | `reports/denetim/` (`DENETIM.md`, `tohum_bazli.csv`, `tost.csv`), `scripts/denetim_paketi.py` |
 | 4 | Genelleme ve sınırlılıklar eki (CIFAR-100, Adam, geniş ağ, γ) | ✔ raporda var; tezde ayrı bölüm olacak | RAPOR §7.4, §13.4, §14.1, §14.3; makale ekleri C–F |
@@ -25,6 +25,23 @@ silinmez; yeni sonuçlar sürüm notuyla eklenir.
   yan yana görülebilir; yalnızca `--set model.jacobian_floor=1.0` farklıdır.
 * Önceki 3 tohumluk `sin_refl` koşuları (γ = 1.0, lr = 0.01) silinmedi; "her varyant kendi en iyi ayarıyla"
   ek analizi olarak kalacak.
+
+**Sonuç (20 Kasım 2026, 10 eşleştirilmiş tohum).**
+
+| Ölçüt | Sinüs | Yansımalı sinüs (aynı ayar) | Fark (eşleştirilmiş, %95 GA) |
+|---|---|---|---|
+| Normalize AUC | 0.818 | 0.922 | +0.1045 [+0.1027, +0.1063] |
+| Son pencere | 0.720 | 0.921 | +0.201 [+0.192, +0.211] |
+| Koruma oranı | 0.792 | 0.997 | +0.205 [+0.195, +0.216] |
+| Taze model farkı | +0.212 | −0.002 | −0.214 [−0.227, −0.201] |
+| Doyma payı (son) | 0.78 | 0.08 | — |
+| Koruma ölçütünü sağlayan tohum | 0/10 | 10/10 | — |
+
+* Fark on tohumun onunda da pozitiftir (+0.0997 ile +0.1099 arası); eşleştirilmiş t-testi p < 0.001, işaret
+  değiştirme permütasyon testi p = 0.002 (10 çiftle en küçük değer).
+* Yansımalı sinüs üçgen dalganın 0.0166 [0.0164, 0.0169] altında kalır; bu fark tek etkenli değildir.
+* Sınırlar: kural vekil gradyandır; γ ve öğrenme oranı sinüs için seçilmiş değerlerdir; tek veri akışı, küçük
+  ağ, SGD.
 
 ## Madde 2: geri yayılım matematiği ve kod
 
@@ -85,3 +102,4 @@ değil, düz-geçişli (surrogate) bir gradyandır (Bengio vd., 2013; Yin vd., 2
 | 16.11.2026 | `sin_refl_matched` (10 tohum) eklendi; mevcut koşulara dokunulmadı | 16 Kasım raporu, madde 2.1 |
 | 16.11.2026 | Makalede yansımalı sinüsün matematiksel tanımı düzeltildi (ağırlık adımı \|cos\| ile ölçeklenir) | 16 Kasım raporu, madde 2.2 |
 | 19.11.2026 | 200 görevlik pakette bütün karşılaştırma yöntemleri 10 tohuma çıkarılıyor (eski tohumlar yeniden koşulmadı); girdi standardizasyonu testi ve Random Label MNIST pilotu eklendi | Makale sınırlılıkları; ikinci veri akışı |
+| 20.11.2026 | `sin_refl_matched` 10 tohum tamamlandı; RAPOR §14.2, makale taslağı (nedensel test bölümü, Tablo) ve denetim paketi güncellendi; 3 tohumluk eski sonuç korunmuştur | 16 Kasım raporu, madde 2.1 |
