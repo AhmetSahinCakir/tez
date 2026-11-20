@@ -1,0 +1,48 @@
+# Hyper-parameters selected by scripts/select_hparams.py from results/rlmnist_dev
+# metric: auc_norm (higher is better), mean over seeds; 'selected' maps base label -> dotted overrides (consumed by run_suite.py via 'selected_hparams').
+metric: auc_norm
+direction: max
+results: results/rlmnist_dev
+min_seeds: 1
+selected:
+  baseline: {optimizer.lr: 0.001}
+  sin: {model.gamma: 2.5, optimizer.lr: 0.001}
+  tanh: {model.gamma: 1.5, optimizer.lr: 0.001}
+  tri: {model.gamma: 1.0, optimizer.lr: 0.03}
+  weight_clipping: {method.kappa: 2.0, optimizer.lr: 0.001}
+details:
+  baseline:
+    variant: baseline/lr=0.001
+    mean: 0.2993850833333333
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 4
+  sin:
+    variant: sin/lr=0.001/gamma=2.5
+    mean: 0.30677154166666665
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 8
+  tanh:
+    variant: tanh/lr=0.001/gamma=1.5
+    mean: 0.2895314583333333
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 8
+  tri:
+    variant: tri/lr=0.03/gamma=1.0
+    mean: 0.28955374999999994
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 8
+  weight_clipping:
+    variant: weight_clipping/lr=0.001/kappa=2.0
+    mean: 0.3073390833333333
+    std: 0.0
+    n: 1
+    seeds: [0]
+    n_variants: 8
