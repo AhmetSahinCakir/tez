@@ -41,7 +41,8 @@
   standart ağa göre +0.083 [+0.082, +0.083]; önceden belirlenmiş Δ = 0.005 marjıyla TOST, AUC, son pencere,
   koruma oranı ve taze model farkının dördünde de eşdeğerlik verir (§13.3); Layer Norm + Weight Decay referansı
   0.925'te kalır; pürüzsüz sinüs standart ağın gerisine düşer (−0.039), aynı sinüs haritası yansımalı geri
-  geçişle 0.924'e çıkar (H3'ün nedensel testi, 3 tohum).
+  geçişle 0.924'e çıkar (H3'ün nedensel testi, 3 tohum). _Güncelleme (20.11.2026):_ aynı γ ve öğrenme
+  oranıyla, 10 eşleştirilmiş tohumda 0.818 → 0.922 (fark +0.105 [+0.103, +0.106]; §14.2).
   Sınırlılık tek başına yeterli değildir: pürüzsüz sınırlı haritalarda Jacobian sönümü uzun süreli
   öğrenilebilirliği sınırlarken, türevi sıfıra indirmeyen sınırlı-periyodik harita bu sorunu azaltır. Üç
   harita birden fazla özellikte (pürüzsüzlük, periyodiklik, parçalı doğrusallık) farklılaştığından üstünlük
@@ -252,6 +253,31 @@ doğruluğu (standart 0.743, sinüs 0.760). Parseval düzenlileştirmesi (ikinci
 son pencere için p < 1e-6); 5 ve 3 tohumlu
 karşılaştırmalarda işaret-çevirme testinin ulaşabileceği en küçük p değerleri (0.0625 ve 0.25) nedeniyle
 permütasyon p değerleri anlamlılık eşiğine ulaşamamaktadır (bkz. tablo notu).
+
+_Güncelleme (20 Kasım 2026): bütün karşılaştırma yöntemleri 10 tohuma çıkarıldı._ Eski tohumlar yeniden
+koşulmadı; yalnızca eksik tohumlar eklendi (`suites/pmnist_main.yaml`; `reports/pmnist_summary_main.md`,
+`reports/pmnist_vs_baseline.md`, `reports/pmnist_main_criterion.md`). Yukarıdaki 5 ve 3 tohumluk sayılar sürüm
+kaydı olarak bırakılmıştır. Ortalamaların hiçbiri 0.001'den fazla değişmemiştir.
+
+| Yöntem (200 görev, 10 tohum) | AUC | Son pencere | Koruma oranı | Ölçütü sağlayan tohum | Üçgen dalga − yöntem, AUC [%95 GA] |
+|---|---|---|---|---|---|
+| Parseval | 0.843 ± 0.000 | 0.844 ± 0.001 | 1.018 ± 0.002 | 10/10 | −0.008 [−0.009, −0.006] |
+| Weight Clipping | 0.837 ± 0.001 | 0.840 ± 0.002 | 1.017 ± 0.003 | 10/10 | −0.001 [−0.002, +0.001] |
+| Üçgen dalga | 0.836 ± 0.002 | 0.839 ± 0.002 | 1.017 ± 0.003 | 10/10 | — |
+| NaP | 0.833 ± 0.001 | 0.833 ± 0.001 | 1.005 ± 0.003 | 10/10 | +0.003 [+0.002, +0.005] |
+| L2 Init | 0.831 ± 0.000 | 0.831 ± 0.001 | 1.007 ± 0.002 | 10/10 | +0.005 [+0.004, +0.007] |
+| Continual Backprop | 0.821 ± 0.001 | 0.822 ± 0.002 | 1.004 ± 0.003 | 9/10 | +0.015 [+0.013, +0.016] |
+| Layer Norm + Weight Decay | 0.816 ± 0.001 | 0.809 ± 0.002 | 0.976 ± 0.003 | 0/10 | +0.019 [+0.018, +0.021] |
+| Shrink & Perturb | 0.809 ± 0.000 | 0.809 ± 0.001 | 1.000 ± 0.002 | 10/10 | +0.027 [+0.025, +0.028] |
+| Sin-MLP (sinüs aktivasyon) | 0.809 ± 0.001 | 0.799 ± 0.002 | 0.961 ± 0.003 | 0/10 | — |
+| UPGD | 0.800 ± 0.001 | 0.786 ± 0.002 | 0.952 ± 0.003 | 0/10 | +0.036 [+0.034, +0.037] |
+| Smooth-Leaky | 0.799 ± 0.000 | 0.783 ± 0.002 | 0.963 ± 0.002 | 0/10 | — |
+| Standart | 0.774 ± 0.001 | 0.743 ± 0.003 | 0.906 ± 0.004 | 0/10 | +0.062 [+0.060, +0.063] |
+
+10 tohumla işaret-çevirme permütasyon testi artık her yöntemde en küçük değerine ulaşır (standart ağa göre
+p = 0.002, Holm p = 0.031); 5 ve 3 tohumdaki çözünürlük sorunu ortadan kalkmıştır. Sıralama değişmemiştir.
+Parseval bu ufukta üçgen dalganın üstündedir; üçgen dalga bu akışta plastisiteyi koruyan birkaç yöntemden
+biridir, en iyisi değildir. Bu yöntemler 800 görevlik akışta koşulmamıştır (Layer Norm + Weight Decay hariç).
 
 En öğretici karşılaştırma **Weight Clipping (κ = 1)** ile sinüs modelidir: ikisi de efektif ağırlıkları
 başlangıç sınırının katı bir aralığında tutar (κ = 1 ⇔ |W| ≤ b_l; sinüs modelinde |W| ≤ 1.5·b_l), fakat
@@ -959,7 +985,8 @@ _ortalama ± %95 GA (t-dağılımı, tohumlar üzerinden); `reports/pmnist_fulls
 taze model farkı +0.008; iki tohumda taze model farkı eşiği, birinde koruma eşiği aşılır); standart ağ (koruma
 0.924, eğim −0.008, taze model farkı +0.08), tanh (0.912, −0.010, +0.09) ve sinüs (0.792, −0.024, +0.21) hiçbir
 tohumda sağlamaz. Aynı ölçütle 200 görevlik ana pakette (§6, §13) korunmuş sayılan modeller: üçgen dalga
-(10/10), Weight Clipping, L2 Init, NaP (5/5), Parseval ve Shrink & Perturb (3/3); Continual Backprop 4/5 ve
+(10/10), Weight Clipping, L2 Init, NaP (5/5), Parseval ve Shrink & Perturb (3/3) [20.11.2026, 10 tohumla: beşi de
+10/10; Continual Backprop 9/10]; Continual Backprop 4/5 ve
 yansımalı sinüs 6/10 ile "kısmen"; standart, sinüs, tanh ve diğerleri "kaybediyor". Geniş ağda (§14.3) dört
 model de 3/3 tohumda sağlar.
 

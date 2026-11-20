@@ -677,17 +677,25 @@ is not sufficient to judge a method that fails by slow accumulation.
 \begin{table}[h]
   \centering\small
   \caption{Online Permuted MNIST, 200 tasks $\times$ 5{,}000 examples, $3\times100$ network, SGD
-  (mean $\pm$ 95\% interval; final window = last 20 tasks).}
+  (mean $\pm$ 95\% interval; final window = last 20 tasks). The published methods were implemented from the
+  descriptions in the cited papers and were not checked against the authors' code; their hyperparameters were
+  selected on the same development stream.}
   \label{tab:short}
   \resizebox{\linewidth}{!}{%
   \begin{tabular}{@{}lrccc@{}}
     \toprule
     Model & $n$ & AUC & Final window & Retention\\
     \midrule
+    Parseval regularization \citep{chung2024parseval}      & 10 & $0.843\pm0.000$ & $0.844\pm0.001$ & $1.018\pm0.002$\\
+    Weight clipping ($\kappa=1$)                & 10 & $0.837\pm0.001$ & $0.840\pm0.002$ & $1.017\pm0.003$\\
     Triangle wave ($\gamma=1$)                  & 10 & $0.836\pm0.002$ & $0.839\pm0.002$ & $1.017\pm0.003$\\
-    Weight clipping ($\kappa=1$)                &  5 & $0.836\pm0.001$ & $0.839\pm0.002$ & $1.017\pm0.004$\\
+    Normalize-and-project \citep{lyle2024normalization}    & 10 & $0.833\pm0.001$ & $0.833\pm0.001$ & $1.005\pm0.003$\\
+    L2 Init \citep{kumar2023maintaining}        & 10 & $0.831\pm0.000$ & $0.831\pm0.001$ & $1.007\pm0.002$\\
     Reflected sine ($\varepsilon=1$)            & 10 & $0.826\pm0.001$ & $0.825\pm0.003$ & $0.995\pm0.004$\\
-    Continual backpropagation                   &  5 & $0.821\pm0.001$ & $0.821\pm0.005$ & $1.003\pm0.008$\\
+    Continual backpropagation                   & 10 & $0.821\pm0.001$ & $0.822\pm0.002$ & $1.004\pm0.003$\\
+    Layer normalization + weight decay          & 10 & $0.816\pm0.001$ & $0.809\pm0.002$ & $0.976\pm0.003$\\
+    Shrink and perturb \citep{ash2020warm}      & 10 & $0.809\pm0.000$ & $0.809\pm0.001$ & $1.000\pm0.002$\\
+    UPGD \citep{elsayed2024addressing}          & 10 & $0.800\pm0.001$ & $0.786\pm0.002$ & $0.952\pm0.003$\\
     Tanh with derivative floor ($\varepsilon=1$) &  5 & $0.799\pm0.002$ & $0.780\pm0.006$ & $0.939\pm0.006$\\
     Sine with partial floor ($\varepsilon=0.3$) &  5 & $0.786\pm0.002$ & $0.764\pm0.004$ & $0.932\pm0.004$\\
     Sine                                        & 10 & $0.785\pm0.001$ & $0.760\pm0.004$ & $0.926\pm0.004$\\
@@ -705,8 +713,12 @@ stays at the bound until the parameter has travelled all the way back. Periodici
 is removed, because it turns the bound into a reflecting one. (iii)~Multiplicative compensation of the
 damping, which scales the gradient by $\min(1/\cos^2,c_{\max})$, lowers the retention ratio from $0.909$
 ($c_{\max}=3$) to $0.849$ ($10$) and $0.757$ ($30$) and raises the saturated fraction from $28\%$ to $67\%$.
-On this stream the triangle wave and weight clipping are equivalent at $\Delta=0.005$ for AUC and final window
-(five paired seeds; $p_{\mathrm{TOST}}=0.006$ and $0.015$) and at $\Delta=0.01$ for the retention ratio.
+On this stream the triangle wave and weight clipping are equivalent at $\Delta=0.005$ for AUC, final window
+and retention ratio (ten paired seeds; $p_{\mathrm{TOST}}<0.001$ for each; AUC difference $-0.0007$
+$[-0.0020,+0.0006]$). (iv)~Among the published methods run on this stream, Parseval regularization is above
+the triangle wave ($+0.008$ $[+0.006,+0.009]$ in AUC), and normalize-and-project and L2 Init are within $0.006$
+below it; the triangle wave is therefore one of several methods that retain plasticity on this horizon and
+not the best of them. These methods were not run on the 800-task stream.
 
 \section{Sensitivity to the width of the bound}\label{app:gamma}
 
