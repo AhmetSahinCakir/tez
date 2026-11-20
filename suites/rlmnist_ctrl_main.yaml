@@ -1,0 +1,11 @@
+# Positive control for the second benchmark on the EVALUATION streams (stream_seed_offset 0): L2 Init with the
+# setting selected on the development stream (suites/selected_rlmnist_ctrl.yaml), ten seeds paired with
+# suites/rlmnist_main.yaml (same seeds, same streams, same initial weights).
+name: rlmnist_ctrl_main
+base_config: configs/rlmnist.yaml
+workers: 2
+stream_seed_offset: 0
+selected_hparams: suites/selected_rlmnist_ctrl.yaml
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+runs:
+  - {label: l2_init, overrides: {method.name: l2_init}}

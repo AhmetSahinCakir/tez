@@ -57,7 +57,12 @@ if ! done_marker "F CHAIN FINISHED" "$FLOG" && ! running "scripts/run_f_chain.sh
   setsid nohup bash scripts/run_f_chain.sh > /dev/null 2>&1 < /dev/null &
   started="$started run_f_chain"
 fi
-if { ! done_marker "FOLLOW-ON FINISHED" "$LOG" || ! done_marker "C CHAIN FINISHED" "$CLOG" || ! done_marker "CAUSAL CHAIN FINISHED" "$KLOG" || ! done_marker "ADAM10 CHAIN FINISHED" "$ALOG" || ! done_marker "E CHAIN FINISHED" "$ELOG" || ! done_marker "F CHAIN FINISHED" "$FLOG"; } && ! running "scripts/autocommit_results.sh"; then
+GLOG=results/g_chain.log
+if ! done_marker "G CHAIN FINISHED" "$GLOG" && ! running "scripts/run_g_chain.sh"; then
+  setsid nohup bash scripts/run_g_chain.sh > /dev/null 2>&1 < /dev/null &
+  started="$started run_g_chain"
+fi
+if { ! done_marker "FOLLOW-ON FINISHED" "$LOG" || ! done_marker "C CHAIN FINISHED" "$CLOG" || ! done_marker "CAUSAL CHAIN FINISHED" "$KLOG" || ! done_marker "ADAM10 CHAIN FINISHED" "$ALOG" || ! done_marker "E CHAIN FINISHED" "$ELOG" || ! done_marker "F CHAIN FINISHED" "$FLOG" || ! done_marker "G CHAIN FINISHED" "$GLOG"; } && ! running "scripts/autocommit_results.sh"; then
   setsid nohup bash scripts/autocommit_results.sh 1800 > /dev/null 2>&1 < /dev/null &
   started="$started autocommit_results"
 fi

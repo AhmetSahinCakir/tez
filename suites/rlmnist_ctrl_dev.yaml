@@ -1,0 +1,26 @@
+# Controls for the second benchmark (20 Nov 2026).  In suites/rlmnist_dev.yaml every configuration of the five
+# models fell to chance accuracy within 20-30 tasks, with most first-layer units dead.  Two questions, both on
+# the DEVELOPMENT stream (stream_seed_offset 1000), one seed, same budget rule as rlmnist_dev:
+#   (a) positive control: does L2 Init, the method of the source paper (Kumar et al., CoLLAs 2024), keep
+#       plasticity in this implementation of the benchmark?  4 learning rates x 2 strengths.
+#   (b) diagnostic: does the collapse depend on the non-negative inputs?  Standard network and triangle wave
+#       with standardized inputs (stream.normalize: standard), same grids as in rlmnist_dev.
+name: rlmnist_ctrl_dev
+base_config: configs/rlmnist.yaml
+workers: 2
+seeds: [0]
+stream_seed_offset: 1000
+common:
+  fresh_reference.every_n_tasks: 0
+  metrics.fisher: false
+  metrics.update_tracking_every: 0
+runs:
+  - label: l2_init
+    overrides: {method.name: l2_init}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03], method.lam: [0.001, 0.01]}
+  - label: stdin_baseline
+    overrides: {method.name: baseline, stream.normalize: standard}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03]}
+  - label: stdin_tri
+    overrides: {model.reparam.hidden: tri, model.reparam.output: tri, stream.normalize: standard}
+    sweep: {optimizer.lr: [0.001, 0.003, 0.01, 0.03], model.gamma: [1.0, 1.5]}
