@@ -50,8 +50,9 @@ bound, raises performance from $0.818$ to $0.922$ with the same hyperparameters,
 streams (ten paired seeds; difference $0.105$, 95\% interval $[0.103,0.106]$).
 In this setting, element-wise boundedness alone was not sufficient; the map also had to keep the update
 magnitude away from zero. The study is limited to one main benchmark and small networks, and we report
-where the conclusion does not hold: under Adam the ranking of hard and smooth bounds reverses, and in a wide
-network that does not lose plasticity none of the bounded maps helps.
+where the conclusion does not hold: under Adam the ranking of hard and smooth bounds reverses, in a wide
+network that does not lose plasticity none of the bounded maps helps, and on a stream with random labels, where
+weight magnitudes do not grow, no bounded map prevents the loss of plasticity.
 \end{abstract}
 
 % ======================================================================================================
@@ -102,8 +103,9 @@ the interval it is the identity, and at the bound the parameter is \emph{reflect
   \item We find that a non-saturating periodic map, the triangle wave, shows no loss of plasticity over 800
         tasks and is statistically equivalent to weight clipping under a pre-specified margin (two one-sided
         tests), and that both are ahead of layer normalization with weight decay (Sections~\ref{sec:main}--\ref{sec:lnwd}).
-  \item We delimit the result: sensitivity to the width of the bound, a second benchmark, the Adam optimizer and
-        a wide network are reported in Section~\ref{sec:scope}, including the cases in which the ranking changes.
+  \item We delimit the result: sensitivity to the width of the bound, two further benchmarks, the Adam optimizer
+        and a wide network are reported in Section~\ref{sec:scope}, including the cases in which the ranking
+        changes and a stream on which bounding the weights does not help.
 \end{itemize}
 
 We do not propose a method that improves on weight clipping; in the regime we study the two are
@@ -538,7 +540,7 @@ short development stream.
 % ======================================================================================================
 \section{Scope of the result}\label{sec:scope}
 
-The experiments above establish the claim for one stream, one network size and one optimizer. We ran four
+The experiments above establish the claim for one stream, one network size and one optimizer. We ran five
 further studies to see how far it extends. Details and tables are in the appendix.
 
 \paragraph{Width of the bound.} On a 200-task stream with 5{,}000 examples per task, the benefit of the
@@ -556,6 +558,20 @@ triangle-wave output weights have been reflected and keep learning (Appendix~\re
 between damping and reflection therefore reappears where the overall effect of bounding is small. Methods
 that target dead units, such as continual backpropagation \citep{dohare2024loss}, are better than any bounded
 model on this stream.
+
+\paragraph{A stream on which bounding does not help.} On Random Label MNIST \citep{kumar2023maintaining},
+1{,}200 fixed images receive new random labels in each of 50 tasks and are memorized for 400 epochs. No bounded
+model keeps plasticity on this stream (Appendix~\ref{app:rlmnist}; ten paired seeds). In the last ten tasks
+all five models are at an accuracy of $0.12$--$0.17$ (chance is $0.10$), and none of the 36 settings of the
+development search avoided the collapse. The bounded models have a higher AUC than the standard network
+($0.29$--$0.37$ against $0.25$), but this comes from faster learning in the first tasks and not from retained
+plasticity. As a positive control we ran L2 Init, the method proposed in the paper whose protocol we follow, in the
+same setup: it stays at an accuracy of $0.95$ for all 50 tasks and meets the retention criterion in ten of ten
+seeds. The failure of the bounded models is therefore not an artefact of our setup. On this stream weight
+magnitudes barely grow (mean $|W|$ from $0.06$ to $0.08$ in all five models) and the bounded weights do not
+saturate; instead units die, $83$--$100\%$ of the first hidden layer under the bounded models. Bounding the
+weights acts on weight growth, and our results give no evidence that it helps when plasticity is lost in this
+other way.
 
 \paragraph{Adam.} With Adam at learning rate $10^{-3}$ the ranking reverses (Appendix~\ref{app:adam}; ten
 paired seeds, hyperparameters transferred from SGD without re-tuning). The standard network collapses (AUC
@@ -601,7 +617,9 @@ pass, removed the loss of plasticity in a single-factor comparison with ten pair
 and the trapping of parameters it produces, as the main cause. For the design of
 bounded parameterizations our results suggest that boundedness should be paired with a non-vanishing update.
 These conclusions rest on one main benchmark, small fully connected networks and SGD; they should be tested
-on larger architectures and other streams before being generalized.
+on larger architectures and other streams before being generalized. On Random Label MNIST, where weights do
+not grow, none of the bounded models kept plasticity while L2 Init did, so a bound on the weights is not a
+general remedy.
 Two directions follow from the limits of this study: a boundary rule that suits adaptive optimizers, and an
 account of when, as a function of width and stream length, a network enters the regime in which bounding helps.
 
@@ -791,6 +809,54 @@ loses $0.035$ in AUC and its online accuracy drops from $0.78$ to $0.62$ over th
 output-layer weights saturated, whereas $60\%$ of the triangle-wave output weights have crossed the bound and
 been reflected without any loss of accuracy.
 
+\section{Random Label MNIST}\label{app:rlmnist}
+
+The stream follows \citet{kumar2023maintaining}: a fixed subset of 1{,}200 MNIST training images, new labels
+drawn uniformly from the ten classes in every task, 400 epochs per task with batch size 16, and 50 tasks.
+Performance is the accuracy averaged over all batches of a task, measured before each update. The network,
+initialization and optimizer are those of our other experiments (three hidden layers of 100 units, SGD), whereas
+the source uses two hidden layers; the numbers are therefore not comparable with those reported there.
+Hyperparameters were selected on a separate development stream with one seed (four learning rates for every
+model, combined with two bound widths for the bounded models and two regularization strengths for L2 Init).
+Four of the five basic models selected the smallest learning rate of the grid, that is, the setting that
+collapses most slowly.
+
+\begin{table}[h]
+  \centering\small
+  \caption{Random Label MNIST, 50 tasks, SGD (ten paired seeds, mean $\pm$ 95\% interval). Early and final
+  window: first and last ten tasks. ``Dead'': dead fraction of the three hidden layers at the end of the
+  stream. ``Crit.'': seeds that meet the retention criterion.}
+  \label{tab:rlmnist}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    Model & AUC & Early window & Final window & Retention & Dead (layers 1/2/3) & Crit.\\
+    \midrule
+    L2 Init ($\lambda=0.01$, lr $0.01$)          & $0.951\pm0.000$ & $0.947\pm0.001$ & $0.952\pm0.001$ & $1.005\pm0.001$ & $0.00/0.05/0.07$ & 10/10\\
+    Triangle wave ($\gamma=1$, lr $0.03$)        & $0.367\pm0.020$ & $0.720\pm0.008$ & $0.122\pm0.017$ & $0.170\pm0.023$ & $1.00/0.94/0.91$ & 0/10\\
+    Weight clipping ($\kappa=2$, lr $0.001$)     & $0.307\pm0.022$ & $0.615\pm0.022$ & $0.174\pm0.028$ & $0.282\pm0.042$ & $0.91/0.50/0.04$ & 0/10\\
+    Tanh ($\gamma=1.5$, lr $0.001$)              & $0.292\pm0.013$ & $0.509\pm0.013$ & $0.168\pm0.006$ & $0.330\pm0.015$ & $0.91/0.39/0.09$ & 0/10\\
+    Sine ($\gamma=2.5$, lr $0.001$)              & $0.286\pm0.019$ & $0.610\pm0.018$ & $0.161\pm0.017$ & $0.264\pm0.027$ & $0.83/0.59/0.12$ & 0/10\\
+    Standard (lr $0.001$)                        & $0.253\pm0.037$ & $0.617\pm0.038$ & $0.151\pm0.040$ & $0.244\pm0.058$ & $0.39/0.80/0.11$ & 0/10\\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+All five basic models fall towards chance: the mean accuracy of the standard network is $0.77$ in the third
+task, $0.41$ in the tenth and $0.15$ in the last, and the fresh-network gap at the end is between $0.14$ and
+$0.82$. The triangle wave, with its larger selected learning rate, memorizes the first task fastest ($0.95$
+against $0.40$ for the standard network) and then collapses furthest (final window $0.029$ below the standard
+network, fresh-network gap $0.82$); its higher AUC ($+0.113$ $[0.077,0.145]$ over the standard network) should
+not be read as retained plasticity. L2 Init is ahead of every basic model by $0.58$ or more in mean AUC (paired
+difference to the triangle wave $0.584$ $[0.569,0.601]$, to the standard network $0.697$ $[0.666,0.726]$), and
+its lowest final-window accuracy over seeds is $0.950$. As a diagnostic we repeated the development search of
+the standard network and the triangle wave with standardized inputs (one seed). The standard network collapses
+at all four learning rates; the best triangle-wave setting declines more slowly (accuracy $0.71$ in the tenth
+task and $0.56$ in the last, against $0.48$ and $0.10$ with $[0,1]$ inputs) but does not keep plasticity. Input
+scaling therefore explains part of the collapse of the triangle wave at most. We did not test why L2 Init
+succeeds here; it pulls all parameters, including biases, towards their initial values, and its mean dead fraction
+at the end of the stream is at most $0.07$ in every layer.
+
 \section{Adam}\label{app:adam}
 
 \begin{table}[h]
@@ -869,7 +935,8 @@ weight clipping by $0.024$ $[0.019,0.031]$, and the spread of the final-window a
 $0.015$ and $0.031$ to $0.002$ and $0.003$ (standard deviations, same five seeds). The sine map remains ahead in
 every seed. Its paired AUC difference to weight clipping is $0.0075$ $[0.0060,0.0090]$, and to the
 triangle wave $0.0088$ $[0.0080,0.0095]$. The two hard bounds differ by $-0.0013$ $[-0.0023,-0.0004]$ under Adam and by $+0.0003$
-$[-0.0002,+0.0008]$ under SGD. Standardization does not help every model: tanh under Adam loses $0.027$
+$[-0.0002,+0.0008]$ under SGD; the two one-sided tests for the AUC pass at the margin of $0.005$ in both cases
+(Holm-adjusted $p=0.005$ and $p<0.001$, five seeds). Standardization does not help every model: tanh under Adam loses $0.027$
 $[0.024,0.029]$ in AUC, and the standard network under Adam still loses plasticity, with dead units moving
 from the first hidden layer to the deeper ones (total dead fraction $0.58$). Under SGD the AUC of the hard
 bounds changes by $0.001$ and the standard network loses plasticity as before; the one weight-clipping seed

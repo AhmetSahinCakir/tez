@@ -1,6 +1,6 @@
 # İstatistiksel denetim paketi
 
-Danışman raporu (16 Kasım 2026), teslim listesi madde 3. Bu klasördeki her sayı, koşuların `summary.json` dosyalarından `python3 scripts/denetim_paketi.py` komutuyla yeniden üretilir; başka rapordan kopyalanmış sayı yoktur. Üretildiği depo sürümü: `355b3d7`.
+Danışman raporu (16 Kasım 2026), teslim listesi madde 3. Bu klasördeki her sayı, koşuların `summary.json` dosyalarından `python3 scripts/denetim_paketi.py` komutuyla yeniden üretilir; başka rapordan kopyalanmış sayı yoktur. Üretildiği depo sürümü: `881bb9b`.
 
 | Dosya | İçerik |
 |---|---|
@@ -63,6 +63,30 @@ Tek tek tohum değerleri `tohum_bazli.csv` dosyasındadır; aşağıda model ba�
 | adam_tanh | 10 | 0.8110 ± 0.0020 | 0.8286 ± 0.0021 | 0.8049 ± 0.0051 | 0.9714 ± 0.0047 | -0.0109 ± 0.0027 | +0.0274 ± 0.0112 | 0/10 |
 | adam_tri | 10 | 0.7916 ± 0.0050 | 0.8060 ± 0.0063 | 0.7860 ± 0.0128 | 0.9753 ± 0.0176 | -0.0080 ± 0.0047 | +0.0281 ± 0.0374 | 0/10 |
 | adam_weight_clipping | 10 | 0.7914 ± 0.0064 | 0.8077 ± 0.0051 | 0.7841 ± 0.0232 | 0.9707 ± 0.0289 | -0.0109 ± 0.0101 | +0.0383 ± 0.0537 | 1/10 |
+
+### pmnist_inputnorm (200 görev × 5.000 örnek, standartlaştırılmış girdi (ayarlar aktarıldı))
+
+| Model | n | AUC | Erken pencere | Son pencere | Koruma oranı | Eğim / 100 görev | Taze model farkı | Üç ölçüt |
+|---|---:|---|---|---|---|---|---|---|
+| adam_sin | 5 | 0.8224 ± 0.0007 | 0.8157 ± 0.0011 | 0.8230 ± 0.0014 | 1.0090 ± 0.0023 | +0.0027 ± 0.0015 | -0.0162 ± 0.0078 | 5/5 |
+| adam_std | 5 | 0.7284 ± 0.0120 | 0.7719 ± 0.0091 | 0.6958 ± 0.0211 | 0.9016 ± 0.0304 | -0.0312 ± 0.0125 | +0.1246 ± 0.0310 | 0/5 |
+| adam_tanh | 5 | 0.7846 ± 0.0035 | 0.8105 ± 0.0015 | 0.7751 ± 0.0131 | 0.9563 ± 0.0150 | -0.0191 ± 0.0060 | +0.0426 ± 0.0281 | 0/5 |
+| adam_tri | 5 | 0.8136 ± 0.0007 | 0.8062 ± 0.0013 | 0.8163 ± 0.0022 | 1.0126 ± 0.0036 | +0.0043 ± 0.0010 | -0.0214 ± 0.0034 | 5/5 |
+| adam_weight_clipping | 5 | 0.8149 ± 0.0015 | 0.8065 ± 0.0011 | 0.8171 ± 0.0028 | 1.0131 ± 0.0033 | +0.0043 ± 0.0009 | -0.0188 ± 0.0093 | 5/5 |
+| sgd_std | 5 | 0.7814 ± 0.0013 | 0.8283 ± 0.0010 | 0.7525 ± 0.0019 | 0.9085 ± 0.0016 | -0.0401 ± 0.0015 | +0.0809 ± 0.0184 | 0/5 |
+| sgd_tri | 5 | 0.8359 ± 0.0007 | 0.8359 ± 0.0017 | 0.8352 ± 0.0012 | 0.9992 ± 0.0019 | -0.0005 ± 0.0008 | -0.0161 ± 0.0067 | 5/5 |
+| sgd_weight_clipping | 5 | 0.8357 ± 0.0004 | 0.8369 ± 0.0007 | 0.8342 ± 0.0012 | 0.9968 ± 0.0017 | -0.0010 ± 0.0008 | -0.0072 ± 0.0036 | 4/5 |
+
+### rlmnist_main (Random Label MNIST, 50 görev × 400 epok (L2 Init: results/rlmnist_ctrl_main))
+
+| Model | n | AUC | Erken pencere | Son pencere | Koruma oranı | Eğim / 100 görev | Taze model farkı | Üç ölçüt |
+|---|---:|---|---|---|---|---|---|---|
+| baseline | 10 | 0.2535 ± 0.0524 | 0.6175 ± 0.0526 | 0.1514 ± 0.0562 | 0.2440 ± 0.0814 | -0.9714 ± 0.1141 | +0.2464 ± 0.0616 | 0/10 |
+| l2_init | 10 | 0.9508 ± 0.0007 | 0.9475 ± 0.0018 | 0.9520 ± 0.0012 | 1.0047 ± 0.0016 | +0.0111 ± 0.0040 | -0.0545 ± 0.0055 | 10/10 |
+| sin | 10 | 0.2864 ± 0.0260 | 0.6104 ± 0.0258 | 0.1613 ± 0.0232 | 0.2644 ± 0.0377 | -1.0064 ± 0.0787 | +0.2167 ± 0.0256 | 0/10 |
+| tanh | 10 | 0.2924 ± 0.0185 | 0.5094 ± 0.0184 | 0.1677 ± 0.0082 | 0.3297 ± 0.0203 | -0.8557 ± 0.0599 | +0.1442 ± 0.0185 | 0/10 |
+| tri | 10 | 0.3665 ± 0.0274 | 0.7197 ± 0.0107 | 0.1223 ± 0.0234 | 0.1698 ± 0.0315 | -1.4666 ± 0.0699 | +0.8188 ± 0.0242 | 0/10 |
+| weight_clipping | 10 | 0.3070 ± 0.0311 | 0.6153 ± 0.0310 | 0.1738 ± 0.0391 | 0.2819 ± 0.0592 | -1.0243 ± 0.1482 | +0.2236 ± 0.0407 | 0/10 |
 
 ## 3. Eşdeğerlik testleri (TOST)
 
@@ -215,6 +239,150 @@ Eşleştirilmiş tohumlar üzerinde iki tek yönlü t-testi (Schuirmann, 1987; `
 | Son pencere | +0.0404 | 0.0134 | 0.00425 | 11.86 | 4.2e-07 | 7.15 | 1 | 1 | 1 | [+0.0326, +0.0482] | farklı (GA marjın dışında) |
 | Koruma oranı | +0.0222 | 0.0191 | 0.00605 | 5.32 | 0.00024 | 2.02 | 0.96 | 0.96 | 1 | [+0.0111, +0.0333] | farklı (GA marjın dışında) |
 | Taze model farkı | -0.0304 | 0.0338 | 0.01069 | -1.91 | 0.96 | -3.78 | 0.0022 | 0.96 | 1 | [-0.0500, -0.0108] | farklı (GA marjın dışında) |
+
+### pmnist_inputnorm: adam_tri − adam_weight_clipping, Δ = 0.005 (n = 5 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | -0.0013 | 0.0012 | 0.00054 | 6.77 | 0.0012 | -11.67 | 0.00015 | 0.0012 | 0.005 | [-0.0025, -0.0002] | eşdeğer |
+| Son pencere | -0.0008 | 0.0020 | 0.00089 | 4.77 | 0.0044 | -6.48 | 0.0015 | 0.0044 | 0.013 | [-0.0027, +0.0011] | eşdeğer |
+| Koruma oranı | -0.0005 | 0.0026 | 0.00115 | 3.93 | 0.0086 | -4.80 | 0.0043 | 0.0086 | 0.017 | [-0.0029, +0.0019] | eşdeğer |
+| Taze model farkı | -0.0026 | 0.0060 | 0.00267 | 0.88 | 0.21 | -2.86 | 0.023 | 0.21 | 0.21 | [-0.0083, +0.0031] | karar verilemez |
+
+### pmnist_inputnorm: adam_tri − adam_weight_clipping, Δ = 0.01 (n = 5 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | -0.0013 | 0.0012 | 0.00054 | 15.99 | 4.5e-05 | -20.88 | 1.6e-05 | 4.5e-05 | 0.00018 | [-0.0025, -0.0002] | eşdeğer |
+| Son pencere | -0.0008 | 0.0020 | 0.00089 | 10.40 | 0.00024 | -12.11 | 0.00013 | 0.00024 | 0.00073 | [-0.0027, +0.0011] | eşdeğer |
+| Koruma oranı | -0.0005 | 0.0026 | 0.00115 | 8.29 | 0.00058 | -9.16 | 0.00039 | 0.00058 | 0.0012 | [-0.0029, +0.0019] | eşdeğer |
+| Taze model farkı | -0.0026 | 0.0060 | 0.00267 | 2.75 | 0.026 | -4.73 | 0.0046 | 0.026 | 0.026 | [-0.0083, +0.0031] | eşdeğer |
+
+### pmnist_inputnorm: adam_sin − adam_weight_clipping, Δ = 0.005 (n = 5 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0075 | 0.0019 | 0.00087 | 14.41 | 6.7e-05 | 2.88 | 0.98 | 0.98 | 1 | [+0.0056, +0.0093] | farklı (GA marjın dışında) |
+| Son pencere | +0.0060 | 0.0036 | 0.00159 | 6.89 | 0.0012 | 0.60 | 0.71 | 0.71 | 1 | [+0.0026, +0.0094] | karar verilemez |
+| Koruma oranı | -0.0041 | 0.0043 | 0.00192 | 0.48 | 0.33 | -4.73 | 0.0046 | 0.33 | 1 | [-0.0082, +0.0000] | karar verilemez |
+| Taze model farkı | +0.0026 | 0.0083 | 0.00371 | 2.05 | 0.055 | -0.65 | 0.28 | 0.28 | 1 | [-0.0053, +0.0105] | karar verilemez |
+
+### pmnist_inputnorm: adam_sin − adam_weight_clipping, Δ = 0.01 (n = 5 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0075 | 0.0019 | 0.00087 | 20.18 | 1.8e-05 | -2.89 | 0.022 | 0.022 | 0.073 | [+0.0056, +0.0093] | eşdeğer |
+| Son pencere | +0.0060 | 0.0036 | 0.00159 | 10.03 | 0.00028 | -2.54 | 0.032 | 0.032 | 0.073 | [+0.0026, +0.0094] | eşdeğer |
+| Koruma oranı | -0.0041 | 0.0043 | 0.00192 | 3.09 | 0.018 | -7.33 | 0.00092 | 0.018 | 0.073 | [-0.0082, +0.0000] | eşdeğer |
+| Taze model farkı | +0.0026 | 0.0083 | 0.00371 | 3.39 | 0.014 | -1.99 | 0.058 | 0.058 | 0.073 | [-0.0053, +0.0105] | karar verilemez |
+
+### pmnist_inputnorm: adam_sin − adam_tri, Δ = 0.005 (n = 5 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0088 | 0.0010 | 0.00044 | 31.09 | 3.2e-06 | 8.60 | 1 | 1 | 1 | [+0.0079, +0.0098] | farklı (GA marjın dışında) |
+| Son pencere | +0.0067 | 0.0022 | 0.00100 | 11.71 | 0.00015 | 1.72 | 0.92 | 0.92 | 1 | [+0.0046, +0.0089] | karar verilemez |
+| Koruma oranı | -0.0036 | 0.0031 | 0.00141 | 1.01 | 0.18 | -6.09 | 0.0018 | 0.18 | 0.74 | [-0.0066, -0.0006] | karar verilemez |
+| Taze model farkı | +0.0052 | 0.0068 | 0.00306 | 3.35 | 0.014 | 0.08 | 0.53 | 0.53 | 1 | [-0.0013, +0.0118] | karar verilemez |
+
+### pmnist_inputnorm: adam_sin − adam_tri, Δ = 0.01 (n = 5 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0088 | 0.0010 | 0.00044 | 42.34 | 9.3e-07 | -2.64 | 0.029 | 0.029 | 0.057 | [+0.0079, +0.0098] | eşdeğer |
+| Son pencere | +0.0067 | 0.0022 | 0.00100 | 16.70 | 3.8e-05 | -3.28 | 0.015 | 0.015 | 0.046 | [+0.0046, +0.0089] | eşdeğer |
+| Koruma oranı | -0.0036 | 0.0031 | 0.00141 | 4.57 | 0.0051 | -9.64 | 0.00032 | 0.0051 | 0.021 | [-0.0066, -0.0006] | eşdeğer |
+| Taze model farkı | +0.0052 | 0.0068 | 0.00306 | 4.98 | 0.0038 | -1.56 | 0.097 | 0.097 | 0.097 | [-0.0013, +0.0118] | karar verilemez |
+
+### pmnist_inputnorm: sgd_tri − sgd_weight_clipping, Δ = 0.005 (n = 5 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0003 | 0.0006 | 0.00028 | 18.52 | 2.5e-05 | -16.70 | 3.8e-05 | 3.8e-05 | 0.00015 | [-0.0003, +0.0009] | eşdeğer |
+| Son pencere | +0.0010 | 0.0018 | 0.00079 | 7.62 | 0.0008 | -5.06 | 0.0036 | 0.0036 | 0.011 | [-0.0007, +0.0027] | eşdeğer |
+| Koruma oranı | +0.0024 | 0.0024 | 0.00107 | 6.95 | 0.0011 | -2.42 | 0.036 | 0.036 | 0.073 | [+0.0001, +0.0047] | eşdeğer |
+| Taze model farkı | -0.0088 | 0.0077 | 0.00344 | -1.11 | 0.84 | -4.02 | 0.0079 | 0.84 | 0.84 | [-0.0162, -0.0015] | karar verilemez |
+
+### pmnist_inputnorm: sgd_tri − sgd_weight_clipping, Δ = 0.01 (n = 5 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0003 | 0.0006 | 0.00028 | 36.13 | 1.8e-06 | -34.31 | 2.2e-06 | 2.2e-06 | 8.6e-06 | [-0.0003, +0.0009] | eşdeğer |
+| Son pencere | +0.0010 | 0.0018 | 0.00079 | 13.96 | 7.6e-05 | -11.40 | 0.00017 | 0.00017 | 0.00051 | [-0.0007, +0.0027] | eşdeğer |
+| Koruma oranı | +0.0024 | 0.0024 | 0.00107 | 11.64 | 0.00016 | -7.11 | 0.001 | 0.001 | 0.0021 | [+0.0001, +0.0047] | eşdeğer |
+| Taze model farkı | -0.0088 | 0.0077 | 0.00344 | 0.34 | 0.38 | -5.47 | 0.0027 | 0.38 | 0.38 | [-0.0162, -0.0015] | karar verilemez |
+
+### rlmnist_main: l2_init − tri, Δ = 0.005 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.5843 | 0.0278 | 0.00878 | 67.14 | 9.1e-14 | 66.00 | 1 | 1 | 1 | [+0.5682, +0.6003] | farklı (GA marjın dışında) |
+| Son pencere | +0.8297 | 0.0236 | 0.00747 | 111.75 | 9.3e-16 | 110.41 | 1 | 1 | 1 | [+0.8160, +0.8434] | farklı (GA marjın dışında) |
+| Koruma oranı | +0.8349 | 0.0321 | 0.01016 | 82.63 | 1.4e-14 | 81.65 | 1 | 1 | 1 | [+0.8163, +0.8536] | farklı (GA marjın dışında) |
+| Taze model farkı | -0.8732 | 0.0231 | 0.00729 | -119.06 | 1 | -120.43 | 4.8e-16 | 1 | 1 | [-0.8866, -0.8599] | farklı (GA marjın dışında) |
+
+### rlmnist_main: l2_init − tri, Δ = 0.01 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.5843 | 0.0278 | 0.00878 | 67.71 | 8.4e-14 | 65.43 | 1 | 1 | 1 | [+0.5682, +0.6003] | farklı (GA marjın dışında) |
+| Son pencere | +0.8297 | 0.0236 | 0.00747 | 112.42 | 8.9e-16 | 109.74 | 1 | 1 | 1 | [+0.8160, +0.8434] | farklı (GA marjın dışında) |
+| Koruma oranı | +0.8349 | 0.0321 | 0.01016 | 83.12 | 1.3e-14 | 81.16 | 1 | 1 | 1 | [+0.8163, +0.8536] | farklı (GA marjın dışında) |
+| Taze model farkı | -0.8732 | 0.0231 | 0.00729 | -118.37 | 1 | -121.12 | 4.5e-16 | 1 | 1 | [-0.8866, -0.8599] | farklı (GA marjın dışında) |
+
+### rlmnist_main: l2_init − baseline, Δ = 0.005 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.6973 | 0.0520 | 0.01645 | 42.69 | 5.3e-12 | 42.08 | 1 | 1 | 1 | [+0.6671, +0.7274] | farklı (GA marjın dışında) |
+| Son pencere | +0.8005 | 0.0558 | 0.01766 | 45.62 | 2.9e-12 | 45.05 | 1 | 1 | 1 | [+0.7682, +0.8329] | farklı (GA marjın dışında) |
+| Koruma oranı | +0.7607 | 0.0817 | 0.02584 | 29.63 | 1.4e-10 | 29.25 | 1 | 1 | 1 | [+0.7134, +0.8081] | farklı (GA marjın dışında) |
+| Taze model farkı | -0.3008 | 0.0599 | 0.01894 | -15.62 | 1 | -16.15 | 3e-08 | 1 | 1 | [-0.3355, -0.2661] | farklı (GA marjın dışında) |
+
+### rlmnist_main: l2_init − baseline, Δ = 0.01 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.6973 | 0.0520 | 0.01645 | 42.99 | 5e-12 | 41.78 | 1 | 1 | 1 | [+0.6671, +0.7274] | farklı (GA marjın dışında) |
+| Son pencere | +0.8005 | 0.0558 | 0.01766 | 45.90 | 2.8e-12 | 44.77 | 1 | 1 | 1 | [+0.7682, +0.8329] | farklı (GA marjın dışında) |
+| Koruma oranı | +0.7607 | 0.0817 | 0.02584 | 29.83 | 1.3e-10 | 29.05 | 1 | 1 | 1 | [+0.7134, +0.8081] | farklı (GA marjın dışında) |
+| Taze model farkı | -0.3008 | 0.0599 | 0.01894 | -15.36 | 1 | -16.42 | 2.6e-08 | 1 | 1 | [-0.3355, -0.2661] | farklı (GA marjın dışında) |
+
+### rlmnist_main: tri − baseline, Δ = 0.005 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.1130 | 0.0585 | 0.01850 | 6.38 | 6.4e-05 | 5.84 | 1 | 1 | 1 | [+0.0791, +0.1470] | farklı (GA marjın dışında) |
+| Son pencere | -0.0291 | 0.0405 | 0.01279 | -1.89 | 0.95 | -2.67 | 0.013 | 0.95 | 1 | [-0.0526, -0.0057] | farklı (GA marjın dışında) |
+| Koruma oranı | -0.0742 | 0.0600 | 0.01899 | -3.64 | 1 | -4.17 | 0.0012 | 1 | 1 | [-0.1090, -0.0394] | farklı (GA marjın dışında) |
+| Taze model farkı | +0.5724 | 0.0462 | 0.01460 | 39.56 | 1e-11 | 38.87 | 1 | 1 | 1 | [+0.5456, +0.5991] | farklı (GA marjın dışında) |
+
+### rlmnist_main: tri − baseline, Δ = 0.01 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.1130 | 0.0585 | 0.01850 | 6.65 | 4.7e-05 | 5.57 | 1 | 1 | 1 | [+0.0791, +0.1470] | farklı (GA marjın dışında) |
+| Son pencere | -0.0291 | 0.0405 | 0.01279 | -1.50 | 0.92 | -3.06 | 0.0068 | 0.92 | 1 | [-0.0526, -0.0057] | karar verilemez |
+| Koruma oranı | -0.0742 | 0.0600 | 0.01899 | -3.38 | 1 | -4.43 | 0.00082 | 1 | 1 | [-0.1090, -0.0394] | farklı (GA marjın dışında) |
+| Taze model farkı | +0.5724 | 0.0462 | 0.01460 | 39.90 | 9.7e-12 | 38.53 | 1 | 1 | 1 | [+0.5456, +0.5991] | farklı (GA marjın dışında) |
+
+### rlmnist_main: tri − weight_clipping, Δ = 0.005 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0595 | 0.0240 | 0.00760 | 8.49 | 6.9e-06 | 7.17 | 1 | 1 | 1 | [+0.0456, +0.0735] | farklı (GA marjın dışında) |
+| Son pencere | -0.0515 | 0.0306 | 0.00966 | -4.82 | 1 | -5.85 | 0.00012 | 1 | 1 | [-0.0692, -0.0338] | farklı (GA marjın dışında) |
+| Koruma oranı | -0.1121 | 0.0476 | 0.01504 | -7.12 | 1 | -7.79 | 1.4e-05 | 1 | 1 | [-0.1397, -0.0845] | farklı (GA marjın dışında) |
+| Taze model farkı | +0.5951 | 0.0289 | 0.00915 | 65.58 | 1.1e-13 | 64.49 | 1 | 1 | 1 | [+0.5784, +0.6119] | farklı (GA marjın dışında) |
+
+### rlmnist_main: tri − weight_clipping, Δ = 0.01 (n = 10 ortak tohum)
+
+| Ölçüt | Ortalama fark | SS | SH | t_alt | p_alt | t_üst | p_üst | p_TOST | Holm p | %90 GA | Karar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AUC (birincil) | +0.0595 | 0.0240 | 0.00760 | 9.15 | 3.7e-06 | 6.52 | 1 | 1 | 1 | [+0.0456, +0.0735] | farklı (GA marjın dışında) |
+| Son pencere | -0.0515 | 0.0306 | 0.00966 | -4.30 | 1 | -6.37 | 6.5e-05 | 1 | 1 | [-0.0692, -0.0338] | farklı (GA marjın dışında) |
+| Koruma oranı | -0.1121 | 0.0476 | 0.01504 | -6.79 | 1 | -8.12 | 9.8e-06 | 1 | 1 | [-0.1397, -0.0845] | farklı (GA marjın dışında) |
+| Taze model farkı | +0.5951 | 0.0289 | 0.00915 | 66.13 | 1e-13 | 63.94 | 1 | 1 | 1 | [+0.5784, +0.6119] | farklı (GA marjın dışında) |
 
 ## 4. Marjın gerekçesi
 

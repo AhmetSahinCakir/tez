@@ -1404,15 +1404,49 @@ Görev bazında ortalama doğruluk (1., 3., 5., 10., 20., 30., 50. görev): stan
   birimler ölüyor: sınırlı modellerde ilk gizli katmanın %83–100'ü, standart ağda ikinci katmanın %80'i. Yani
   bu akıştaki kayıp, bu tezin hedef aldığı ağırlık büyümesi mekanizmasından değil ölü birimlerden kaynaklanıyor
   görünüyor; sınırlı harita ölü birimleri diriltmez (§9, §14.1'deki ilk katman ölümü gözlemiyle aynı yönde).
-* **Henüz bilinmeyen.** Bu olumsuz sonucun bizim kurulumumuza mı (3×100 ağ, sıfır yanlılık, [0, 1] aralığında
-  girdi, SGD) yoksa yönteme mi ait olduğu ayrılmamıştır. Bunun için bir kontrol zinciri koşmaktadır
-  (`suites/rlmnist_ctrl_dev.yaml`, `suites/rlmnist_ctrl_main.yaml`): (a) kaynak makalenin kendi yöntemi L2 Init
-  bu kurulumda esnekliği koruyor mu (pozitif kontrol; 8 ayar, sonra 10 tohum), (b) girdiler standartlaştırılınca
-  çöküş değişiyor mu (standart ağ ve üçgen dalga, tek tohum, tanılama). Sonuçlar bu bölüme eklenecektir.
 
-**Sonuç (şimdilik).** Tezin ve makalenin iddiası Online Permuted MNIST ile sınırlı kalmalıdır; Random Label
-MNIST'te sınırlı yeniden parametrizasyon esneklik kaybını önlememiştir. Bu, sınırlılıklar bölümüne olumsuz sonuç
-olarak yazılacaktır.
+**Kontrol deneyleri (21 Kasım 2026; `suites/rlmnist_ctrl_dev.yaml`, `suites/rlmnist_ctrl_main.yaml`,
+`scripts/rlmnist_control.py`, `reports/rlmnist_ctrl/rlmnist_control.md`; 30 koşu, hepsi hatasız).** Yukarıdaki
+olumsuz sonucun bizim kurulumumuza mı (3×100 ağ, sıfır yanlılık, [0, 1] aralığında girdi, SGD) yoksa yönteme mi
+ait olduğunu ayırmak için iki kontrol koşuldu.
+
+_(a) Pozitif kontrol: L2 Init._ Kaynak makalenin kendi yöntemi aynı kurulumda, aynı öğrenme oranı ızgarasıyla
+(4 öğrenme oranı × 2 düzenlileştirme katsayısı, geliştirme akışı, tek tohum) tarandı; seçilen ayar lr 0.01,
+λ = 0.01 (geliştirme AUC 0.951; λ ızgaranın üst ucundadır). Bu ayarla değerlendirme akışlarında 10 tohum:
+
+| Model | n | AUC | İlk 10 görev | Son 10 görev | Koruma oranı | Taze ağ farkı | Ölü birim (L0 / L1 / L2) | Ölçüt |
+|---|---:|---|---|---|---|---|---|---|
+| L2 Init (lr 0.01, λ = 0.01) | 10 | 0.951 ± 0.001 | 0.947 ± 0.002 | 0.952 ± 0.001 | 1.005 ± 0.002 | −0.054 ± 0.006 | 0.00 / 0.05 / 0.07 | 10/10 |
+
+L2 Init'in doğruluğu 50 görev boyunca 0.95'te kalıyor (1., 3., 5., 10., 20., 30., 50. görev: 0.90 → 0.96 → 0.95 →
+0.95 → 0.95 → 0.95 → 0.95); en kötü tohumun son pencere ortalaması 0.950. Aynı tohumlarda eşleştirilmiş AUC farkı:
+L2 Init − üçgen dalga +0.584 [+0.569, +0.601], − Weight Clipping +0.644 [+0.627, +0.663], − tanh +0.658
+[+0.647, +0.670], − sinüs +0.664 [+0.650, +0.681], − standart ağ +0.697 [+0.666, +0.726]; fark her tohumda en az
++0.55. Beş modelden hiçbiri ölçütü sağlamıyor (0/10), L2 Init 10/10 sağlıyor.
+
+_(b) Tanılama: standartlaştırılmış girdi_ (geliştirme akışı, tek tohum; kesin sonuç değildir). Standart ağda dört
+öğrenme oranının hepsinde çöküş sürüyor (en iyi AUC 0.242; [0, 1] girdilerle 0.299). Üçgen dalgada sekiz ayarın
+altısı yine çöküyor; ikisi (γ = 1; lr 0.03 ve lr 0.001) daha yavaş geriliyor ama esnekliği korumuyor: en iyi
+ayarda AUC 0.631, koruma oranı 0.67, doğruluk 0.98 → 0.71 (10. görev) → 0.56 (50. görev); [0, 1] girdilerle aynı
+ayar 0.95 → 0.48 → 0.10 idi. İlk katmandaki ölü oran 1.00'dan 0.83'e iniyor.
+
+**Okuma (kontrollerle birlikte).**
+
+* **Kurulum esnekliğin korunmasını gösterebiliyor; olumsuz sonuç yönteme aittir.** L2 Init aynı ağ, aynı
+  başlangıç, aynı girdi ve aynı eniyileyiciyle 50 görev boyunca öğrenmeyi sürdürüyor. Dolayısıyla sınırlı
+  haritaların bu akıştaki çöküşü bir kurulum hatasıyla açıklanamaz.
+* **Girdi ölçeği tek başına açıklama değil.** Standartlaştırma üçgen dalgaya yardım ediyor (tek tohum), ama
+  esnekliği geri getirmiyor; standart ağa hiç yardım etmiyor.
+* **Sınırlı harita neden yetmiyor, L2 Init neden yetiyor?** Bu akışta ağırlıklar zaten büyümüyor (ortalama |w|
+  0.06 → 0.08); sınırlı haritanın önlediği şey burada sorun değil. L2 Init ise bütün parametreleri (yanlılıklar
+  dahil) başlangıç değerlerine doğru çekiyor ve ölü birim oranı %0–7'de kalıyor. Bu, "kayıp ölü birimlerden
+  geliyor" okumasıyla uyumludur, ama nedensel bir test yapılmadı; açıklama olarak değil gözlem olarak
+  yazılmalıdır.
+
+**Sonuç.** Tezin ve makalenin iddiası Online Permuted MNIST ile (ve ağırlık büyümesinin esneklik kaybına eşlik
+ettiği rejimle) sınırlı kalmalıdır. Random Label MNIST'te sınırlı yeniden parametrizasyon, Weight Clipping dahil,
+esneklik kaybını önlememiştir; aynı kurulumda L2 Init önlemiştir. Bu sonuç makale taslağına (kapsam bölümü, ek
+tablo, özet) ve tez taslağına olumsuz sonuç olarak yazılmıştır.
 
 ## 16. Girdi standardizasyonu testi: Permuted MNIST, 200 görev (20–21 Kasım 2026)
 
@@ -1463,7 +1497,8 @@ _Ortalama ± standart sapma, 5 tohum (0–4). "Ölçüt": üç parçalı koruma 
   sinüs − üçgen dalga +0.0088 [+0.0080, +0.0095] (5 tohumun hepsinde pozitif); [0, 1] girdilerle bu fark 0.034
   idi. Sıralama (sinüs > sert sınırlar) Adam altında değişmedi, büyüklüğü dörtte bire indi.
 * **Üçgen dalga ile Weight Clipping yine ayırt edilemiyor.** Adam: −0.0013 [−0.0023, −0.0004]; SGD: +0.0003
-  [−0.0002, +0.0008] (ikisi de 0.005 payının içinde; 5 tohum).
+  [−0.0002, +0.0008] (ikisi de 0.005 payının içinde; 5 tohum). TOST, Δ = 0.005 payıyla AUC için iki
+  eniyileyicide de "eşdeğer" kararı veriyor (Holm p = 0.005 ve 0.00015; `reports/denetim/DENETIM.md`).
 * **SGD sonuçları değişmedi.** Üçgen dalga ve Weight Clipping için AUC farkı −0.001; standart ağ aynı biçimde
   esneklik kaybediyor (koruma oranı 0.908). SGD altında Weight Clipping'in bir tohumu ölçütü kıl payı kaçırdı
   (eğim −0.00202, eşik −0.002); koruma oranı ve taze ağ farkı o tohumda da eşiğin içinde.
