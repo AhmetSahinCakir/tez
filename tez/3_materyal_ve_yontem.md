@@ -70,11 +70,22 @@ ait test görüntülerindeki doğruluktur.
 
 **Random Label MNIST** (Kumar vd., 2025). 1.200 sabit MNIST görüntüsüne her görevde yeniden rastgele etiket
 atanır; ağ her görevde 400 tur eğitilir (yığın boyutu 16, 50 görev). Ölçüt, görev boyunca bütün yığınlarda
-güncellemeden önce ölçülen ortalama doğruluktur. [Pilot aşamasında; ana deney kurulursa bu paragraf
-güncellenecek.]
+güncellemeden önce ölçülen ortalama doğruluktur (şans düzeyi 0,10). Ağ, başlangıç ve eniyileyici bu tezin diğer
+deneyleriyle aynıdır (üç gizli katman, 100 birim, SGD); kaynak makalede iki gizli katmanlı bir ağ ve farklı bir
+başlangıç kullanılmıştır, bu yüzden sonuçlar kaynak makaledeki sayılarla doğrudan karşılaştırılamaz.
+Hiperparametreler ayrı bir geliştirme akışında tek tohumla seçilmiş (her model için 4 öğrenme oranı, sınırlı
+modellerde ayrıca 2 sınır genişliği), değerlendirme 10 eşleştirilmiş tohumla yapılmıştır. Kurulumun plastisitenin
+korunmasını gösterebildiğini sınamak için kaynak makalenin yöntemi L2 Init aynı kurulumda pozitif kontrol olarak
+koşulmuştur (8 ayar arasından seçim, 10 tohum). (Kaynak: `configs/rlmnist.yaml`, `suites/rlmnist_dev.yaml`,
+`suites/rlmnist_main.yaml`, `suites/rlmnist_ctrl_dev.yaml`, `suites/rlmnist_ctrl_main.yaml`.)
 
 Akışlar (tohum, görev) çiftinin belirlenimci fonksiyonudur: aynı tohum aynı permütasyonları ve aynı örnek
 sırasını verir. (Kod: `plasticity/data/streams.py`.)
+
+**Girdi ölçeği.** MNIST tabanlı akışlarda pikseller [0, 1] aralığına ölçeklenmiş, standartlaştırılmamıştır;
+bütün ana deneyler bu girdilerle yapılmıştır. Girdi ölçeğinin etkisini görmek için kısa Permuted MNIST akışında
+(200 görev) sekiz koşul, MNIST ortalaması ve standart sapmasıyla standartlaştırılmış girdilerle ve aynı
+hiperparametrelerle tekrarlanmıştır (5 eşleştirilmiş tohum; `suites/pmnist_inputnorm.yaml`).
 
 ## 3.6. Ağ ve eniyileyici
 

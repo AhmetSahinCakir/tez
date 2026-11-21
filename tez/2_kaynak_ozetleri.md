@@ -60,7 +60,8 @@ plastisite kaybı üzerine 50'den fazla yöntemi kapsayan bir derleme hazırlam�
 
 Kumar vd. (2025), parametreleri başlangıç değerlerine doğru çeken bir L2 düzenlileştirmesi (L2 Init)
 önermiştir. Bu çalışma ayrıca, sabit bir görüntü kümesine her görevde rastgele etiket atanan Random Label
-MNIST problemini kullanmıştır; tezdeki ikinci veri akışı [pilot aşamasında] bu problemin protokolünü izler.
+MNIST problemini kullanmıştır; tezdeki üçüncü veri akışı bu problemin protokolünü izler ve L2 Init aynı akışta
+pozitif kontrol olarak koşulmuştur.
 
 Lyle vd. (2025), plastisite kaybının birbirinden bağımsız birden fazla mekanizması olduğunu ve katman
 normalizasyonu ile ağırlık sönümünün birlikte kullanılmasının çeşitli görevlerde plastisiteyi korumada

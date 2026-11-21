@@ -48,7 +48,8 @@ sınırlı olması mıdır, yoksa güncelleme adımının büyüklüğünün kor
 ## 1.2. Kapsam
 
 * Veri akışları: Online Permuted MNIST (ana deney), ardışık CIFAR-100 ikili sınıflandırma ve
-  [pilotu süren] Random Label MNIST.
+  Random Label MNIST (bu akışta sınırlı haritalar plastisiteyi korumamıştır; sonuç olumsuz sonuç olarak
+  raporlanmıştır).
 * Ağ: tam bağlantılı, ReLU aktivasyonlu, küçük bir ağ (üç gizli katman, 100 birim); geniş ağ (2.000 birim) ayrı
   bir sınır koşulu olarak incelenmiştir.
 * Eniyileyici: ana deneylerde stokastik gradyan inişi; Adam ayrı bir rejim olarak incelenmiştir.

@@ -20,24 +20,32 @@ from plasticity.metrics.stats import tost_paired, holm_correction  # noqa: E402
 
 OUT = os.path.join(ROOT, "reports", "denetim")
 SUITES = [("pmnist_fullstream", "800 görev × 60.000 örnek"), ("pmnist_main", "200 görev × 5.000 örnek"),
-          ("pmnist_adam10", "200 görev × 5.000 örnek, Adam (lr 10⁻³; ayarlar SGD'den aktarıldı)")]
+          ("pmnist_adam10", "200 görev × 5.000 örnek, Adam (lr 10⁻³; ayarlar SGD'den aktarıldı)"),
+          ("pmnist_inputnorm", "200 görev × 5.000 örnek, standartlaştırılmış girdi (ayarlar aktarıldı)"),
+          ("rlmnist_main", "Random Label MNIST, 50 görev × 400 epok (L2 Init: results/rlmnist_ctrl_main)")]
+EXTRA_DIRS = {"rlmnist_main": ["rlmnist_ctrl_main"]}  # further result directories merged into a suite
 METRICS = [("auc_norm", "AUC (birincil)"), ("final_window_mean", "Son pencere"),
            ("retention_ratio", "Koruma oranı"), ("fresh_gap_final", "Taze model farkı")]
 PAIRS = {"pmnist_fullstream": [("tri", "weight_clipping"), ("sin_refl_matched", "sin"), ("tanh", "baseline")],
          "pmnist_main": [("tri", "weight_clipping"), ("sin", "tanh")],
          "pmnist_adam10": [("adam_tri", "adam_weight_clipping"), ("adam_sin", "adam_weight_clipping"),
-                           ("adam_sin", "adam_tri")]}
+                           ("adam_sin", "adam_tri")],
+         "pmnist_inputnorm": [("adam_tri", "adam_weight_clipping"), ("adam_sin", "adam_weight_clipping"),
+                              ("adam_sin", "adam_tri"), ("sgd_tri", "sgd_weight_clipping")],
+         "rlmnist_main": [("l2_init", "tri"), ("l2_init", "baseline"), ("tri", "baseline"),
+                          ("tri", "weight_clipping")]}
 DELTAS = [0.005, 0.01]
 TOL_RET, TOL_SLOPE, TOL_FRESH = 0.01, 0.002, 0.01  # as in scripts/plasticity_criterion.py
 
 
 def runs(suite):
     out = {}
-    base = os.path.join(ROOT, "results", suite)
-    for lab in sorted(os.listdir(base)):
-        for p in sorted(glob.glob(os.path.join(base, lab, "seed*", "summary.json"))):
-            seed = int(os.path.basename(os.path.dirname(p))[4:])
-            out.setdefault(lab, {})[seed] = json.load(open(p))
+    for d in [suite] + EXTRA_DIRS.get(suite, []):
+        base = os.path.join(ROOT, "results", d)
+        for lab in sorted(os.listdir(base)):
+            for p in sorted(glob.glob(os.path.join(base, lab, "seed*", "summary.json"))):
+                seed = int(os.path.basename(os.path.dirname(p))[4:])
+                out.setdefault(lab, {})[seed] = json.load(open(p))
     return out
 
 
