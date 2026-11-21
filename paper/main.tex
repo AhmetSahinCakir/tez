@@ -238,8 +238,9 @@ After one step from a common starting point the two results differ by the oversh
 neither rescales the gradient. When steps are small relative to the width of the interval, a triangle-wave
 network and a clipped network with $\kappa=\gamma$ are therefore expected to follow nearly the same
 trajectory in $W$; the difference is that the constraint is part of the parameterization instead of a
-separate projection step. The two can separate when the step is large relative to the interval, which is the
-case for adaptive optimizers (Section~\ref{sec:scope}).
+separate projection step. The two can separate when the step is large relative to the interval, which can
+happen with adaptive optimizers; in our runs with Adam they did not differ on average
+(Section~\ref{sec:scope}).
 
 \subsection{Reflected sine: a surrogate gradient that removes the trapping}\label{sec:floor}
 
@@ -561,11 +562,16 @@ paired seeds, hyperparameters transferred from SGD without re-tuning). The stand
 $0.741$), every method improves on it, but the sine map ($0.826$) is now ahead of weight clipping ($0.791$)
 and the triangle wave ($0.792$). The two hard bounds still cannot be told apart on average, but their accuracy
 varies much more between seeds than under SGD, and neither keeps plasticity by our criterion. Under the
-hard bounds almost the whole first hidden layer dies ($92$--$93\%$ of its units). Adam normalizes the step
-size, so steps are not small relative to the interval and the argument of Section~\ref{sec:method} for
-``reflection $\approx$ projection'' does not apply; and the damping of the smooth map, harmful under SGD,
-acts as a per-parameter step-size reduction that Adam otherwise lacks. Our conclusion is thus specific to
-SGD-type updates: which boundary behaviour is preferable depends on the optimizer.
+hard bounds almost the whole first hidden layer dies ($92$--$93\%$ of its units). A follow-up test shows
+that most of this degradation is tied to the scale of the inputs, which lie in $[0,1]$ in all experiments
+above. With standardized inputs (five paired seeds, same hyperparameters; Table~\ref{tab:inputnorm}) the
+dead fraction of the first hidden layer under the hard bounds falls to $24\%$, both hard bounds meet the
+retention criterion in every seed (AUC $0.814$ for the triangle wave and $0.815$ for weight clipping), and the
+advantage of the sine map shrinks from $0.034$ to less than $0.01$. The sine map therefore stays slightly
+ahead under Adam. A possible reason, which we did not test, is that its damping acts as a per-parameter
+step-size reduction that Adam otherwise lacks. Our conclusion is thus specific to SGD-type updates: which
+boundary behaviour is preferable depends on the optimizer, and under Adam the size of the difference depends on
+how the inputs are scaled.
 
 \paragraph{Width of the network.} A network with three hidden layers of 2{,}000 units does not lose plasticity
 on the 200-task stream (retention $1.003$ for the standard network), and none of the bounded maps improves on
@@ -578,8 +584,9 @@ fully connected network. The causal test uses a surrogate gradient and the hyper
 selected on short development streams for all methods; a search at full length could change absolute values,
 although the large gaps between groups of methods make a change of ranking unlikely. Under the hard bounds
 dead units concentrate in the first hidden layer (about half of its units after 800 tasks) without harming
-accuracy under SGD; the same concentration coincides with the collapse under Adam, and we have not determined
-whether standardizing the inputs would remove it.
+accuracy under SGD. On the 200-task stream this concentration disappears when the inputs are standardized,
+with no change in AUC under SGD (Table~\ref{tab:inputnorm}); we did not repeat the 800-task experiments with
+standardized inputs.
 
 % ======================================================================================================
 \section{Conclusion}
@@ -826,6 +833,49 @@ earlier three-seed run, combining the sine map with continual backpropagation im
 ($+0.017$ and $+0.016$), which suggests that a bounded map and unit reinitialization address different
 symptoms. Because the hyperparameters were not re-tuned for Adam, this table is a transfer test and not a
 tuned comparison.
+
+\paragraph{Standardized inputs.} In all experiments above the inputs lie in $[0,1]$. Table~\ref{tab:inputnorm}
+repeats eight of the 200-task runs with inputs standardized by the mean and standard deviation of the MNIST
+training set, on seeds 0--4 of the same streams and with unchanged hyperparameters. Differences below are
+paired with the $[0,1]$-input runs of the same seeds.
+
+\begin{table}[h]
+  \centering\small
+  \caption{Online Permuted MNIST, 200 tasks $\times$ 5{,}000 examples, standardized inputs (five paired seeds,
+  mean $\pm$ 95\% interval; hyperparameters as for $[0,1]$ inputs). ``Dead, layer 1'': dead fraction of the
+  first hidden layer at the end of the stream, with the value for $[0,1]$ inputs on the same seeds in
+  brackets. ``Crit.'': number of seeds that meet the retention criterion.}
+  \label{tab:inputnorm}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{@{}llccccc@{}}
+    \toprule
+    Optimizer & Model & AUC & Final window & Retention & Dead, layer 1 & Crit.\\
+    \midrule
+    Adam & Sine            & $0.822\pm0.001$ & $0.823\pm0.002$ & $1.009\pm0.003$ & $0.05$ ($0.57$) & 5/5\\
+    Adam & Weight clipping & $0.815\pm0.002$ & $0.817\pm0.004$ & $1.013\pm0.004$ & $0.24$ ($0.93$) & 5/5\\
+    Adam & Triangle wave   & $0.814\pm0.001$ & $0.816\pm0.003$ & $1.013\pm0.005$ & $0.24$ ($0.93$) & 5/5\\
+    Adam & Tanh            & $0.785\pm0.004$ & $0.775\pm0.016$ & $0.956\pm0.019$ & $0.00$ ($0.19$) & 0/5\\
+    Adam & Standard        & $0.728\pm0.015$ & $0.696\pm0.026$ & $0.902\pm0.038$ & $0.00$ ($0.47$) & 0/5\\
+    \midrule
+    SGD  & Triangle wave   & $0.836\pm0.001$ & $0.835\pm0.001$ & $0.999\pm0.002$ & $0.00$ ($0.38$) & 5/5\\
+    SGD  & Weight clipping & $0.836\pm0.000$ & $0.834\pm0.001$ & $0.997\pm0.002$ & $0.00$ ($0.39$) & 4/5\\
+    SGD  & Standard        & $0.781\pm0.002$ & $0.752\pm0.002$ & $0.908\pm0.002$ & $0.00$ ($0.16$) & 0/5\\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+Under Adam, standardizing the inputs raises the AUC of the triangle wave by $0.024$ $[0.021,0.030]$ and of
+weight clipping by $0.024$ $[0.019,0.031]$, and the spread of the final-window accuracy over seeds falls from
+$0.015$ and $0.031$ to $0.002$ and $0.003$ (standard deviations, same five seeds). The sine map remains ahead in
+every seed. Its paired AUC difference to weight clipping is $0.0075$ $[0.0060,0.0090]$, and to the
+triangle wave $0.0088$ $[0.0080,0.0095]$. The two hard bounds differ by $-0.0013$ $[-0.0023,-0.0004]$ under Adam and by $+0.0003$
+$[-0.0002,+0.0008]$ under SGD. Standardization does not help every model: tanh under Adam loses $0.027$
+$[0.024,0.029]$ in AUC, and the standard network under Adam still loses plasticity, with dead units moving
+from the first hidden layer to the deeper ones (total dead fraction $0.58$). Under SGD the AUC of the hard
+bounds changes by $0.001$ and the standard network loses plasticity as before; the one weight-clipping seed
+that misses the criterion does so on the slope ($-0.00202$ per 100 tasks against a threshold of $-0.002$).
+This is a transfer test on five seeds of one stream, and it does not show that the results of the main
+experiments would be unchanged under standardized inputs.
 
 \section{Wide network}\label{app:wide}
 
