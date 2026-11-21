@@ -1353,3 +1353,63 @@ ilk katman ölümünün girdi ortalaması ve adım/sınır oranıyla açıklanma
 sınır koşulunu (soğurucu/yansıtıcı) belirlediği bir ayna iniş çerçevesi ve (iii) genişlik–ufuk–görev uzunluğu faz
 diyagramı not edilmiştir.
 
+
+## 15. İkinci veri akışı: Random Label MNIST (20–21 Kasım 2026) — olumsuz sonuç
+
+**Neden yapıldı.** Ana sonuç tek bir veri akışına (Online Permuted MNIST) dayanıyordu. Yöntemin başka bir
+esneklik kaybı düzeneğinde de işe yarayıp yaramadığını görmek için Kumar vd.'nin (CoLLAs 2024) Random Label MNIST
+akışı kuruldu (`configs/rlmnist.yaml`): 1.200 sabit MNIST görüntüsü, her görevde yeniden rastgele etiket, görev
+başına 400 tur, yığın boyutu 16, 50 görev. Ölçüt, görev boyunca bütün yığınlarda güncellemeden önce ölçülen
+ortalama doğruluktur (şans düzeyi 0.10). **Kaynaktan farkımız:** ağ ve başlangıç bu projenin ağıdır (3×100,
+Kaiming-uniform sınırı, sıfır yanlılık); kaynakta 2 gizli katman ve PyTorch varsayılan başlangıcı kullanılır.
+Eniyileyici SGD'dir.
+
+**Geliştirme taraması** (`suites/rlmnist_dev.yaml`, geliştirme akışı, tek tohum, 36 ayar;
+`reports/rlmnist_dev_hparams.md`). Sınırlı yöntemlerin her birine 8 ayar (4 öğrenme oranı × 2 sınır genişliği),
+standart ağa 4 öğrenme oranı. **36 ayarın hepsinde doğruluk 20–30. görevde şans düzeyine yaklaştı**; en iyi
+ayarların AUC'si 0.29–0.31. Seçilen ayarlar: standart ağ lr 0.001; sinüs γ = 2.5, lr 0.001; tanh γ = 1.5,
+lr 0.001; üçgen dalga γ = 1, lr 0.03; Weight Clipping κ = 2, lr 0.001. Beş seçimden dördü ızgaranın en küçük
+öğrenme oranıdır: seçim "en yavaş çöken" ayarı ödüllendirmiştir, esnekliği koruyan bir ayar bulunamamıştır.
+
+**Ana deney** (`suites/rlmnist_main.yaml`, değerlendirme akışları, 10 eşleştirilmiş tohum, 50 koşu, hepsi hatasız;
+`reports/rlmnist_main/`, `reports/rlmnist_main/rlmnist_tables.md`).
+
+| Model | n | AUC (50 görev ort.) | İlk 10 görev | Son 10 görev | Koruma oranı | Taze ağ farkı (son görev) | Ölü birim (son; L0 / L1 / L2) |
+|---|---:|---|---|---|---|---|---|
+| Üçgen dalga (γ = 1, lr 0.03) | 10 | 0.367 ± 0.027 | 0.720 ± 0.011 | 0.122 ± 0.023 | 0.170 ± 0.032 | +0.819 ± 0.024 | 1.00 / 0.94 / 0.91 |
+| Weight Clipping (κ = 2, lr 0.001) | 10 | 0.307 ± 0.031 | 0.615 ± 0.031 | 0.174 ± 0.039 | 0.282 ± 0.059 | +0.224 ± 0.041 | 0.91 / 0.50 / 0.04 |
+| Tanh (γ = 1.5, lr 0.001) | 10 | 0.292 ± 0.019 | 0.509 ± 0.018 | 0.168 ± 0.008 | 0.330 ± 0.020 | +0.144 ± 0.019 | 0.91 / 0.39 / 0.09 |
+| Sinüs (γ = 2.5, lr 0.001) | 10 | 0.286 ± 0.026 | 0.610 ± 0.026 | 0.161 ± 0.023 | 0.264 ± 0.038 | +0.217 ± 0.026 | 0.83 / 0.59 / 0.12 |
+| Standart (lr 0.001) | 10 | 0.253 ± 0.052 | 0.617 ± 0.053 | 0.151 ± 0.056 | 0.244 ± 0.081 | +0.246 ± 0.062 | 0.39 / 0.80 / 0.11 |
+
+_ortalama ± standart sapma (10 tohum). Koruma oranı = son pencere / erken pencere. Taze ağ farkı = aynı görevde
+sıfırdan başlatılan ağın doğruluğu − sürekli eğitilen ağın doğruluğu._
+
+Görev bazında ortalama doğruluk (1., 3., 5., 10., 20., 30., 50. görev): standart 0.40 → 0.77 → 0.75 → 0.41 →
+0.16 → 0.15 → 0.15; sinüs 0.38 → 0.73 → 0.71 → 0.49 → 0.22 → 0.18 → 0.16; tanh 0.31 → 0.53 → 0.59 → 0.48 → 0.29 →
+0.19 → 0.16; üçgen dalga 0.95 → 0.92 → 0.68 → 0.52 → 0.40 → 0.28 → 0.11; Weight Clipping 0.40 → 0.75 → 0.71 →
+0.48 → 0.28 → 0.20 → 0.17.
+
+**Okuma.**
+
+* **Hiçbir model esnekliği korumadı.** Son 10 görevde bütün modeller 0.12–0.17'dedir (şans 0.10); koruma oranı
+  0.17–0.33. 20. görevde doğruluğu 0.5'in üstünde kalan tek bir tohum yoktur (50 koşuda 0).
+* **Sınırlı ağırlık bu akışta işe yaramadı.** AUC farkları (standart ağa göre: üçgen dalga +0.113 [+0.077,
+  +0.145], kırpma +0.054 [+0.017, +0.086], tanh +0.039 [+0.005, +0.069], sinüs +0.033 [+0.001, +0.064]) esnekliğin
+  korunmasından değil, ilk görevlerdeki öğrenme hızından gelir: üçgen dalga için seçilen büyük öğrenme oranı
+  (0.03) ilk görevleri hızlı ezberletir (0.95), ama ağ sonra daha derin çöker (son pencerede standart ağın
+  0.029 altında; taze ağ farkı +0.82). Bu yüzden AUC sıralaması "hangi yöntem daha iyi" diye okunmamalıdır.
+* **Çöküşün biçimi PMNIST'tekinden farklı.** Ağırlıklar büyümüyor (ortalama |w| 0.06 → 0.08, bütün modellerde
+  aynı), sınırlı modellerde doygunluk yok (doymuş oran ≤ 0.002; ağırlıklar sınırın %27–64'ünde). Buna karşılık
+  birimler ölüyor: sınırlı modellerde ilk gizli katmanın %83–100'ü, standart ağda ikinci katmanın %80'i. Yani
+  bu akıştaki kayıp, bu tezin hedef aldığı ağırlık büyümesi mekanizmasından değil ölü birimlerden kaynaklanıyor
+  görünüyor; sınırlı harita ölü birimleri diriltmez (§9, §14.1'deki ilk katman ölümü gözlemiyle aynı yönde).
+* **Henüz bilinmeyen.** Bu olumsuz sonucun bizim kurulumumuza mı (3×100 ağ, sıfır yanlılık, [0, 1] aralığında
+  girdi, SGD) yoksa yönteme mi ait olduğu ayrılmamıştır. Bunun için bir kontrol zinciri koşmaktadır
+  (`suites/rlmnist_ctrl_dev.yaml`, `suites/rlmnist_ctrl_main.yaml`): (a) kaynak makalenin kendi yöntemi L2 Init
+  bu kurulumda esnekliği koruyor mu (pozitif kontrol; 8 ayar, sonra 10 tohum), (b) girdiler standartlaştırılınca
+  çöküş değişiyor mu (standart ağ ve üçgen dalga, tek tohum, tanılama). Sonuçlar bu bölüme eklenecektir.
+
+**Sonuç (şimdilik).** Tezin ve makalenin iddiası Online Permuted MNIST ile sınırlı kalmalıdır; Random Label
+MNIST'te sınırlı yeniden parametrizasyon esneklik kaybını önlememiştir. Bu, sınırlılıklar bölümüne olumsuz sonuç
+olarak yazılacaktır.
