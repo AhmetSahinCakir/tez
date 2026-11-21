@@ -1,0 +1,152 @@
+{
+ "suite": {
+  "name": "rlmnist_ctrl_main",
+  "base_config": "/home/user/tez/configs/rlmnist.yaml",
+  "workers": 2,
+  "stream_seed_offset": 0,
+  "selected_hparams": "suites/selected_rlmnist_ctrl.yaml",
+  "seeds": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9
+  ],
+  "runs": [
+   {
+    "label": "l2_init",
+    "overrides": {
+     "method.name": "l2_init"
+    }
+   }
+  ]
+ },
+ "suite_path": "/home/user/tez/suites/rlmnist_ctrl_main.yaml",
+ "jobs": [
+  {
+   "label": "l2_init",
+   "seed": 0,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed0",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 1,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed1",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 2,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed2",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 3,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed3",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 4,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed4",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 5,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed5",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 6,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed6",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 7,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed7",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 8,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed8",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  },
+  {
+   "label": "l2_init",
+   "seed": 9,
+   "out_dir": "/home/user/tez/results/rlmnist_ctrl_main/l2_init/seed9",
+   "overrides": {
+    "method.lam": 0.01,
+    "optimizer.lr": 0.01,
+    "method.name": "l2_init"
+   },
+   "sweep": {},
+   "stream_seed_offset": 0
+  }
+ ]
+}
