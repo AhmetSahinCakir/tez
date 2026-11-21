@@ -1413,3 +1413,66 @@ Görev bazında ortalama doğruluk (1., 3., 5., 10., 20., 30., 50. görev): stan
 **Sonuç (şimdilik).** Tezin ve makalenin iddiası Online Permuted MNIST ile sınırlı kalmalıdır; Random Label
 MNIST'te sınırlı yeniden parametrizasyon esneklik kaybını önlememiştir. Bu, sınırlılıklar bölümüne olumsuz sonuç
 olarak yazılacaktır.
+
+## 16. Girdi standardizasyonu testi: Permuted MNIST, 200 görev (20–21 Kasım 2026)
+
+**Soru.** §14.1'de (Adam) ve 800 görevlik akışta (§14.2) sert sınırlı modellerde (üçgen dalga, Weight Clipping)
+ölü birimlerin ilk gizli katmanda toplandığı, Adam altında bu iki modelin esnekliği koruyamadığı görülmüştü.
+Bütün PMNIST deneylerimizde girdiler [0, 1] aralığındadır (standartlaştırılmamış). Makale taslağında "girdileri
+standartlaştırmak bunu giderir mi, bilmiyoruz" diye açık bırakılan nokta buydu.
+
+**Kurulum** (`suites/pmnist_inputnorm.yaml`; `reports/pmnist_inputnorm/`). Aynı 200 görev × 5.000 örnek akışı,
+aynı ağ ve aynı ayarlar; tek değişiklik girdilerin MNIST ortalaması ve standart sapmasıyla standartlaştırılması
+(`stream.normalize: standard`). Sekiz koşul × 5 tohum (0–4) = 40 koşu, hepsi hatasız bitti. Ayarlar yeniden
+taranmadı: bu bir aktarım testidir. Karşılaştırma, aynı tohumların [0, 1] girdili koşularıyla eşleştirilmiştir
+(`results/pmnist_adam10`, `results/pmnist_main`; `scripts/inputnorm_compare.py`).
+
+| Model | Girdi | AUC | Son pencere | Koruma oranı | Taze ağ farkı | Ölü oran, 1. katman (10. görev → son) | Ölü oran, tümü | Ölçüt |
+|---|---|---|---|---|---|---|---|---|
+| Adam, üçgen dalga | [0, 1] | 0.789 ± 0.007 | 0.785 ± 0.015 | 0.978 | +0.037 | 0.84 → 0.93 | 0.35 | 0/5 |
+| Adam, üçgen dalga | standart | 0.814 ± 0.001 | 0.816 ± 0.002 | 1.013 | −0.021 | 0.19 → 0.24 | 0.35 | 5/5 |
+| Adam, Weight Clipping | [0, 1] | 0.791 ± 0.008 | 0.781 ± 0.031 | 0.967 | +0.060 | 0.82 → 0.93 | 0.35 | 1/5 |
+| Adam, Weight Clipping | standart | 0.815 ± 0.002 | 0.817 ± 0.003 | 1.013 | −0.019 | 0.18 → 0.24 | 0.38 | 5/5 |
+| Adam, sinüs | [0, 1] | 0.825 ± 0.002 | 0.826 ± 0.003 | 0.997 | −0.004 | 0.58 → 0.57 | 0.36 | 3/5 |
+| Adam, sinüs | standart | 0.822 ± 0.001 | 0.823 ± 0.001 | 1.009 | −0.016 | 0.05 → 0.05 | 0.32 | 5/5 |
+| Adam, tanh | [0, 1] | 0.811 ± 0.001 | 0.806 ± 0.004 | 0.973 | +0.028 | 0.48 → 0.19 | 0.26 | 0/5 |
+| Adam, tanh | standart | 0.785 ± 0.004 | 0.775 ± 0.013 | 0.956 | +0.043 | 0.02 → 0.00 | 0.41 | 0/5 |
+| Adam, standart ağ | [0, 1] | 0.739 ± 0.007 | 0.705 ± 0.009 | 0.873 | +0.126 | 0.57 → 0.47 | 0.68 | 0/5 |
+| Adam, standart ağ | standart | 0.728 ± 0.012 | 0.696 ± 0.021 | 0.902 | +0.125 | 0.04 → 0.00 | 0.58 | 0/5 |
+| SGD, üçgen dalga | [0, 1] | 0.837 ± 0.002 | 0.840 ± 0.002 | 1.018 | −0.075 | 0.01 → 0.38 | 0.14 | 5/5 |
+| SGD, üçgen dalga | standart | 0.836 ± 0.001 | 0.835 ± 0.001 | 0.999 | −0.016 | 0.00 → 0.00 | 0.04 | 5/5 |
+| SGD, Weight Clipping | [0, 1] | 0.836 ± 0.000 | 0.839 ± 0.002 | 1.017 | −0.077 | 0.00 → 0.39 | 0.15 | 5/5 |
+| SGD, Weight Clipping | standart | 0.836 ± 0.000 | 0.834 ± 0.001 | 0.997 | −0.007 | 0.00 → 0.00 | 0.05 | 4/5 |
+| SGD, standart ağ | [0, 1] | 0.775 ± 0.001 | 0.745 ± 0.003 | 0.908 | +0.022 | 0.01 → 0.16 | 0.16 | 0/5 |
+| SGD, standart ağ | standart | 0.781 ± 0.001 | 0.752 ± 0.002 | 0.908 | +0.081 | 0.00 → 0.00 | 0.17 | 0/5 |
+
+_Ortalama ± standart sapma, 5 tohum (0–4). "Ölçüt": üç parçalı koruma ölçütünü (koruma oranı ≥ 0.99, eğim ≥
+−0.002/100 görev, taze ağ farkı ≤ 0.01) sağlayan tohum sayısı._
+
+**Okuma.**
+
+* **İlk katmandaki birim ölümü girdinin [0, 1] aralığında olmasına bağlıdır.** Girdiler standartlaştırılınca
+  SGD altında ilk katmanda ölü birim kalmıyor (0.38–0.39 → 0.00); Adam altında sert sınırlı modellerde 0.93'ten
+  0.24'e iniyor (eşleştirilmiş fark −0.69 [−0.74, −0.64] ve −0.68 [−0.72, −0.62]).
+* **Adam altında sert sınırlı modeller artık esnekliği koruyor.** Üçgen dalga ve Weight Clipping standart
+  girdilerle 5/5 tohumda ölçütü sağlıyor; AUC kazancı +0.024 [+0.021, +0.030] ve +0.024 [+0.019, +0.031], tohumlar
+  arası saçılım da kayboluyor (son pencere standart sapması 0.015/0.031 → 0.002/0.003). Yani §14.1'de gördüğümüz
+  "Adam altında sert sınırlar esnekliği koruyamıyor" bulgusu yöntemin Adam ile uyumsuzluğundan çok girdi
+  ölçeğine bağlıydı.
+* **Adam altında sinüs hâlâ biraz önde, ama fark küçüldü.** Sinüs − Weight Clipping +0.0075 [+0.0060, +0.0090],
+  sinüs − üçgen dalga +0.0088 [+0.0080, +0.0095] (5 tohumun hepsinde pozitif); [0, 1] girdilerle bu fark 0.034
+  idi. Sıralama (sinüs > sert sınırlar) Adam altında değişmedi, büyüklüğü dörtte bire indi.
+* **Üçgen dalga ile Weight Clipping yine ayırt edilemiyor.** Adam: −0.0013 [−0.0023, −0.0004]; SGD: +0.0003
+  [−0.0002, +0.0008] (ikisi de 0.005 payının içinde; 5 tohum).
+* **SGD sonuçları değişmedi.** Üçgen dalga ve Weight Clipping için AUC farkı −0.001; standart ağ aynı biçimde
+  esneklik kaybediyor (koruma oranı 0.908). SGD altında Weight Clipping'in bir tohumu ölçütü kıl payı kaçırdı
+  (eğim −0.00202, eşik −0.002); koruma oranı ve taze ağ farkı o tohumda da eşiğin içinde.
+* **Standartlaştırma her modele yaramıyor.** Adam + tanh geriledi (−0.027 [−0.029, −0.024]; doymuş ağırlık oranı
+  0.64), Adam + standart ağ yine çöküyor (ilk katmandaki ölüm kayboluyor ama toplam ölü oran 0.58: ölüm derin
+  katmanlara kayıyor).
+
+**Sınırlar.** 5 tohum, tek veri akışı (200 görev), ayarlar yeniden taranmadı; 800 görevlik akış standart
+girdilerle tekrarlanmadı. Bu yüzden sonuç "ilk katman ölümü ve Adam altındaki bozulma girdi ölçeğine bağlıdır"
+düzeyinde yazılmalı; "standart girdilerle her şey düzelir" denmemelidir. Makale taslağındaki ana deneyler
+[0, 1] girdilerle yapılmıştır ve öyle raporlanmaya devam edecektir; bu test kapsam/sınırlılık bölümüne
+eklenmiştir.
